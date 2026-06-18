@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 var (
@@ -68,8 +69,15 @@ func toGoName(s string) string {
 }
 
 type Schema struct {
-	Type       string                 `json:"type"`
-	Properties map[string]interface{} `json:"properties"`
+	Type        string                 `json:"type"`
+	Properties  map[string]interface{} `json:"properties"`
+	Description string                 `json:"description"`
+	Title       string                 `json:"title"`
+}
+
+type PathItem struct {
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
 }
 type ReqBody struct {
 	Content map[string]struct {
@@ -77,7 +85,40 @@ type ReqBody struct {
 	} `json:"content"`
 }
 
+func truncateRunes(s string, maxLen int) string {
+	runes := []rune(s)
+	if len(runes) <= maxLen {
+		return s
+	}
+	return string(runes[:maxLen]) + "..."
+}
+
+func sanitizeComment(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	s = strings.ReplaceAll(s, "\t", " ")
+	var clean []byte
+	for i := 0; i < len(s); {
+		r, size := utf8.DecodeRuneInString(s[i:])
+		if r == utf8.RuneError && size <= 1 {
+			i++
+			continue
+		}
+		clean = append(clean, []byte(string(r))...)
+		i += size
+	}
+	s = string(clean)
+	for strings.Contains(s, "  ") {
+		s = strings.ReplaceAll(s, "  ", " ")
+	}
+	return strings.TrimSpace(truncateRunes(s, 120))
+}
+
 func appendType(out *[]string, name string, s Schema, cache map[string]string) {
+	if s.Description != "" {
+		*out = append(*out, fmt.Sprintf("// %s", sanitizeComment(s.Description)))
+	}
 	if s.Properties == nil || len(s.Properties) == 0 {
 		switch s.Type {
 		case "array": *out = append(*out, fmt.Sprintf("type %s []interface{}", name))
@@ -93,7 +134,7 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string) {
 	*out = append(*out, fmt.Sprintf("type %s struct {", name))
 	for pn, pv := range s.Properties {
 		pr, _ := json.Marshal(pv)
-		var p struct{ Ref, Type, Format string }
+		var p struct{ Ref, Type, Format, Description string }
 		json.Unmarshal(pr, &p)
 		fn := toGoName(pn)
 		ft := "interface{}"
@@ -107,7 +148,14 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string) {
 		} else if p.Type == "object" { ft = "map[string]interface{}" }
 		jtag := pn
 		if pn == "type" { jtag = "type_" }
-		*out = append(*out, fmt.Sprintf("\t%s %s `json:\"%s\"`", fn, ft, jtag))
+		line := fmt.Sprintf("\t%s %s `json:\"%s\"`", fn, ft, jtag)
+		if p.Description != "" {
+			comment := sanitizeComment(p.Description)
+			if comment != "" {
+				line += fmt.Sprintf(" // %s", comment)
+			}
+		}
+		*out = append(*out, line)
 	}
 	*out = append(*out, "}", "")
 }
@@ -144,7 +192,7 @@ func main() {
 		}
 	}
 
-	type Method struct{ Dir, Name, HTTPM, Path, ReqT, RespT string }
+	type Method struct{ Dir, Name, HTTPM, Path, ReqT, RespT, Summary string }
 	dirMethods := map[string][]Method{}
 	dirDirectTypes := map[string]map[string]bool{}
 	methodNames := map[string]bool{}
@@ -152,6 +200,8 @@ func main() {
 	for path, items := range paths {
 		for httpM, raw := range items {
 			var item struct {
+				Summary     string                    `json:"summary"`
+				Description string                    `json:"description"`
 				OperationID string                    `json:"operationId"`
 				Tags        []string                  `json:"tags"`
 				RequestBody *json.RawMessage           `json:"requestBody"`
@@ -201,7 +251,7 @@ func main() {
 				}
 			}
 			methodNames[dir+":"+name] = true
-			dirMethods[dir] = append(dirMethods[dir], Method{dir, name, strings.ToUpper(httpM), path, reqT, respT})
+			dirMethods[dir] = append(dirMethods[dir], Method{dir, name, strings.ToUpper(httpM), path, reqT, respT, item.Summary})
 		}
 	}
 
@@ -305,6 +355,9 @@ func main() {
 		ml = append(ml, fmt.Sprintf("import (%s)", imports), "")
 		ml = append(ml, "type Service struct { Client *transport.Client }", "")
 		for _, m := range methods {
+			if m.Summary != "" {
+				ml = append(ml, fmt.Sprintf("// %s", sanitizeComment(m.Summary)))
+			}
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)
 			pkg := ""
 			if m.ReqT != "" {
