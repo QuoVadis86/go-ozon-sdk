@@ -22,6 +22,42 @@ const (
 	HeaderContentType = "application/json"
 	HeaderClientID    = "Client-Id"
 	HeaderAPIKey      = "Api-Key"
+
+	// Common error codes (applies to all endpoints)
+	ErrCircleIsOpen        = "Circle is open"
+	ErrInternal            = "Internal error"
+	ErrInvalidAPIKey       = "Invalid Api-Key"
+	ErrAPIKeyDeactivated   = "Api-key is deactivated"
+	ErrMissingRole         = "Api-Key is missing a required role"
+	ErrIPRestricted        = "Api-Key is restricted to specific IP addresses"
+	ErrRateLimit           = "You have reached request rate limit per second"
+	ErrPriceUpdateLimit    = "error limiting: acquire limit per item"
+	ErrMethodNotAllowed    = "method is not allowed"
+	ErrOfferNotFound       = "offer_id_not_found"
+	ErrWarehouseNotFound   = "WAREHOUSE_NOT_FOUND"
+	ErrProductNotCreated   = "product_is_not_created"
+	ErrStockTooBig         = "STOCK_TOO_BIG"
+	ErrNotFound            = "NOT_FOUND_ERROR"
+	ErrTooManyRequests     = "TOO_MANY_REQUESTS"
+	ErrInvalidCategoryPrice = "invalid_category_price"
+	ErrPriceNegative       = "price_negative"
+
+	// Product import error codes
+	ErrSPUAlreadyExists    = "SPU_already_exists"
+	ErrInvalidDensity      = "Incorrect_density"
+	ErrMissingDimension    = "missing_dimension"
+	ErrCategoryInvalid     = "description_category_invalid"
+	ErrNameTooLong         = "name_too_long"
+	ErrAllImageFailed      = "all_image_failed"
+	ErrPriceOutOfRange     = "price_out_of_range"
+
+	// FBS posting error codes
+	ErrPostingNotFound      = "POSTING_NOT_FOUND"
+	ErrPostingAlreadyShip   = "POSTING_ALREADY_SHIPPED"
+	ErrPostingAlreadyCancel = "POSTING_ALREADY_CANCELLED"
+	ErrIncorrectStatus      = "HAS_INCORRECT_STATUS"
+	ErrTransitionNotPossible = "TRANSITION_IS_NOT_POSSIBLE"
+	ErrInvalidCancelReason  = "HAS_INCORRECT_CANCEL_REASON"
 )
 
 type Client struct {

@@ -192,7 +192,11 @@ func main() {
 		}
 	}
 
-	type Method struct{ Dir, Name, HTTPM, Path, ReqT, RespT, Summary string }
+	type Method struct {
+		Dir, Name, HTTPM, Path, ReqT, RespT, Summary string
+		Deprecated bool
+		ReplaceWith string
+	}
 	dirMethods := map[string][]Method{}
 	dirDirectTypes := map[string]map[string]bool{}
 	methodNames := map[string]bool{}
@@ -204,6 +208,7 @@ func main() {
 				Description string                    `json:"description"`
 				OperationID string                    `json:"operationId"`
 				Tags        []string                  `json:"tags"`
+				Deprecated  bool                      `json:"deprecated"`
 				RequestBody *json.RawMessage           `json:"requestBody"`
 				Responses   map[string]json.RawMessage `json:"responses"`
 			}
@@ -251,7 +256,29 @@ func main() {
 				}
 			}
 			methodNames[dir+":"+name] = true
-			dirMethods[dir] = append(dirMethods[dir], Method{dir, name, strings.ToUpper(httpM), path, reqT, respT, item.Summary})
+			replaceWith := ""
+			desc := item.Description
+			isDep := item.Deprecated || strings.Contains(desc, "停用") || strings.Contains(desc, "弃用")
+			if isDep && !item.Deprecated {
+				item.Deprecated = true
+			}
+			if isDep {
+				// Extract replacement endpoint from HTML: <a href="...">/path/to/endpoint</a>
+				if idx := strings.Index(desc, "\">/"); idx > 0 {
+					pathStart := idx + 2
+					pathEnd := strings.Index(desc[pathStart:], "</a>")
+					if pathEnd > 0 {
+						replaceWith = desc[pathStart : pathStart+pathEnd]
+					}
+				}
+			}
+
+			dirMethods[dir] = append(dirMethods[dir], Method{
+				Dir: dir, Name: name, HTTPM: strings.ToUpper(httpM),
+				Path: path, ReqT: reqT, RespT: respT,
+				Summary: item.Summary, Deprecated: item.Deprecated,
+				ReplaceWith: replaceWith,
+			})
 		}
 	}
 
@@ -355,6 +382,13 @@ func main() {
 		ml = append(ml, fmt.Sprintf("import (%s)", imports), "")
 		ml = append(ml, "type Service struct { Client *transport.Client }", "")
 		for _, m := range methods {
+			if m.Deprecated {
+				depMsg := "use " + m.ReplaceWith + " instead"
+				if m.ReplaceWith == "" {
+					depMsg = "this method is deprecated and will be removed"
+				}
+				ml = append(ml, fmt.Sprintf("// Deprecated: %s", sanitizeComment(depMsg)))
+			}
 			if m.Summary != "" {
 				ml = append(ml, fmt.Sprintf("// %s", sanitizeComment(m.Summary)))
 			}

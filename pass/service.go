@@ -61,6 +61,15 @@ func (s *Service) PassList(ctx context.Context, req *ArrivalpassArrivalPassListR
 	return &resp, nil
 }
 
+// 更新通行证
+func (s *Service) CarriagePassUpdate(ctx context.Context, req *SellerSellerAPIArrivalPassUpdateRequest) error {
+	err := s.Client.Post(ctx, "/v1/carriage/pass/update", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // 创建退货通行证
 func (s *Service) ReturnPassCreate(ctx context.Context, req *ArrivalpassArrivalPassCreateRequest) (*ArrivalpassArrivalPassCreateResponse, error) {
 	var resp ArrivalpassArrivalPassCreateResponse
@@ -69,13 +78,4 @@ func (s *Service) ReturnPassCreate(ctx context.Context, req *ArrivalpassArrivalP
 		return nil, err
 	}
 	return &resp, nil
-}
-
-// 更新通行证
-func (s *Service) CarriagePassUpdate(ctx context.Context, req *SellerSellerAPIArrivalPassUpdateRequest) error {
-	err := s.Client.Post(ctx, "/v1/carriage/pass/update", req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
 }
