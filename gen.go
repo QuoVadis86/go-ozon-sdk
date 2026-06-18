@@ -530,6 +530,7 @@ func main() {
 		schemas[n] = s
 	}
 	cache := map[string]string{}
+	nameCollisions := map[string]string{}
 	svcPrefixes := []string{"product", "finance", "warehouse", "seller", "fbs", "fbo", "promo", "beta", "premium", "pass", "returns", "review", "chat", "barcode", "rating", "delivery", "report", "category", "certificate"}
 	for n := range comps.Schemas {
 		stripped := n
@@ -549,8 +550,29 @@ func main() {
 				break
 			}
 		}
-		cache[n] = toCamel(stripped)
+		baseName := toCamel(stripped)
+		// Strip redundant suffixes from the end only
+		shortName := baseName
+		for strings.HasSuffix(shortName, "Enum") || strings.HasSuffix(shortName, "List") {
+			if strings.HasSuffix(shortName, "Enum") {
+				shortName = shortName[:len(shortName)-4]
+			} else {
+				shortName = shortName[:len(shortName)-4]
+			}
+		}
+		if shortName == "" {
+			shortName = baseName
+		}
+		// Track name collisions: if two schemas map to the same short name, keep base for both
+		if prev, exists := nameCollisions[shortName]; exists && prev != n {
+			cache[n] = baseName
+		} else {
+			cache[n] = shortName
+			nameCollisions[shortName] = n
+		}
 	}
+
+	// Name collision tracking continues in per-directory generation below
 
 	depOf := map[string]map[string]bool{}
 	for sname, s := range schemas {

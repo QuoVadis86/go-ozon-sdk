@@ -8,19 +8,7 @@ type ListFBSRatingIndexPostingsV1RequestFilter struct {
 }
 
 // 错误类型： - `UNSPECIFIED`——未指定； - `SELLER_CANCELLATION`——卖家取消； - `SELLER_DELAY`——卖家逾期。
-type PostingErrorTypeEnum string
-
-// ProductPriceCurrencyCode values
-type ProductPriceCurrencyCode string
-
-const (
-	ProductPriceCurrencyCodeRUB ProductPriceCurrencyCode = "RUB" // 俄罗斯卢布
-	ProductPriceCurrencyCodeBYN ProductPriceCurrencyCode = "BYN" // 白俄罗斯卢布
-	ProductPriceCurrencyCodeKZT ProductPriceCurrencyCode = "KZT" // 坚戈
-	ProductPriceCurrencyCodeEUR ProductPriceCurrencyCode = "EUR" // 欧元
-	ProductPriceCurrencyCodeUSD ProductPriceCurrencyCode = "USD" // 美元
-	ProductPriceCurrencyCodeCNY ProductPriceCurrencyCode = "CNY" // 人民币
-)
+type PostingErrorType string
 
 // ChargePriceCurrencyCode values
 type ChargePriceCurrencyCode string
@@ -43,18 +31,30 @@ const (
 	DeliverySchemaErFBS DeliverySchema = "erFBS"
 )
 
+// ProductPriceCurrencyCode values
+type ProductPriceCurrencyCode string
+
+const (
+	ProductPriceCurrencyCodeRUB ProductPriceCurrencyCode = "RUB" // 俄罗斯卢布
+	ProductPriceCurrencyCodeBYN ProductPriceCurrencyCode = "BYN" // 白俄罗斯卢布
+	ProductPriceCurrencyCodeKZT ProductPriceCurrencyCode = "KZT" // 坚戈
+	ProductPriceCurrencyCodeEUR ProductPriceCurrencyCode = "EUR" // 欧元
+	ProductPriceCurrencyCodeUSD ProductPriceCurrencyCode = "USD" // 美元
+	ProductPriceCurrencyCodeCNY ProductPriceCurrencyCode = "CNY" // 人民币
+)
+
 type ListFBSRatingIndexPostingsV1ResponseError struct {
-	ChargePriceCurrencyCode  ChargePriceCurrencyCode  `json:"charge_price_currency_code"` // 错误处理费用的币种代码： - `RUB`——俄罗斯卢布， - `BYN`——白俄罗斯卢布， - `KZT`——坚戈， - `EUR`——欧元， - `USD`——美元， - `CNY`——人民币。
-	DeliverySchema           DeliverySchema           `json:"delivery_schema"`            // 配送方案： - `FBS`, - `rFBS`, - `erFBS`.
-	ErrorAt                  string                   `json:"error_at"`                   // 出现错误的日期。
-	PostingErrorType         PostingErrorTypeEnum     `json:"posting_error_type"`
+	ChargePrice              float64                  `json:"charge_price"`     // 错误处理费用金额。
+	HasGraceStatus           bool                     `json:"has_grace_status"` // `true`，表示货件享有优惠状态。
+	Index                    float64                  `json:"index"`            // 错误指数的数值。
+	PostingErrorType         PostingErrorType         `json:"posting_error_type"`
+	ChargePercent            float64                  `json:"charge_percent"`              // 处理费用占货件价值的百分比。
+	ChargePriceCurrencyCode  ChargePriceCurrencyCode  `json:"charge_price_currency_code"`  // 错误处理费用的币种代码： - `RUB`——俄罗斯卢布， - `BYN`——白俄罗斯卢布， - `KZT`——坚戈， - `EUR`——欧元， - `USD`——美元， - `CNY`——人民币。
+	DeliverySchema           DeliverySchema           `json:"delivery_schema"`             // 配送方案： - `FBS`, - `rFBS`, - `erFBS`.
+	ErrorAt                  string                   `json:"error_at"`                    // 出现错误的日期。
 	PostingNumber            string                   `json:"posting_number"`              // 货件编号。
 	ProductPrice             float64                  `json:"product_price"`               // 货件中的商品价值。
 	ProductPriceCurrencyCode ProductPriceCurrencyCode `json:"product_price_currency_code"` // 商品价值的币种代码： - `RUB`——俄罗斯卢布， - `BYN`——白俄罗斯卢布， - `KZT`——坚戈， - `EUR`——欧元， - `USD`——美元， - `CNY`——人民币。
-	ChargePercent            float64                  `json:"charge_percent"`              // 处理费用占货件价值的百分比。
-	HasGraceStatus           bool                     `json:"has_grace_status"`            // `true`，表示货件享有优惠状态。
-	Index                    float64                  `json:"index"`                       // 错误指数的数值。
-	ChargePrice              float64                  `json:"charge_price"`                // 错误处理费用金额。
 }
 
 type V1ListFBSRatingIndexPostingsV1Response struct {
@@ -70,16 +70,16 @@ type GetFBSRatingIndexInfoV1ResponseIndexDynamics struct {
 }
 
 type V1GetFBSRatingIndexInfoV1Response struct {
-	CurrencyCode       string                                         `json:"currency_code"`        // 错误处理费用的币种代码。
 	Defects            []GetFBSRatingIndexInfoV1ResponseIndexDynamics `json:"defects"`              // 按天计算的错误指数。
 	Index              float64                                        `json:"index"`                // 周期内的错误指数数值。
 	PeriodFrom         string                                         `json:"period_from"`          // 计算周期开始日期（格式`YYYY-MM-DD`）。
 	PeriodTo           string                                         `json:"period_to"`            // 计算周期结束日期（格式`YYYY-MM-DD`）。
 	ProcessingCostsSum float64                                        `json:"processing_costs_sum"` // 周期内的错误处理费用。
+	CurrencyCode       string                                         `json:"currency_code"`        // 错误处理费用的币种代码。
 }
 
 type V1ListFBSRatingIndexPostingsV1Request struct {
-	Filter ListFBSRatingIndexPostingsV1RequestFilter `json:"filter"`
-	Limit  int64                                     `json:"limit"`  // 返回结果中的数值数量。
 	Cursor string                                    `json:"cursor"` // 用于获取下一批数据的指针。
+	Filter ListFBSRatingIndexPostingsV1RequestFilter `json:"filter"`
+	Limit  int64                                     `json:"limit"` // 返回结果中的数值数量。
 }

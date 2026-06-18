@@ -17,6 +17,16 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
+func TestSellerOzonLogisticsInfo(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerOzonLogisticsInfo(ctx)
+	if err != nil {
+		t.Fatalf("SellerOzonLogisticsInfo() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestSellerInfo(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -33,16 +43,6 @@ func TestRolesByToken(t *testing.T) {
 	resp, err := svc.RolesByToken(ctx)
 	if err != nil {
 		t.Fatalf("RolesByToken() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerOzonLogisticsInfo(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerOzonLogisticsInfo(ctx)
-	if err != nil {
-		t.Fatalf("SellerOzonLogisticsInfo() error: %v", err)
 	}
 	_ = resp
 }

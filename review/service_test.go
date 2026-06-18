@@ -17,49 +17,12 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestDelete(t *testing.T) {
+func TestCommentCreate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.Delete(ctx, &V1QuestionAnswerDeleteRequest{})
-	_ = err
-}
-
-func TestReviewList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ReviewList(ctx, &V1ReviewListRequest{})
+	resp, err := svc.CommentCreate(ctx, &V1CommentCreateRequest{})
 	if err != nil {
-		t.Fatalf("ReviewList() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestReviewCount(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ReviewCount(ctx)
-	if err != nil {
-		t.Fatalf("ReviewCount() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.List(ctx, &V1QuestionListRequest{})
-	if err != nil {
-		t.Fatalf("List() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestReviewListV2(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ReviewListV2(ctx, &V2ReviewListV2Request{})
-	if err != nil {
-		t.Fatalf("ReviewListV2() error: %v", err)
+		t.Fatalf("CommentCreate() error: %v", err)
 	}
 	_ = resp
 }
@@ -74,12 +37,49 @@ func TestTopSku(t *testing.T) {
 	_ = resp
 }
 
-func TestCreate(t *testing.T) {
+func TestReviewChangeStatus(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Create(ctx, &V1QuestionAnswerCreateRequest{})
+	err := svc.ReviewChangeStatus(ctx, &V1ReviewChangeStatusRequest{})
+	_ = err
+}
+
+func TestReviewCount(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ReviewCount(ctx)
 	if err != nil {
-		t.Fatalf("Create() error: %v", err)
+		t.Fatalf("ReviewCount() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestInfo(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.Info(ctx, &V1QuestionInfoRequest{})
+	if err != nil {
+		t.Fatalf("Info() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.List(ctx, &V1QuestionAnswerListRequest{})
+	if err != nil {
+		t.Fatalf("List() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestListV1(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ListV1(ctx, &V1QuestionListRequest{})
+	if err != nil {
+		t.Fatalf("ListV1() error: %v", err)
 	}
 	_ = resp
 }
@@ -94,22 +94,29 @@ func TestReviewInfo(t *testing.T) {
 	_ = resp
 }
 
-func TestListV1(t *testing.T) {
+func TestReviewListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ListV1(ctx, &V1QuestionAnswerListRequest{})
+	resp, err := svc.ReviewListV2(ctx, &V2ReviewListV2Request{})
 	if err != nil {
-		t.Fatalf("ListV1() error: %v", err)
+		t.Fatalf("ReviewListV2() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestCommentCreate(t *testing.T) {
+func TestCommentDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.CommentCreate(ctx, &V1CommentCreateRequest{})
+	err := svc.CommentDelete(ctx, &V1CommentDeleteRequest{})
+	_ = err
+}
+
+func TestCreate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.Create(ctx, &V1QuestionAnswerCreateRequest{})
 	if err != nil {
-		t.Fatalf("CommentCreate() error: %v", err)
+		t.Fatalf("Create() error: %v", err)
 	}
 	_ = resp
 }
@@ -121,20 +128,10 @@ func TestChangeStatus(t *testing.T) {
 	_ = err
 }
 
-func TestCount(t *testing.T) {
+func TestDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Count(ctx)
-	if err != nil {
-		t.Fatalf("Count() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestCommentDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.CommentDelete(ctx, &V1CommentDeleteRequest{})
+	err := svc.Delete(ctx, &V1QuestionAnswerDeleteRequest{})
 	_ = err
 }
 
@@ -148,19 +145,22 @@ func TestCommentList(t *testing.T) {
 	_ = resp
 }
 
-func TestReviewChangeStatus(t *testing.T) {
+func TestReviewList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.ReviewChangeStatus(ctx, &V1ReviewChangeStatusRequest{})
-	_ = err
+	resp, err := svc.ReviewList(ctx, &V1ReviewListRequest{})
+	if err != nil {
+		t.Fatalf("ReviewList() error: %v", err)
+	}
+	_ = resp
 }
 
-func TestInfo(t *testing.T) {
+func TestCount(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Info(ctx, &V1QuestionInfoRequest{})
+	resp, err := svc.Count(ctx)
 	if err != nil {
-		t.Fatalf("Info() error: %v", err)
+		t.Fatalf("Count() error: %v", err)
 	}
 	_ = resp
 }
