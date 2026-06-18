@@ -61,14 +61,7 @@ type GetProductAttributesResponsePdf struct {
 	Name     string `json:"name"`      // 文件名称。
 }
 
-// DimensionUnit values
-type DimensionUnit string
-
-const (
-	DimensionUnitMm DimensionUnit = "mm" // 毫米
-	DimensionUnitCm DimensionUnit = "cm" // 厘米
-	DimensionUnitIn DimensionUnit = "in" // 英寸
-)
+type DimensionUnit = enum.DimensionUnit
 
 type V3GetProductAttributesV3ResponseResult struct {
 	Barcode               string                                           `json:"barcode"`                 // 条形码。
@@ -194,14 +187,7 @@ type Vat = enum.Vat
 
 type CurrencyCode = enum.CurrencyCode
 
-// WeightUnit values
-type WeightUnit string
-
-const (
-	WeightUnitG  WeightUnit = "g"  // 克
-	WeightUnitKg WeightUnit = "kg" // 公斤
-	WeightUnitLb WeightUnit = "lb" // 磅
-)
+type WeightUnit = enum.WeightUnit
 
 type V3ImportProductsRequestItem struct {
 	Weight                   int32                                     `json:"weight"`                      // 含包装的商品重量。 限值为1000公斤或其他换算值 计量单位。
