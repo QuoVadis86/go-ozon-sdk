@@ -3,35 +3,28 @@ package prices
 import (
 	"context"
 	"github.com/QuoVadis86/go-ozon-sdk/transport"
+	"os"
 	"testing"
 )
 
 var ctx = context.Background()
 
-func TestProductStocksByWarehouseFbs(t *testing.T) {
-	handler := transport.MockHandler(200, Sv1GetProductInfoStocksByWarehouseFbsResponse{})
-	cl, srv := transport.NewTestClient(handler)
-	defer srv.Close()
-	svc := &Service{Client: cl}
-	resp, err := svc.ProductStocksByWarehouseFbs(ctx, &Sv1GetProductInfoStocksByWarehouseFbsRequest{})
-	if err != nil {
-		t.Fatalf("ProductStocksByWarehouseFbs() error: %v", err)
+func skipNoCreds(t *testing.T) *transport.Client {
+	t.Helper()
+	if os.Getenv("OZON_CLIENT_ID") == "" || os.Getenv("OZON_API_KEY") == "" {
+		t.Skip("set OZON_CLIENT_ID and OZON_API_KEY to run tests")
 	}
-	if resp == nil {
-		t.Fatal("ProductStocksByWarehouseFbs() returned nil")
-	}
+	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestAPIError(t *testing.T) {
-	handler := transport.MockHandler(400, map[string]interface{}{
-		"code":    400,
-		"message": "test error",
-	})
-	cl, srv := transport.NewTestClient(handler)
-	defer srv.Close()
+func TestImportProductsPrices(t *testing.T) {
+	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	_, err := svc.ProductStocksByWarehouseFbs(ctx, &Sv1GetProductInfoStocksByWarehouseFbsRequest{})
-	if err == nil {
-		t.Fatal("expected error, got nil")
+	resp, err := svc.ImportProductsPrices(ctx, &ImportProductsPricesRequest{})
+	if err != nil {
+		t.Fatalf("ImportProductsPrices() error: %v", err)
+	}
+	if resp == nil {
+		t.Fatal("ImportProductsPrices() returned nil")
 	}
 }

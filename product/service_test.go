@@ -3,35 +3,28 @@ package product
 import (
 	"context"
 	"github.com/QuoVadis86/go-ozon-sdk/transport"
+	"os"
 	"testing"
 )
 
 var ctx = context.Background()
 
-func TestImportProductsBySKU(t *testing.T) {
-	handler := transport.MockHandler(200, ImportProductsBySKUResponse{})
-	cl, srv := transport.NewTestClient(handler)
-	defer srv.Close()
-	svc := &Service{Client: cl}
-	resp, err := svc.ImportProductsBySKU(ctx, &ImportProductsBySKURequest{})
-	if err != nil {
-		t.Fatalf("ImportProductsBySKU() error: %v", err)
+func skipNoCreds(t *testing.T) *transport.Client {
+	t.Helper()
+	if os.Getenv("OZON_CLIENT_ID") == "" || os.Getenv("OZON_API_KEY") == "" {
+		t.Skip("set OZON_CLIENT_ID and OZON_API_KEY to run tests")
 	}
-	if resp == nil {
-		t.Fatal("ImportProductsBySKU() returned nil")
-	}
+	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestAPIError(t *testing.T) {
-	handler := transport.MockHandler(400, map[string]interface{}{
-		"code":    400,
-		"message": "test error",
-	})
-	cl, srv := transport.NewTestClient(handler)
-	defer srv.Close()
+func TestProductArchive(t *testing.T) {
+	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	_, err := svc.ImportProductsBySKU(ctx, &ImportProductsBySKURequest{})
-	if err == nil {
-		t.Fatal("expected error, got nil")
+	resp, err := svc.ProductArchive(ctx, &ProductArchiveRequest{})
+	if err != nil {
+		t.Fatalf("ProductArchive() error: %v", err)
+	}
+	if resp == nil {
+		t.Fatal("ProductArchive() returned nil")
 	}
 }

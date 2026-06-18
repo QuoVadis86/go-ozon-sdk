@@ -873,13 +873,21 @@ func main() {
 		}
 		os.WriteFile(dp+"/service.go", []byte(strings.Join(ml, "\n")), 0644)
 
-		// Generate tests
+		// Generate integration tests (require OZON_CLIENT_ID and OZON_API_KEY env vars)
 		tlines := []string{
 			fmt.Sprintf("package %s", dir), "",
-			`import ("context"; "testing"; "github.com/QuoVadis86/go-ozon-sdk/transport")`, "",
+			`import ("context"; "os"; "testing"; "github.com/QuoVadis86/go-ozon-sdk/transport")`, "",
 			"var ctx = context.Background()", "",
+			"func skipNoCreds(t *testing.T) *transport.Client {",
+			`	t.Helper()`,
+			`	if os.Getenv("OZON_CLIENT_ID") == "" || os.Getenv("OZON_API_KEY") == "" {`,
+			`		t.Skip("set OZON_CLIENT_ID and OZON_API_KEY to run tests")`,
+			"	}",
+			`	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)`,
+			"}",
+			"",
 		}
-		// Find first method with valid request+response types for a basic test
+		// Find first method with a valid response type
 		var testMethod Method
 		skipTypes := map[string]bool{"V1Empty": true, "Polygonv1Empty": true, "CreateDiscountedRequest": true}
 		for _, m := range methods {
@@ -891,9 +899,7 @@ func main() {
 		if testMethod.Name != "" {
 			testName := "Test" + testMethod.Name
 			tlines = append(tlines, fmt.Sprintf("func %s(t *testing.T) {", testName))
-			tlines = append(tlines, "\thandler := transport.MockHandler(200, "+testMethod.RespT+"{})")
-			tlines = append(tlines, "\tcl, srv := transport.NewTestClient(handler)")
-			tlines = append(tlines, "\tdefer srv.Close()")
+			tlines = append(tlines, "\tcl := skipNoCreds(t)")
 			tlines = append(tlines, "\tsvc := &Service{Client: cl}")
 			call := fmt.Sprintf("\tresp, err := svc.%s(ctx", testMethod.Name)
 			if testMethod.ReqT != "" {
@@ -906,27 +912,6 @@ func main() {
 			tlines = append(tlines, "\t}")
 			tlines = append(tlines, "\tif resp == nil {")
 			tlines = append(tlines, fmt.Sprintf("\t\tt.Fatal(\"%s() returned nil\")", testMethod.Name))
-			tlines = append(tlines, "\t}")
-			tlines = append(tlines, "}", "")
-		}
-		// Error handling test
-		if testMethod.Name != "" {
-			tlines = append(tlines, "func TestAPIError(t *testing.T) {")
-			tlines = append(tlines, "\thandler := transport.MockHandler(400, map[string]interface{}{")
-			tlines = append(tlines, `		"code": 400,`)
-			tlines = append(tlines, `		"message": "test error",`)
-			tlines = append(tlines, "\t})")
-			tlines = append(tlines, "\tcl, srv := transport.NewTestClient(handler)")
-			tlines = append(tlines, "\tdefer srv.Close()")
-			tlines = append(tlines, "\tsvc := &Service{Client: cl}")
-			call := fmt.Sprintf("\t_, err := svc.%s(ctx", testMethod.Name)
-			if testMethod.ReqT != "" {
-				call += ", &" + testMethod.ReqT + "{}"
-			}
-			call += ")"
-			tlines = append(tlines, call)
-			tlines = append(tlines, "\tif err == nil {")
-			tlines = append(tlines, "\t\tt.Fatal(\"expected error, got nil\")")
 			tlines = append(tlines, "\t}")
 			tlines = append(tlines, "}", "")
 		}

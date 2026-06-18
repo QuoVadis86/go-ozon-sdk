@@ -7,6 +7,16 @@ import (
 
 type Service struct{ Client *transport.Client }
 
+// 赔偿报告
+func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensationReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/finance/compensation", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 赔偿返还报告
 func (s *Service) GetDecompensationReport(ctx context.Context, req *V1GetDecompensationReportRequest) (*CreateReportResponse, error) {
 	var resp CreateReportResponse
@@ -22,16 +32,6 @@ func (s *Service) GetDecompensationReport(ctx context.Context, req *V1GetDecompe
 func (s *Service) GetRealizationReportV1(ctx context.Context, req *V1GetRealizationReportPostingRequest) (*V1GetRealizationReportPostingResponse, error) {
 	var resp V1GetRealizationReportPostingResponse
 	err := s.Client.Post(ctx, "/v1/finance/realization/posting", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 赔偿报告
-func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensationReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/finance/compensation", req, &resp)
 	if err != nil {
 		return nil, err
 	}

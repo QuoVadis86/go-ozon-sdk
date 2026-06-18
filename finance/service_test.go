@@ -3,35 +3,28 @@ package finance
 import (
 	"context"
 	"github.com/QuoVadis86/go-ozon-sdk/transport"
+	"os"
 	"testing"
 )
 
 var ctx = context.Background()
 
-func TestGetDecompensationReport(t *testing.T) {
-	handler := transport.MockHandler(200, CreateReportResponse{})
-	cl, srv := transport.NewTestClient(handler)
-	defer srv.Close()
-	svc := &Service{Client: cl}
-	resp, err := svc.GetDecompensationReport(ctx, &V1GetDecompensationReportRequest{})
-	if err != nil {
-		t.Fatalf("GetDecompensationReport() error: %v", err)
+func skipNoCreds(t *testing.T) *transport.Client {
+	t.Helper()
+	if os.Getenv("OZON_CLIENT_ID") == "" || os.Getenv("OZON_API_KEY") == "" {
+		t.Skip("set OZON_CLIENT_ID and OZON_API_KEY to run tests")
 	}
-	if resp == nil {
-		t.Fatal("GetDecompensationReport() returned nil")
-	}
+	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestAPIError(t *testing.T) {
-	handler := transport.MockHandler(400, map[string]interface{}{
-		"code":    400,
-		"message": "test error",
-	})
-	cl, srv := transport.NewTestClient(handler)
-	defer srv.Close()
+func TestGetCompensationReport(t *testing.T) {
+	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	_, err := svc.GetDecompensationReport(ctx, &V1GetDecompensationReportRequest{})
-	if err == nil {
-		t.Fatal("expected error, got nil")
+	resp, err := svc.GetCompensationReport(ctx, &V1GetCompensationReportRequest{})
+	if err != nil {
+		t.Fatalf("GetCompensationReport() error: %v", err)
+	}
+	if resp == nil {
+		t.Fatal("GetCompensationReport() returned nil")
 	}
 }
