@@ -29,95 +29,12 @@ func (s *Service) ImportProductsBySKU(ctx context.Context, req *ImportProductsBy
 	return &resp, nil
 }
 
-// 品类限制、商品的创建和更新
-// Note: - 商品操作——每分钟可创建的商品数量
-func (s *Service) GetUploadQuota(ctx context.Context) (*V4GetUploadQuotaResponse, error) {
-	var resp V4GetUploadQuotaResponse
-	err := s.Client.Post(ctx, "/v4/product/info/limit", nil, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品详细信息
-func (s *Service) GetProductInfoDescription(ctx context.Context, req *GetProductInfoDescriptionRequest) (*GetProductInfoDescriptionResponse, error) {
-	var resp GetProductInfoDescriptionResponse
-	err := s.Client.Post(ctx, "/v1/product/info/description", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 从档案中还原商品
-func (s *Service) ProductUnarchive(ctx context.Context, req *ProductUnarchiveRequest) (*BooleanResponse, error) {
-	var resp BooleanResponse
-	err := s.Client.Post(ctx, "/v1/product/unarchive", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 从存档删除没有SKU的商品
-// Note: 在一次请求中最多可以提交500个识别码
-func (s *Service) DeleteProducts(ctx context.Context, req *V2DeleteProductsRequest) (*V2DeleteProductsResponse, error) {
-	var resp V2DeleteProductsResponse
-	err := s.Client.Post(ctx, "/v2/products/delete", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 品列表的
-func (s *Service) GetProductList(ctx context.Context, req *V3GetProductListRequest) (*V3GetProductListResponse, error) {
-	var resp V3GetProductListResponse
-	err := s.Client.Post(ctx, "/v3/product/list", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取相关SKU
-func (s *Service) ProductGetRelatedSKU(ctx context.Context, req *V1ProductGetRelatedSKURequest) (*V1ProductGetRelatedSKUResponse, error) {
-	var resp V1ProductGetRelatedSKUResponse
-	err := s.Client.Post(ctx, "/v1/product/related-sku/get", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 创建或更新商品
 // Note: 一次请求最多可转移100种商品
 // Note: 该方法对每分钟和每天的商品操作数量有限制
 func (s *Service) ImportProductsV3(ctx context.Context, req *V3ImportProductsRequest) (*V3ImportProductsResponse, error) {
 	var resp V3ImportProductsResponse
 	err := s.Client.Post(ctx, "/v3/product/import", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品图片
-func (s *Service) ProductInfoPicturesV2(ctx context.Context, req *V2ProductInfoPicturesRequest) (*V2ProductInfoPicturesResponse, error) {
-	var resp V2ProductInfoPicturesResponse
-	err := s.Client.Post(ctx, "/v2/product/pictures/info", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 更新商品特征
-// Note: 该方法对每分钟和每天的商品操作数量有限制
-func (s *Service) ProductUpdateAttributes(ctx context.Context, req *V1ProductUpdateAttributesRequest) (*V1ProductUpdateAttributesResponse, error) {
-	var resp V1ProductUpdateAttributesResponse
-	err := s.Client.Post(ctx, "/v1/product/attributes/update", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -145,41 +62,10 @@ func (s *Service) ProductUpdateOfferID(ctx context.Context, req *V1ProductUpdate
 	return &resp, nil
 }
 
-// 上传或更新商品图片
-// Note: 该方法对每分钟和每天的商品操作数量有限制
-func (s *Service) ProductImportPictures(ctx context.Context, req *V1ProductImportPicturesRequest) (*V1ProductInfoPicturesResponse, error) {
-	var resp V1ProductInfoPicturesResponse
-	err := s.Client.Post(ctx, "/v1/product/pictures/import", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品特征描述
-func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
-	var resp V3GetProductAttributesV3Response
-	err := s.Client.Post(ctx, "/v3/products/info/attributes", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品特征描述
-func (s *Service) GetProductAttributesV4(ctx context.Context, req *V4GetProductAttributesV4Request) (*V4GetProductAttributesV4Response, error) {
-	var resp V4GetProductAttributesV4Response
-	err := s.Client.Post(ctx, "/v4/product/info/attributes", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 查询商品添加或更新状态
-func (s *Service) GetImportProductsInfo(ctx context.Context, req *GetImportProductsInfoRequest) (*GetImportProductsInfoResponse, error) {
-	var resp GetImportProductsInfoResponse
-	err := s.Client.Post(ctx, "/v1/product/import/info", req, &resp)
+// 按SKU获得商品的内容排名
+func (s *Service) GetProductRatingBySku(ctx context.Context, req *V1GetProductRatingBySkuRequest) (*V1GetProductRatingBySkuResponse, error) {
+	var resp V1GetProductRatingBySkuResponse
+	err := s.Client.Post(ctx, "/v1/product/rating-by-sku", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +82,58 @@ func (s *Service) ProductInfoWrongVolume(ctx context.Context, req *V1ProductInfo
 	return &resp, nil
 }
 
+// 获取商品图片
+func (s *Service) ProductInfoPicturesV2(ctx context.Context, req *V2ProductInfoPicturesRequest) (*V2ProductInfoPicturesResponse, error) {
+	var resp V2ProductInfoPicturesResponse
+	err := s.Client.Post(ctx, "/v2/product/pictures/info", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 更新商品特征
+// Note: 该方法对每分钟和每天的商品操作数量有限制
+func (s *Service) ProductUpdateAttributes(ctx context.Context, req *V1ProductUpdateAttributesRequest) (*V1ProductUpdateAttributesResponse, error) {
+	var resp V1ProductUpdateAttributesResponse
+	err := s.Client.Post(ctx, "/v1/product/attributes/update", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 品类限制、商品的创建和更新
+// Note: - 商品操作——每分钟可创建的商品数量
+func (s *Service) GetUploadQuota(ctx context.Context) (*V4GetUploadQuotaResponse, error) {
+	var resp V4GetUploadQuotaResponse
+	err := s.Client.Post(ctx, "/v4/product/info/limit", nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取相关SKU
+func (s *Service) ProductGetRelatedSKU(ctx context.Context, req *V1ProductGetRelatedSKURequest) (*V1ProductGetRelatedSKUResponse, error) {
+	var resp V1ProductGetRelatedSKUResponse
+	err := s.Client.Post(ctx, "/v1/product/related-sku/get", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 品列表的
+func (s *Service) GetProductList(ctx context.Context, req *V3GetProductListRequest) (*V3GetProductListResponse, error) {
+	var resp V3GetProductListResponse
+	err := s.Client.Post(ctx, "/v3/product/list", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 将商品归档
 func (s *Service) ProductArchive(ctx context.Context, req *ProductArchiveRequest) (*BooleanResponse, error) {
 	var resp BooleanResponse
@@ -206,10 +144,72 @@ func (s *Service) ProductArchive(ctx context.Context, req *ProductArchiveRequest
 	return &resp, nil
 }
 
-// 按SKU获得商品的内容排名
-func (s *Service) GetProductRatingBySku(ctx context.Context, req *V1GetProductRatingBySkuRequest) (*V1GetProductRatingBySkuResponse, error) {
-	var resp V1GetProductRatingBySkuResponse
-	err := s.Client.Post(ctx, "/v1/product/rating-by-sku", req, &resp)
+// 查询商品添加或更新状态
+func (s *Service) GetImportProductsInfo(ctx context.Context, req *GetImportProductsInfoRequest) (*GetImportProductsInfoResponse, error) {
+	var resp GetImportProductsInfoResponse
+	err := s.Client.Post(ctx, "/v1/product/import/info", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 从档案中还原商品
+func (s *Service) ProductUnarchive(ctx context.Context, req *ProductUnarchiveRequest) (*BooleanResponse, error) {
+	var resp BooleanResponse
+	err := s.Client.Post(ctx, "/v1/product/unarchive", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品特征描述
+func (s *Service) GetProductAttributesV4(ctx context.Context, req *V4GetProductAttributesV4Request) (*V4GetProductAttributesV4Response, error) {
+	var resp V4GetProductAttributesV4Response
+	err := s.Client.Post(ctx, "/v4/product/info/attributes", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 从存档删除没有SKU的商品
+// Note: 在一次请求中最多可以提交500个识别码
+func (s *Service) DeleteProducts(ctx context.Context, req *V2DeleteProductsRequest) (*V2DeleteProductsResponse, error) {
+	var resp V2DeleteProductsResponse
+	err := s.Client.Post(ctx, "/v2/products/delete", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品特征描述
+func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
+	var resp V3GetProductAttributesV3Response
+	err := s.Client.Post(ctx, "/v3/products/info/attributes", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 上传或更新商品图片
+// Note: 该方法对每分钟和每天的商品操作数量有限制
+func (s *Service) ProductImportPictures(ctx context.Context, req *V1ProductImportPicturesRequest) (*V1ProductInfoPicturesResponse, error) {
+	var resp V1ProductInfoPicturesResponse
+	err := s.Client.Post(ctx, "/v1/product/pictures/import", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品详细信息
+func (s *Service) GetProductInfoDescription(ctx context.Context, req *GetProductInfoDescriptionRequest) (*GetProductInfoDescriptionResponse, error) {
+	var resp GetProductInfoDescriptionResponse
+	err := s.Client.Post(ctx, "/v1/product/info/description", req, &resp)
 	if err != nil {
 		return nil, err
 	}

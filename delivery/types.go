@@ -1,7 +1,5 @@
 package delivery
 
-type Polygonv1Empty any
-
 type Polygonv1PolygonCreateRequest struct {
 	Coordinates string `json:"coordinates"` // 快递设施的坐标，格式为 `[[[lat long]]]`。
 }
@@ -26,3 +24,5 @@ type Polygonv1PolygonBindRequest struct {
 	Polygons          []PolygonBindRequestpolygon  `json:"polygons"`           // 设施清单。
 	WarehouseLocation PolygonBindRequestwhLocation `json:"warehouse_location"`
 }
+
+type Polygonv1Empty any

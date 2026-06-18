@@ -17,27 +17,10 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestCarriagePassCreate(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.CarriagePassCreate(ctx, &SellerAPIArrivalPassCreateRequest{})
-	if err != nil {
-		t.Fatalf("CarriagePassCreate() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestCarriagePassDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	err := svc.CarriagePassDelete(ctx, &SellerAPIArrivalPassDeleteRequest{})
-	_ = err
-}
-
-func TestReturnPassDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.ReturnPassDelete(ctx, &ArrivalpassArrivalPassDeleteRequest{})
 	_ = err
 }
 
@@ -51,10 +34,27 @@ func TestPassList(t *testing.T) {
 	_ = resp
 }
 
-func TestCarriagePassUpdate(t *testing.T) {
+func TestReturnPassDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.CarriagePassUpdate(ctx, &SellerAPIArrivalPassUpdateRequest{})
+	err := svc.ReturnPassDelete(ctx, &ArrivalpassArrivalPassDeleteRequest{})
+	_ = err
+}
+
+func TestCarriagePassCreate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CarriagePassCreate(ctx, &SellerAPIArrivalPassCreateRequest{})
+	if err != nil {
+		t.Fatalf("CarriagePassCreate() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestReturnPassUpdate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
 	_ = err
 }
 
@@ -68,10 +68,10 @@ func TestReturnPassCreate(t *testing.T) {
 	_ = resp
 }
 
-func TestReturnPassUpdate(t *testing.T) {
+func TestCarriagePassUpdate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
+	err := svc.CarriagePassUpdate(ctx, &SellerAPIArrivalPassUpdateRequest{})
 	_ = err
 }
 

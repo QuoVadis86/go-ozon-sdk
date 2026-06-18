@@ -17,12 +17,12 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestChatSendFile(t *testing.T) {
+func TestChatListV3(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ChatSendFile(ctx, &ChatSendFileRequest{})
+	resp, err := svc.ChatListV3(ctx, &V3Chat{})
 	if err != nil {
-		t.Fatalf("ChatSendFile() error: %v", err)
+		t.Fatalf("ChatListV3() error: %v", err)
 	}
 	_ = resp
 }
@@ -33,16 +33,6 @@ func TestChatStart(t *testing.T) {
 	resp, err := svc.ChatStart(ctx, &ChatStartRequest{})
 	if err != nil {
 		t.Fatalf("ChatStart() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestChatListV3(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ChatListV3(ctx, &V3Chat{})
-	if err != nil {
-		t.Fatalf("ChatListV3() error: %v", err)
 	}
 	_ = resp
 }
@@ -63,6 +53,16 @@ func TestChatReadV2(t *testing.T) {
 	resp, err := svc.ChatReadV2(ctx, &Read{})
 	if err != nil {
 		t.Fatalf("ChatReadV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestChatSendFile(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ChatSendFile(ctx, &ChatSendFileRequest{})
+	if err != nil {
+		t.Fatalf("ChatSendFile() error: %v", err)
 	}
 	_ = resp
 }

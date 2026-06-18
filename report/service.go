@@ -7,10 +7,10 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 报告清单
-func (s *Service) ReportList(ctx context.Context, req *ReportListRequest) (*ReportListResponse, error) {
-	var resp ReportListResponse
-	err := s.Client.Post(ctx, "/v1/report/list", req, &resp)
+// 关于FBS仓库库存报告
+func (s *Service) CreateStockByWarehouseReport(ctx context.Context, req *V1CreateStockByWarehouseReportRequest) (*CommonCreateReportResponse, error) {
+	var resp CommonCreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/warehouse/stock", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -28,10 +28,20 @@ func (s *Service) CreateCompanyMarkedProductsSalesReport(ctx context.Context, re
 	return &resp, nil
 }
 
-// 关于FBS仓库库存报告
-func (s *Service) CreateStockByWarehouseReport(ctx context.Context, req *V1CreateStockByWarehouseReportRequest) (*CommonCreateReportResponse, error) {
-	var resp CommonCreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/warehouse/stock", req, &resp)
+// 发货报告
+func (s *Service) CreateCompanyPostingsReport(ctx context.Context, req *CreateCompanyPostingsReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/postings/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 商品报告
+func (s *Service) CreateCompanyProductsReport(ctx context.Context, req *CreateCompanyProductsReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/products/create", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -59,20 +69,10 @@ func (s *Service) CreateDiscountedReport(ctx context.Context, req *CreateDiscoun
 	return &resp, nil
 }
 
-// 商品报告
-func (s *Service) CreateCompanyProductsReport(ctx context.Context, req *CreateCompanyProductsReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/products/create", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 发货报告
-func (s *Service) CreateCompanyPostingsReport(ctx context.Context, req *CreateCompanyPostingsReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/postings/create", req, &resp)
+// 报告清单
+func (s *Service) ReportList(ctx context.Context, req *ReportListRequest) (*ReportListResponse, error) {
+	var resp ReportListResponse
+	err := s.Client.Post(ctx, "/v1/report/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}

@@ -16787,7 +16787,7 @@
     },
     "/v1/fbs/posting/product/exemplar/update": {
       "post": {
-        "summary": "Обновить данные экземпляров",
+        "summary": "更新实例数据",
         "description": "请使用 [/v6/fbs/posting/product/exemplar/set](#operation/PostingAPI_FbsPostingProductExemplarSetV6), 方法，在传输实例数据后调用该方法，以保存“等待发运”状态下订单的最新实例数据。\n\n您可以在 [讨论](https://dev.ozon.ru/community/1269-Metody-dlia-raboty-so-spiskom-markirovok-FBS-rFBS) 的评论中对此方法提供反馈 在 Ozon for dev 开发者社区中。\n",
         "operationId": "PostingAPI_FbsPostingProductExemplarUpdate",
         "parameters": [
@@ -24147,7 +24147,7 @@
           "description_category_id": {
             "format": "int64",
             "type": "integer",
-            "description": "类别ID。\n请将其与以下方法结合使用：[/v1/description-category/attribute](#operation/DescriptionCategoryAPI_GetAttributes) и [/v1/description-category/attribute/values](#operation/DescriptionCategoryAPI_GetAttributeValues)。\n"
+            "description": "类别ID。\n请将其与以下方法结合使用：[/v1/description-category/attribute](#operation/DescriptionCategoryAPI_GetAttributes) 和 [/v1/description-category/attribute/values](#operation/DescriptionCategoryAPI_GetAttributeValues)。\n"
           },
           "color_image": {
             "type": "string",
@@ -25817,7 +25817,7 @@
           },
           "manage_elastic_boosting_through_price": {
             "type": "boolean",
-            "description": "管理参与“弹性提升”促销活动：\n\n- `true`——如果参数 `price` 的数值符合促销活动条件，系统会自动将商品加入促销活动，或在促销活动中提高折扣与提升比例；\n- `false`——修改参数 `price` 的数值不会影响商品参与促销活动的状态。 \n\nЕсли ничего не передать, изменений в статусе участия не будет.\n"
+            "description": "管理参与“弹性提升”促销活动：\n\n- `true`——如果参数 `price` 的数值符合促销活动条件，系统会自动将商品加入促销活动，或在促销活动中提高折扣与提升比例；\n- `false`——修改参数 `price` 的数值不会影响商品参与促销活动的状态。 \n\n如果不传递任何值，参与状态不会发生变化。\n"
           },
           "min_price": {
             "type": "string",
@@ -28471,7 +28471,7 @@
           },
           "is_comfort": {
             "type": "boolean",
-            "description": "сomfort配送标志。送达买家时间大于等于60分钟。"
+            "description": "comfort配送标志。送达买家时间大于等于60分钟。"
           },
           "is_express": {
             "description": "express配送标志。送达买家时间不超过60分钟。",
@@ -33007,12 +33007,12 @@
           "since": {
             "format": "date-time",
             "type": "string",
-            "description": "应收到货件清单时间段的开始日期。\n\nUTC模式: ГГГГ-ММ-ДДTЧЧ:ММ:ССZ.\n\n例子: 2019-08-24T14:15:22Z.\n"
+            "description": "应收到货件清单时间段的开始日期。\n\nUTC模式: YYYY-MM-DDThh:mm:ssZ.\n\n例子: 2019-08-24T14:15:22Z.\n"
           },
           "to": {
             "format": "date-time",
             "type": "string",
-            "description": "应收到货件清单时间段的结束日期。\n\nUTC模式： ГГГГ-ММ-ДДTЧЧ:ММ:ССZ.\n\n例子： 2019-08-24T14:15:22Z.\n"
+            "description": "应收到货件清单时间段的结束日期。\n\nUTC模式： YYYY-MM-DDThh:mm:ssZ.\n\n例子： 2019-08-24T14:15:22Z.\n"
           },
           "status": {
             "type": "string",
@@ -46467,7 +46467,7 @@
       },
       "v1FbpDraftPickupDlvEditRequestDeliveryDetails": {
         "type": "object",
-        "description": "Детали доставки.",
+        "description": "配送详情。",
         "required": [
           "address",
           "comment",
