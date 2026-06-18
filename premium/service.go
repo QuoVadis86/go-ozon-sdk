@@ -7,10 +7,10 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 有关特定商品查询的信息
-func (s *Service) AnalyticsProductQueriesDetails(ctx context.Context, req *V1AnalyticsProductQueriesDetailsRequest) (*V1AnalyticsProductQueriesDetailsResponse, error) {
-	var resp V1AnalyticsProductQueriesDetailsResponse
-	err := s.Client.Post(ctx, "/v1/analytics/product-queries/details", req, &resp)
+// 获取热门搜索查询列表
+func (s *Service) SearchQueriesTop(ctx context.Context, req *V1SearchQueriesTopRequest) (*V1SearchQueriesTopResponse, error) {
+	var resp V1SearchQueriesTopResponse
+	err := s.Client.Post(ctx, "/v1/search-queries/top", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -38,21 +38,21 @@ func (s *Service) AnalyticsGetData(ctx context.Context, req *AnalyticsAnalyticsG
 	return &resp, nil
 }
 
-// 获取热门搜索查询列表
-func (s *Service) SearchQueriesTop(ctx context.Context, req *V1SearchQueriesTopRequest) (*V1SearchQueriesTopResponse, error) {
-	var resp V1SearchQueriesTopResponse
-	err := s.Client.Post(ctx, "/v1/search-queries/top", req, &resp)
+// 每日商品销售报告
+// Note: 每日[商品销售报告](#operation/FinanceAPI_GetRealizationReportV2)中的销售金额数据
+func (s *Service) GetRealizationByDayReportV1(ctx context.Context, req *V1GetRealizationReportByDayRequest) (*GetRealizationReportByDayResponse, error) {
+	var resp GetRealizationReportByDayResponse
+	err := s.Client.Post(ctx, "/v1/finance/realization/by-day", req, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-// 每日商品销售报告
-// Note: 每日[商品销售报告](#operation/FinanceAPI_GetRealizationReportV2)中的销售金额数据
-func (s *Service) GetRealizationByDayReportV1(ctx context.Context, req *V1GetRealizationReportByDayRequest) (*GetRealizationReportByDayResponse, error) {
-	var resp GetRealizationReportByDayResponse
-	err := s.Client.Post(ctx, "/v1/finance/realization/by-day", req, &resp)
+// 有关特定商品查询的信息
+func (s *Service) AnalyticsProductQueriesDetails(ctx context.Context, req *V1AnalyticsProductQueriesDetailsRequest) (*V1AnalyticsProductQueriesDetailsResponse, error) {
+	var resp V1AnalyticsProductQueriesDetailsResponse
+	err := s.Client.Post(ctx, "/v1/analytics/product-queries/details", req, &resp)
 	if err != nil {
 		return nil, err
 	}

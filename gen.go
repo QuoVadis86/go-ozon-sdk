@@ -505,8 +505,26 @@ func main() {
 		schemas[n] = s
 	}
 	cache := map[string]string{}
+	svcPrefixes := []string{"product", "finance", "warehouse", "seller", "fbs", "fbo", "promo", "beta", "premium", "pass", "returns", "review", "chat", "barcode", "rating", "delivery", "report", "category", "certificate"}
 	for n := range comps.Schemas {
-		cache[n] = toCamel(n)
+		stripped := n
+		lower := strings.ToLower(n)
+		for _, p := range svcPrefixes {
+			ln := len(p)
+			if len(stripped) <= ln {
+				continue
+			}
+			if lower[:ln] == p && (lower[ln:ln+1] == "." || (lower[ln] >= 'a' && lower[ln] <= 'z')) {
+				// Strip if followed by dot or another lowercase letter (camelCase continuation)
+				// For camelCase: productV3Xxx -> V3Xxx (strip product, keep V3)
+				stripped = n[ln:]
+				if lower[ln:ln+1] == "." {
+					stripped = n[ln+1:]
+				}
+				break
+			}
+		}
+		cache[n] = toCamel(stripped)
 	}
 
 	depOf := map[string]map[string]bool{}
