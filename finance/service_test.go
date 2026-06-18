@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestGetDecompensationReport(t *testing.T) {
+func TestGetCompensationReport(t *testing.T) {
 	handler := transport.MockHandler(200, CreateReportResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.GetDecompensationReport(ctx, &V1GetDecompensationReportRequest{})
+	resp, err := svc.GetCompensationReport(ctx, &V1GetCompensationReportRequest{})
 	if err != nil {
-		t.Fatalf("GetDecompensationReport() error: %v", err)
+		t.Fatalf("GetCompensationReport() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("GetDecompensationReport() returned nil")
+		t.Fatal("GetCompensationReport() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.GetDecompensationReport(ctx, &V1GetDecompensationReportRequest{})
+	_, err := svc.GetCompensationReport(ctx, &V1GetCompensationReportRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

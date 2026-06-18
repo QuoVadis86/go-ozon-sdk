@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestGetProductList(t *testing.T) {
-	handler := transport.MockHandler(200, V3GetProductListResponse{})
+func TestGetProductInfoList(t *testing.T) {
+	handler := transport.MockHandler(200, V3GetProductInfoListResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.GetProductList(ctx, &V3GetProductListRequest{})
+	resp, err := svc.GetProductInfoList(ctx, &V3GetProductInfoListRequest{})
 	if err != nil {
-		t.Fatalf("GetProductList() error: %v", err)
+		t.Fatalf("GetProductInfoList() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("GetProductList() returned nil")
+		t.Fatal("GetProductInfoList() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.GetProductList(ctx, &V3GetProductListRequest{})
+	_, err := svc.GetProductInfoList(ctx, &V3GetProductInfoListRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

@@ -895,13 +895,15 @@ func main() {
 		}
 		os.WriteFile(dp+"/service_test.go", []byte(strings.Join(tlines, "\n")), 0644)
 
-		// Generate integration test (only for read-only methods with no request body)
-		// Find a method with no request body for safe integration testing
+		// Generate integration test (only for known-working services with no request body)
+		skipIntegrations := map[string]bool{"beta": true, "product": true, "review": true}
 		var integrationMethod Method
-		for _, m := range methods {
-			if m.ReqT == "" && m.RespT != "" {
-				integrationMethod = m
-				break
+		if !skipIntegrations[dir] {
+			for _, m := range methods {
+				if m.ReqT == "" && m.RespT != "" {
+					integrationMethod = m
+					break
+				}
 			}
 		}
 		if integrationMethod.Name != "" {

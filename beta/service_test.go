@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestProductVisibilitySet(t *testing.T) {
-	handler := transport.MockHandler(200, V1ProductVisibilitySetResponse{})
+func TestGetFinanceBalanceV1(t *testing.T) {
+	handler := transport.MockHandler(200, V1GetFinanceBalanceV1Response{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.ProductVisibilitySet(ctx, &V1ProductVisibilitySetRequest{})
+	resp, err := svc.GetFinanceBalanceV1(ctx, &V1GetFinanceBalanceV1Request{})
 	if err != nil {
-		t.Fatalf("ProductVisibilitySet() error: %v", err)
+		t.Fatalf("GetFinanceBalanceV1() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("ProductVisibilitySet() returned nil")
+		t.Fatal("GetFinanceBalanceV1() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.ProductVisibilitySet(ctx, &V1ProductVisibilitySetRequest{})
+	_, err := svc.GetFinanceBalanceV1(ctx, &V1GetFinanceBalanceV1Request{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

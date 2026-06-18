@@ -1,11 +1,5 @@
 package delivery
 
-// 仓库位置。
-type PolygonBindRequestwhLocation struct {
-	Lat string `json:"lat"` // 仓库位置的地理纬度。
-	Lon string `json:"lon"` // 仓库位置的地理经度。
-}
-
 type Polygonv1Empty any
 
 type Polygonv1PolygonCreateRequest struct {
@@ -14,6 +8,12 @@ type Polygonv1PolygonCreateRequest struct {
 
 type Polygonv1PolygonCreateResponse struct {
 	PolygonID int64 `json:"polygon_id"` // 设施识别号。
+}
+
+// 仓库位置。
+type PolygonBindRequestwhLocation struct {
+	Lat string `json:"lat"` // 仓库位置的地理纬度。
+	Lon string `json:"lon"` // 仓库位置的地理经度。
 }
 
 type PolygonBindRequestpolygon struct {

@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbsPostingTrackingNumberSet(t *testing.T) {
-	handler := transport.MockHandler(200, PostingFbsPostingMoveStatusResponse{})
+func TestGetFbsPostingListV3(t *testing.T) {
+	handler := transport.MockHandler(200, V3GetFbsPostingListResponseV3{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbsPostingTrackingNumberSet(ctx, &PostingFbsPostingTrackingNumberSetRequest{})
+	resp, err := svc.GetFbsPostingListV3(ctx, &Postingv3GetFbsPostingListRequest{})
 	if err != nil {
-		t.Fatalf("FbsPostingTrackingNumberSet() error: %v", err)
+		t.Fatalf("GetFbsPostingListV3() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbsPostingTrackingNumberSet() returned nil")
+		t.Fatal("GetFbsPostingListV3() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbsPostingTrackingNumberSet(ctx, &PostingFbsPostingTrackingNumberSetRequest{})
+	_, err := svc.GetFbsPostingListV3(ctx, &Postingv3GetFbsPostingListRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

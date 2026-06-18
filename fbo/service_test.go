@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbpOrderList(t *testing.T) {
-	handler := transport.MockHandler(200, V1FbpOrderListResponse{})
+func TestFbpDraftDirectDelete(t *testing.T) {
+	handler := transport.MockHandler(200, V1FbpDraftDirectDeleteResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbpOrderList(ctx, &V1FbpOrderListRequest{})
+	resp, err := svc.FbpDraftDirectDelete(ctx, &V1FbpDraftDirectDeleteRequest{})
 	if err != nil {
-		t.Fatalf("FbpOrderList() error: %v", err)
+		t.Fatalf("FbpDraftDirectDelete() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbpOrderList() returned nil")
+		t.Fatal("FbpDraftDirectDelete() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbpOrderList(ctx, &V1FbpOrderListRequest{})
+	_, err := svc.FbpDraftDirectDelete(ctx, &V1FbpDraftDirectDeleteRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

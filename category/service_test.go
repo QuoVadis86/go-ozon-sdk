@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestSearchAttributeValues(t *testing.T) {
-	handler := transport.MockHandler(200, V1SearchAttributeValuesResponse{})
+func TestGetTree(t *testing.T) {
+	handler := transport.MockHandler(200, V1GetTreeResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.SearchAttributeValues(ctx, &V1SearchAttributeValuesRequest{})
+	resp, err := svc.GetTree(ctx, &V1GetTreeRequest{})
 	if err != nil {
-		t.Fatalf("SearchAttributeValues() error: %v", err)
+		t.Fatalf("GetTree() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("SearchAttributeValues() returned nil")
+		t.Fatal("GetTree() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.SearchAttributeValues(ctx, &V1SearchAttributeValuesRequest{})
+	_, err := svc.GetTree(ctx, &V1GetTreeRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

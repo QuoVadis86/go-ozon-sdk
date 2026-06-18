@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestIds(t *testing.T) {
-	handler := transport.MockHandler(200, V1GetStrategyIDsByItemIDsResponse{})
+func TestCreate(t *testing.T) {
+	handler := transport.MockHandler(200, V1CreatePricingStrategyResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.Ids(ctx, &V1ItemIDsRequest{})
+	resp, err := svc.Create(ctx, &V1CreatePricingStrategyRequest{})
 	if err != nil {
-		t.Fatalf("Ids() error: %v", err)
+		t.Fatalf("Create() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("Ids() returned nil")
+		t.Fatal("Create() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.Ids(ctx, &V1ItemIDsRequest{})
+	_, err := svc.Create(ctx, &V1CreatePricingStrategyRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

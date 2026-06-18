@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestPromosCandidates(t *testing.T) {
-	handler := transport.MockHandler(200, SellerApiGetSellerProductV1Response{})
+func TestActionsAutoAddProductsList(t *testing.T) {
+	handler := transport.MockHandler(200, ActionsV1ActionsAutoAddProductsListResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.PromosCandidates(ctx, &SellerApiGetSellerProductV1Request{})
+	resp, err := svc.ActionsAutoAddProductsList(ctx, &ActionsV1ActionsAutoAddProductsListRequest{})
 	if err != nil {
-		t.Fatalf("PromosCandidates() error: %v", err)
+		t.Fatalf("ActionsAutoAddProductsList() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("PromosCandidates() returned nil")
+		t.Fatal("ActionsAutoAddProductsList() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.PromosCandidates(ctx, &SellerApiGetSellerProductV1Request{})
+	_, err := svc.ActionsAutoAddProductsList(ctx, &ActionsV1ActionsAutoAddProductsListRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
