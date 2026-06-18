@@ -154,7 +154,7 @@ func main() {
 				var rb ReqBody
 				json.Unmarshal(*item.RequestBody, &rb)
 				if c, ok := rb.Content["application/json"]; ok && c.Schema.Ref != "" {
-					reqT = toCamel(strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/"))
+					reqT = cache[strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")]
 				}
 			}
 			respT := ""
@@ -162,7 +162,7 @@ func main() {
 				var rb ReqBody
 				json.Unmarshal(r, &rb)
 				if c, ok := rb.Content["application/json"]; ok && c.Schema.Ref != "" {
-					respT = toCamel(strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/"))
+					respT = cache[strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")]
 				}
 			}
 
@@ -185,13 +185,11 @@ func main() {
 		}
 	}
 
-	ozonDir := "ozon"
-	os.MkdirAll(ozonDir, 0755)
-
-	// All types in internal/types.go (shared between root and sub-packages)
+	// 1. Generate types/types.go
+	os.MkdirAll("types", 0755)
 	genned, inProg := map[string]bool{}, map[string]bool{}
 	nameUsed := map[string]string{}
-	lines := []string{"package internal", ""}
+	tlines := []string{"package types", ""}
 
 	var genType func(string)
 	genType = func(sname string) {
@@ -217,31 +215,29 @@ func main() {
 		}
 		inProg[sname] = false
 		genned[sname] = true
-		appendType(&lines, gn, s, cache)
+		appendType(&tlines, gn, s, cache)
 	}
 	for sname := range schemas { genType(sname) }
-	os.WriteFile("internal/types.go", []byte(strings.Join(lines, "\n")), 0644)
-	fmt.Printf("internal/types.go: %d types\n", len(genned))
+	os.WriteFile("types/types.go", []byte(strings.Join(tlines, "\n")), 0644)
+	fmt.Printf("types/types.go: %d types\n", len(genned))
 
-	// Per-directory service.go
+	// 2. Generate per-service service.go at module root
 	for dir, methods := range dirMethods {
-		dp := filepath.Join(ozonDir, dir)
+		dp := filepath.Join(dir)
 		os.MkdirAll(dp, 0755)
-		doc := fmt.Sprintf("// Package %s provides %s API methods.\npackage %s\n", dir, dir, dir)
-		os.WriteFile(dp+"/doc.go", []byte(doc), 0644)
 
 		var ml []string
 		ml = append(ml, fmt.Sprintf("package %s", dir), "")
-		ml = append(ml, `import ("context"; "github.com/QuoVadis86/go-ozon-sdk/internal")`, "")
+		ml = append(ml, `import ("context"; "github.com/QuoVadis86/go-ozon-sdk/internal"; "github.com/QuoVadis86/go-ozon-sdk/types")`, "")
 		ml = append(ml, "type Service struct { Client *internal.Client }", "")
 		for _, m := range methods {
-			pkgTypes := "internal."
+			pkg := "types."
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)
-			if m.ReqT != "" { fn += fmt.Sprintf(", req *%s%s", pkgTypes, m.ReqT) }
+			if m.ReqT != "" { fn += fmt.Sprintf(", req *%s%s", pkg, m.ReqT) }
 			fn += ") "
-			if m.RespT != "" { fn += fmt.Sprintf("(*%s%s, error)", pkgTypes, m.RespT) } else { fn += "error" }
+			if m.RespT != "" { fn += fmt.Sprintf("(*%s%s, error)", pkg, m.RespT) } else { fn += "error" }
 			ml = append(ml, fn+" {")
-			if m.RespT != "" { ml = append(ml, fmt.Sprintf("\tvar resp %s%s", pkgTypes, m.RespT)) }
+			if m.RespT != "" { ml = append(ml, fmt.Sprintf("\tvar resp %s%s", pkg, m.RespT)) }
 			meth := "Post"
 			if m.HTTPM == "GET" { meth = "Get" }
 			call := fmt.Sprintf("\terr := s.Client.%s(ctx, %q", meth, m.Path)
