@@ -37,6 +37,16 @@ func (s *Service) ChatHistoryV3(ctx context.Context, req *V3ChatHistoryRequest) 
 	return &resp, nil
 }
 
+// 发送文件
+func (s *Service) ChatSendFile(ctx context.Context, req *ChatSendFileRequest) (*ChatSendFileResponse, error) {
+	var resp ChatSendFileResponse
+	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 发送信息
 func (s *Service) ChatSendMessage(ctx context.Context, req *ChatSendMessageRequest) (*ChatSendMessageResponse, error) {
 	var resp ChatSendMessageResponse
@@ -51,16 +61,6 @@ func (s *Service) ChatSendMessage(ctx context.Context, req *ChatSendMessageReque
 func (s *Service) ChatReadV2(ctx context.Context, req *Read) (*V2ChatReadResponse, error) {
 	var resp V2ChatReadResponse
 	err := s.Client.Post(ctx, "/v2/chat/read", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 发送文件
-func (s *Service) ChatSendFile(ctx context.Context, req *ChatSendFileRequest) (*ChatSendFileResponse, error) {
-	var resp ChatSendFileResponse
-	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
 	if err != nil {
 		return nil, err
 	}

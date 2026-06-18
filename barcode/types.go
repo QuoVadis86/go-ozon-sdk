@@ -1,5 +1,14 @@
 package barcode
 
+type V1Barcode struct {
+	Barcode string `json:"barcode"` // 条形码的数值。不超过 100 个字符。
+	SKU     int64  `json:"sku"`     // Ozon 系统中的商品标识符 — SKU。
+}
+
+type V1AddBarcodeRequest struct {
+	Barcodes []V1Barcode `json:"barcodes"` // 条形码与商品的列表。
+}
+
 type V1AddBarcodeResult struct {
 	Code    string `json:"code"`    // 错误代码。
 	Error   string `json:"error"`   // 错误描述。
@@ -24,13 +33,4 @@ type V1GenerateBarcodeResult struct {
 
 type V1GenerateBarcodeResponse struct {
 	Errors []V1GenerateBarcodeResult `json:"errors"` // 生成条形码时出现的错误。
-}
-
-type V1Barcode struct {
-	Barcode string `json:"barcode"` // 条形码的数值。不超过 100 个字符。
-	SKU     int64  `json:"sku"`     // Ozon 系统中的商品标识符 — SKU。
-}
-
-type V1AddBarcodeRequest struct {
-	Barcodes []V1Barcode `json:"barcodes"` // 条形码与商品的列表。
 }

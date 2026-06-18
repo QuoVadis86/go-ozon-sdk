@@ -408,6 +408,24 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			*out = append(*out, fmt.Sprintf("type %s []%s", name, itemType))
 		case "string":
 			*out = append(*out, fmt.Sprintf("type %s string", name))
+			if len(s.Enum) > 0 {
+				*out = append(*out, "const (")
+				usedNames := map[string]bool{}
+				for _, ev := range s.Enum {
+					val := fmt.Sprintf("%v", ev)
+					constName := name + valueToCamel(val)
+					if usedNames[constName] {
+						suffix := 1
+						for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] {
+							suffix++
+						}
+						constName = fmt.Sprintf("%s_%d", constName, suffix)
+					}
+					usedNames[constName] = true
+					*out = append(*out, fmt.Sprintf("\t%s %s = %q", constName, name, val))
+				}
+				*out = append(*out, ")")
+			}
 		case "integer":
 			*out = append(*out, fmt.Sprintf("type %s int64", name))
 		case "number":

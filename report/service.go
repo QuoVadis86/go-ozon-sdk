@@ -7,27 +7,6 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 报告清单
-func (s *Service) ReportList(ctx context.Context, req *ReportListRequest) (*ReportListResponse, error) {
-	var resp ReportListResponse
-	err := s.Client.Post(ctx, "/v1/report/list", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 生成带有标记商品的销售报告
-// Note: 每个报告最多可包含 50,000 个商品标签代码
-func (s *Service) CreateCompanyMarkedProductsSalesReport(ctx context.Context, req *V1ReportMarkedProductsSalesCreateRequest) (*CommonCreateReportResponse, error) {
-	var resp CommonCreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/marked-products-sales/create", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 发货报告
 func (s *Service) CreateCompanyPostingsReport(ctx context.Context, req *CreateCompanyPostingsReportRequest) (*CreateReportResponse, error) {
 	var resp CreateReportResponse
@@ -48,11 +27,11 @@ func (s *Service) CreateStockByWarehouseReport(ctx context.Context, req *V1Creat
 	return &resp, nil
 }
 
-// 减价商品报告
-// Note: 从一个卖家账号每分钟可以发送1次请求
-func (s *Service) CreateDiscountedReport(ctx context.Context, req *CreateDiscountedRequest) (*CreateDiscountedResponse, error) {
-	var resp CreateDiscountedResponse
-	err := s.Client.Post(ctx, "/v1/report/discounted/create", req, &resp)
+// 生成带有标记商品的销售报告
+// Note: 每个报告最多可包含 50,000 个商品标签代码
+func (s *Service) CreateCompanyMarkedProductsSalesReport(ctx context.Context, req *V1ReportMarkedProductsSalesCreateRequest) (*CommonCreateReportResponse, error) {
+	var resp CommonCreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/marked-products-sales/create", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -79,10 +58,31 @@ func (s *Service) ReportInfo(ctx context.Context, req *ReportInfoRequest) (*Repo
 	return &resp, nil
 }
 
+// 减价商品报告
+// Note: 从一个卖家账号每分钟可以发送1次请求
+func (s *Service) CreateDiscountedReport(ctx context.Context, req *CreateDiscountedRequest) (*CreateDiscountedResponse, error) {
+	var resp CreateDiscountedResponse
+	err := s.Client.Post(ctx, "/v1/report/discounted/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 商品报告
 func (s *Service) CreateCompanyProductsReport(ctx context.Context, req *CreateCompanyProductsReportRequest) (*CreateReportResponse, error) {
 	var resp CreateReportResponse
 	err := s.Client.Post(ctx, "/v1/report/products/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 报告清单
+func (s *Service) ReportList(ctx context.Context, req *ReportListRequest) (*ReportListResponse, error) {
+	var resp ReportListResponse
+	err := s.Client.Post(ctx, "/v1/report/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}

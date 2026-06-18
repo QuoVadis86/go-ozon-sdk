@@ -47,6 +47,16 @@ func TestChatHistoryV3(t *testing.T) {
 	_ = resp
 }
 
+func TestChatSendFile(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ChatSendFile(ctx, &ChatSendFileRequest{})
+	if err != nil {
+		t.Fatalf("ChatSendFile() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestChatSendMessage(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -63,16 +73,6 @@ func TestChatReadV2(t *testing.T) {
 	resp, err := svc.ChatReadV2(ctx, &Read{})
 	if err != nil {
 		t.Fatalf("ChatReadV2() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestChatSendFile(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ChatSendFile(ctx, &ChatSendFileRequest{})
-	if err != nil {
-		t.Fatalf("ChatSendFile() error: %v", err)
 	}
 	_ = resp
 }

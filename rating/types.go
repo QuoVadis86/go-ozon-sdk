@@ -1,14 +1,13 @@
 package rating
 
-// 筛选器。
-type ListFBSRatingIndexPostingsV1RequestFilter struct {
-	DateFrom       string   `json:"date_from"`       // 周期开始日期。
-	DateTo         string   `json:"date_to"`         // 周期结束日期。
-	PostingNumbers []string `json:"posting_numbers"` // 货件编号。
-}
-
 // 错误类型： - `UNSPECIFIED`——未指定； - `SELLER_CANCELLATION`——卖家取消； - `SELLER_DELAY`——卖家逾期。
 type PostingErrorType string
+
+const (
+	PostingErrorTypeUnspecified        PostingErrorType = "UNSPECIFIED"
+	PostingErrorTypeSellerCancellation PostingErrorType = "SELLER_CANCELLATION"
+	PostingErrorTypeSellerDelay        PostingErrorType = "SELLER_DELAY"
+)
 
 // ChargePriceCurrencyCode values
 type ChargePriceCurrencyCode string
@@ -44,16 +43,16 @@ const (
 )
 
 type ListFBSRatingIndexPostingsV1ResponseError struct {
-	ChargePrice              float64                  `json:"charge_price"`     // 错误处理费用金额。
-	HasGraceStatus           bool                     `json:"has_grace_status"` // `true`，表示货件享有优惠状态。
-	Index                    float64                  `json:"index"`            // 错误指数的数值。
+	ChargePercent            float64                  `json:"charge_percent"`             // 处理费用占货件价值的百分比。
+	ChargePrice              float64                  `json:"charge_price"`               // 错误处理费用金额。
+	ChargePriceCurrencyCode  ChargePriceCurrencyCode  `json:"charge_price_currency_code"` // 错误处理费用的币种代码： - `RUB`——俄罗斯卢布， - `BYN`——白俄罗斯卢布， - `KZT`——坚戈， - `EUR`——欧元， - `USD`——美元， - `CNY`——人民币。
+	DeliverySchema           DeliverySchema           `json:"delivery_schema"`            // 配送方案： - `FBS`, - `rFBS`, - `erFBS`.
+	HasGraceStatus           bool                     `json:"has_grace_status"`           // `true`，表示货件享有优惠状态。
+	Index                    float64                  `json:"index"`                      // 错误指数的数值。
+	PostingNumber            string                   `json:"posting_number"`             // 货件编号。
+	ProductPrice             float64                  `json:"product_price"`              // 货件中的商品价值。
+	ErrorAt                  string                   `json:"error_at"`                   // 出现错误的日期。
 	PostingErrorType         PostingErrorType         `json:"posting_error_type"`
-	ChargePercent            float64                  `json:"charge_percent"`              // 处理费用占货件价值的百分比。
-	ChargePriceCurrencyCode  ChargePriceCurrencyCode  `json:"charge_price_currency_code"`  // 错误处理费用的币种代码： - `RUB`——俄罗斯卢布， - `BYN`——白俄罗斯卢布， - `KZT`——坚戈， - `EUR`——欧元， - `USD`——美元， - `CNY`——人民币。
-	DeliverySchema           DeliverySchema           `json:"delivery_schema"`             // 配送方案： - `FBS`, - `rFBS`, - `erFBS`.
-	ErrorAt                  string                   `json:"error_at"`                    // 出现错误的日期。
-	PostingNumber            string                   `json:"posting_number"`              // 货件编号。
-	ProductPrice             float64                  `json:"product_price"`               // 货件中的商品价值。
 	ProductPriceCurrencyCode ProductPriceCurrencyCode `json:"product_price_currency_code"` // 商品价值的币种代码： - `RUB`——俄罗斯卢布， - `BYN`——白俄罗斯卢布， - `KZT`——坚戈， - `EUR`——欧元， - `USD`——美元， - `CNY`——人民币。
 }
 
@@ -70,12 +69,19 @@ type GetFBSRatingIndexInfoV1ResponseIndexDynamics struct {
 }
 
 type V1GetFBSRatingIndexInfoV1Response struct {
+	CurrencyCode       string                                         `json:"currency_code"`        // 错误处理费用的币种代码。
 	Defects            []GetFBSRatingIndexInfoV1ResponseIndexDynamics `json:"defects"`              // 按天计算的错误指数。
 	Index              float64                                        `json:"index"`                // 周期内的错误指数数值。
 	PeriodFrom         string                                         `json:"period_from"`          // 计算周期开始日期（格式`YYYY-MM-DD`）。
 	PeriodTo           string                                         `json:"period_to"`            // 计算周期结束日期（格式`YYYY-MM-DD`）。
 	ProcessingCostsSum float64                                        `json:"processing_costs_sum"` // 周期内的错误处理费用。
-	CurrencyCode       string                                         `json:"currency_code"`        // 错误处理费用的币种代码。
+}
+
+// 筛选器。
+type ListFBSRatingIndexPostingsV1RequestFilter struct {
+	DateTo         string   `json:"date_to"`         // 周期结束日期。
+	PostingNumbers []string `json:"posting_numbers"` // 货件编号。
+	DateFrom       string   `json:"date_from"`       // 周期开始日期。
 }
 
 type V1ListFBSRatingIndexPostingsV1Request struct {

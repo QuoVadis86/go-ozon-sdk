@@ -17,63 +17,46 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestSellerActionsUpdateVoucher(t *testing.T) {
+func TestSellerActionsCreateDiscountWithCondition(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.SellerActionsUpdateVoucher(ctx, &V1SellerActionsUpdateVoucherRequest{})
-	_ = err
-}
-
-func TestSellerActionsProductsDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.SellerActionsProductsDelete(ctx, &V1SellerActionsProductsDeleteRequest{})
-	_ = err
-}
-
-func TestTaskList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.TaskList(ctx, &V1GetDiscountTaskListRequest{})
+	resp, err := svc.SellerActionsCreateDiscountWithCondition(ctx, &V1SellerActionsCreateDiscountWithConditionRequest{})
 	if err != nil {
-		t.Fatalf("TaskList() error: %v", err)
+		t.Fatalf("SellerActionsCreateDiscountWithCondition() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestSellerActionsVoucherGet(t *testing.T) {
+func TestSellerActionsChangeActivity(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsVoucherGet(ctx, &V1SellerActionsVoucherGetRequest{})
-	if err != nil {
-		t.Fatalf("SellerActionsVoucherGet() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsCreateMultiLevelDiscount(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsCreateMultiLevelDiscount(ctx, &V1SellerActionsCreateMultiLevelDiscountRequest{})
-	if err != nil {
-		t.Fatalf("SellerActionsCreateMultiLevelDiscount() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsUpdateInstallment(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.SellerActionsUpdateInstallment(ctx, &V1SellerActionsUpdateInstallmentRequest{})
+	err := svc.SellerActionsChangeActivity(ctx, &V1SellerActionsChangeActivityRequest{})
 	_ = err
 }
 
-func TestActionsAutoAddProductsCandidates(t *testing.T) {
+func TestSellerActionsUpdateMultiLevelDiscount(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ActionsAutoAddProductsCandidates(ctx, &ActionsV1ActionsAutoAddProductsCandidatesRequest{})
+	err := svc.SellerActionsUpdateMultiLevelDiscount(ctx, &V1SellerActionsUpdateMultiLevelDiscountRequest{})
+	_ = err
+}
+
+func TestSellerActionsCreateDiscount(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerActionsCreateDiscount(ctx, &V1SellerActionsCreateDiscountRequest{})
 	if err != nil {
-		t.Fatalf("ActionsAutoAddProductsCandidates() error: %v", err)
+		t.Fatalf("SellerActionsCreateDiscount() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsAutoAddProductsDelete(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsAutoAddProductsDelete(ctx, &ActionsV1ActionsAutoAddProductsDeleteRequest{})
+	if err != nil {
+		t.Fatalf("ActionsAutoAddProductsDelete() error: %v", err)
 	}
 	_ = resp
 }
@@ -88,6 +71,60 @@ func TestTaskDecline(t *testing.T) {
 	_ = resp
 }
 
+func TestTaskList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.TaskList(ctx, &V1GetDiscountTaskListRequest{})
+	if err != nil {
+		t.Fatalf("TaskList() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestSellerActionsUpdateDiscount(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.SellerActionsUpdateDiscount(ctx, &V1SellerActionsUpdateDiscountRequest{})
+	_ = err
+}
+
+func TestActionsAutoAddProductsCandidates(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsAutoAddProductsCandidates(ctx, &ActionsV1ActionsAutoAddProductsCandidatesRequest{})
+	if err != nil {
+		t.Fatalf("ActionsAutoAddProductsCandidates() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestSellerActionsUpdateInstallment(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.SellerActionsUpdateInstallment(ctx, &V1SellerActionsUpdateInstallmentRequest{})
+	_ = err
+}
+
+func TestSellerActionsList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerActionsList(ctx, &V1SellerActionsListRequest{})
+	if err != nil {
+		t.Fatalf("SellerActionsList() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestSellerActionsCreateMultiLevelDiscount(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerActionsCreateMultiLevelDiscount(ctx, &V1SellerActionsCreateMultiLevelDiscountRequest{})
+	if err != nil {
+		t.Fatalf("SellerActionsCreateMultiLevelDiscount() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestPromosProductsActivate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -98,22 +135,36 @@ func TestPromosProductsActivate(t *testing.T) {
 	_ = resp
 }
 
-func TestActionsAutoAddProductsUpdate(t *testing.T) {
+func TestSellerActionsCreateVoucher(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ActionsAutoAddProductsUpdate(ctx, &ActionsV1ActionsAutoAddProductsUpdateRequest{})
+	resp, err := svc.SellerActionsCreateVoucher(ctx, &V1SellerActionsCreateVoucherRequest{})
 	if err != nil {
-		t.Fatalf("ActionsAutoAddProductsUpdate() error: %v", err)
+		t.Fatalf("SellerActionsCreateVoucher() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestPromosProductsDeactivate(t *testing.T) {
+func TestSellerActionsUpdateDiscountWithCondition(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.PromosProductsDeactivate(ctx, &SellerApiProductIDsV1Request{})
+	err := svc.SellerActionsUpdateDiscountWithCondition(ctx, &V1SellerActionsUpdateDiscountWithConditionRequest{})
+	_ = err
+}
+
+func TestSellerActionsProductsDelete(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.SellerActionsProductsDelete(ctx, &V1SellerActionsProductsDeleteRequest{})
+	_ = err
+}
+
+func TestSellerActionsProductsCandidates(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerActionsProductsCandidates(ctx, &V1SellerActionsProductsCandidatesRequest{})
 	if err != nil {
-		t.Fatalf("PromosProductsDeactivate() error: %v", err)
+		t.Fatalf("SellerActionsProductsCandidates() error: %v", err)
 	}
 	_ = resp
 }
@@ -128,110 +179,33 @@ func TestPromosProducts(t *testing.T) {
 	_ = resp
 }
 
-func TestSellerActionsChangeActivity(t *testing.T) {
+func TestSellerActionsUpdateVoucher(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.SellerActionsChangeActivity(ctx, &V1SellerActionsChangeActivityRequest{})
+	err := svc.SellerActionsUpdateVoucher(ctx, &V1SellerActionsUpdateVoucherRequest{})
 	_ = err
 }
 
-func TestPromos(t *testing.T) {
+func TestSellerActionsArchive(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Promos(ctx)
-	if err != nil {
-		t.Fatalf("Promos() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsUpdateDiscount(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.SellerActionsUpdateDiscount(ctx, &V1SellerActionsUpdateDiscountRequest{})
+	err := svc.SellerActionsArchive(ctx, &V1SellerActionsArchiveRequest{})
 	_ = err
 }
 
-func TestSellerActionsUpdateDiscountWithCondition(t *testing.T) {
+func TestSellerActionsProductsAdd(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.SellerActionsUpdateDiscountWithCondition(ctx, &V1SellerActionsUpdateDiscountWithConditionRequest{})
+	err := svc.SellerActionsProductsAdd(ctx, &V1SellerActionsProductsAddRequest{})
 	_ = err
 }
 
-func TestActionsAutoAddProductsDelete(t *testing.T) {
+func TestPromosCandidates(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ActionsAutoAddProductsDelete(ctx, &ActionsV1ActionsAutoAddProductsDeleteRequest{})
+	resp, err := svc.PromosCandidates(ctx, &SellerApiGetSellerProductV1Request{})
 	if err != nil {
-		t.Fatalf("ActionsAutoAddProductsDelete() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsCreateDiscount(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsCreateDiscount(ctx, &V1SellerActionsCreateDiscountRequest{})
-	if err != nil {
-		t.Fatalf("SellerActionsCreateDiscount() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsList(ctx, &V1SellerActionsListRequest{})
-	if err != nil {
-		t.Fatalf("SellerActionsList() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsCreateDiscountWithCondition(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsCreateDiscountWithCondition(ctx, &V1SellerActionsCreateDiscountWithConditionRequest{})
-	if err != nil {
-		t.Fatalf("SellerActionsCreateDiscountWithCondition() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestTaskApprove(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.TaskApprove(ctx, &V1ApproveDiscountTasksRequest{})
-	if err != nil {
-		t.Fatalf("TaskApprove() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestActionsAutoAddProductsList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ActionsAutoAddProductsList(ctx, &ActionsV1ActionsAutoAddProductsListRequest{})
-	if err != nil {
-		t.Fatalf("ActionsAutoAddProductsList() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestSellerActionsUpdateMultiLevelDiscount(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.SellerActionsUpdateMultiLevelDiscount(ctx, &V1SellerActionsUpdateMultiLevelDiscountRequest{})
-	_ = err
-}
-
-func TestSellerActionsProductsList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsProductsList(ctx, &V1SellerActionsProductsListRequest{})
-	if err != nil {
-		t.Fatalf("SellerActionsProductsList() error: %v", err)
+		t.Fatalf("PromosCandidates() error: %v", err)
 	}
 	_ = resp
 }
@@ -246,46 +220,72 @@ func TestSellerActionsCreateInstallment(t *testing.T) {
 	_ = resp
 }
 
-func TestSellerActionsArchive(t *testing.T) {
+func TestActionsAutoAddProductsList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.SellerActionsArchive(ctx, &V1SellerActionsArchiveRequest{})
-	_ = err
-}
-
-func TestSellerActionsCreateVoucher(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsCreateVoucher(ctx, &V1SellerActionsCreateVoucherRequest{})
+	resp, err := svc.ActionsAutoAddProductsList(ctx, &ActionsV1ActionsAutoAddProductsListRequest{})
 	if err != nil {
-		t.Fatalf("SellerActionsCreateVoucher() error: %v", err)
+		t.Fatalf("ActionsAutoAddProductsList() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestSellerActionsProductsAdd(t *testing.T) {
+func TestTaskApprove(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.SellerActionsProductsAdd(ctx, &V1SellerActionsProductsAddRequest{})
-	_ = err
-}
-
-func TestSellerActionsProductsCandidates(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsProductsCandidates(ctx, &V1SellerActionsProductsCandidatesRequest{})
+	resp, err := svc.TaskApprove(ctx, &V1ApproveDiscountTasksRequest{})
 	if err != nil {
-		t.Fatalf("SellerActionsProductsCandidates() error: %v", err)
+		t.Fatalf("TaskApprove() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestPromosCandidates(t *testing.T) {
+func TestActionsAutoAddProductsUpdate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.PromosCandidates(ctx, &SellerApiGetSellerProductV1Request{})
+	resp, err := svc.ActionsAutoAddProductsUpdate(ctx, &ActionsV1ActionsAutoAddProductsUpdateRequest{})
 	if err != nil {
-		t.Fatalf("PromosCandidates() error: %v", err)
+		t.Fatalf("ActionsAutoAddProductsUpdate() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestPromos(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.Promos(ctx)
+	if err != nil {
+		t.Fatalf("Promos() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestPromosProductsDeactivate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.PromosProductsDeactivate(ctx, &SellerApiProductIDsV1Request{})
+	if err != nil {
+		t.Fatalf("PromosProductsDeactivate() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestSellerActionsVoucherGet(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerActionsVoucherGet(ctx, &V1SellerActionsVoucherGetRequest{})
+	if err != nil {
+		t.Fatalf("SellerActionsVoucherGet() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestSellerActionsProductsList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SellerActionsProductsList(ctx, &V1SellerActionsProductsListRequest{})
+	if err != nil {
+		t.Fatalf("SellerActionsProductsList() error: %v", err)
 	}
 	_ = resp
 }

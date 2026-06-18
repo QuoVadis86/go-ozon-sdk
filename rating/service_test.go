@@ -17,22 +17,22 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestListFBSRatingIndexPostingsV1(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ListFBSRatingIndexPostingsV1(ctx, &V1ListFBSRatingIndexPostingsV1Request{})
-	if err != nil {
-		t.Fatalf("ListFBSRatingIndexPostingsV1() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestGetFBSRatingIndexInfoV1(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	resp, err := svc.GetFBSRatingIndexInfoV1(ctx)
 	if err != nil {
 		t.Fatalf("GetFBSRatingIndexInfoV1() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestListFBSRatingIndexPostingsV1(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ListFBSRatingIndexPostingsV1(ctx, &V1ListFBSRatingIndexPostingsV1Request{})
+	if err != nil {
+		t.Fatalf("ListFBSRatingIndexPostingsV1() error: %v", err)
 	}
 	_ = resp
 }

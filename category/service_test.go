@@ -17,12 +17,12 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestSearchAttributeValues(t *testing.T) {
+func TestGetAttributes(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.SearchAttributeValues(ctx, &V1SearchAttributeValuesRequest{})
+	resp, err := svc.GetAttributes(ctx, &V1GetAttributesRequest{})
 	if err != nil {
-		t.Fatalf("SearchAttributeValues() error: %v", err)
+		t.Fatalf("GetAttributes() error: %v", err)
 	}
 	_ = resp
 }
@@ -47,12 +47,12 @@ func TestGetAttributeValues(t *testing.T) {
 	_ = resp
 }
 
-func TestGetAttributes(t *testing.T) {
+func TestSearchAttributeValues(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.GetAttributes(ctx, &V1GetAttributesRequest{})
+	resp, err := svc.SearchAttributeValues(ctx, &V1SearchAttributeValuesRequest{})
 	if err != nil {
-		t.Fatalf("GetAttributes() error: %v", err)
+		t.Fatalf("SearchAttributeValues() error: %v", err)
 	}
 	_ = resp
 }
