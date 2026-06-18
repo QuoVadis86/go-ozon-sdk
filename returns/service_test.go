@@ -17,16 +17,6 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestReturnsRfbsGetV2(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ReturnsRfbsGetV2(ctx, &V2ReturnsRfbsGetRequest{})
-	if err != nil {
-		t.Fatalf("ReturnsRfbsGetV2() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestReturnsRfbsListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -37,11 +27,14 @@ func TestReturnsRfbsListV2(t *testing.T) {
 	_ = resp
 }
 
-func TestConditionalCancellationApproveV2(t *testing.T) {
+func TestReturnsRfbsGetV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.ConditionalCancellationApproveV2(ctx)
-	_ = err
+	resp, err := svc.ReturnsRfbsGetV2(ctx, &V2ReturnsRfbsGetRequest{})
+	if err != nil {
+		t.Fatalf("ReturnsRfbsGetV2() error: %v", err)
+	}
+	_ = resp
 }
 
 func TestConditionalCancellationRejectV2(t *testing.T) {
@@ -58,22 +51,29 @@ func TestReturnsRfbsActionSet(t *testing.T) {
 	_ = err
 }
 
-func TestGetConditionalCancellationListV2(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.GetConditionalCancellationListV2(ctx, &V2GetConditionalCancellationListV2Request{})
-	if err != nil {
-		t.Fatalf("GetConditionalCancellationListV2() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestReturnsList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	resp, err := svc.ReturnsList(ctx, &V1GetReturnsListRequest{})
 	if err != nil {
 		t.Fatalf("ReturnsList() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestConditionalCancellationApproveV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ConditionalCancellationApproveV2(ctx)
+	_ = err
+}
+
+func TestGetConditionalCancellationListV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetConditionalCancellationListV2(ctx, &V2GetConditionalCancellationListV2Request{})
+	if err != nil {
+		t.Fatalf("GetConditionalCancellationListV2() error: %v", err)
 	}
 	_ = resp
 }

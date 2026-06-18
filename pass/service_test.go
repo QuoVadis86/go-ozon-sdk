@@ -17,12 +17,12 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestReturnsCompanyFBSInfo(t *testing.T) {
+func TestPassList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ReturnsCompanyFBSInfo(ctx, &V1ReturnsCompanyFbsInfoRequest{})
+	resp, err := svc.PassList(ctx, &ArrivalpassArrivalPassListRequest{})
 	if err != nil {
-		t.Fatalf("ReturnsCompanyFBSInfo() error: %v", err)
+		t.Fatalf("PassList() error: %v", err)
 	}
 	_ = resp
 }
@@ -44,13 +44,6 @@ func TestCarriagePassUpdate(t *testing.T) {
 	_ = err
 }
 
-func TestReturnPassUpdate(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
-	_ = err
-}
-
 func TestReturnPassCreate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -68,19 +61,26 @@ func TestCarriagePassDelete(t *testing.T) {
 	_ = err
 }
 
+func TestReturnsCompanyFBSInfo(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ReturnsCompanyFBSInfo(ctx, &V1ReturnsCompanyFbsInfoRequest{})
+	if err != nil {
+		t.Fatalf("ReturnsCompanyFBSInfo() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestReturnPassUpdate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
+	_ = err
+}
+
 func TestReturnPassDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	err := svc.ReturnPassDelete(ctx, &ArrivalpassArrivalPassDeleteRequest{})
 	_ = err
-}
-
-func TestPassList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.PassList(ctx, &ArrivalpassArrivalPassListRequest{})
-	if err != nil {
-		t.Fatalf("PassList() error: %v", err)
-	}
-	_ = resp
 }

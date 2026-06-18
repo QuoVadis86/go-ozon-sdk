@@ -698,7 +698,8 @@ func main() {
 			var notes []string
 			noteKeywords := []string{"请使用", "请确保", "请注意", "每30秒", "状态码为200",
 				"不能", "无法", "不可", "必须先", "请先",
-				"如需", "要获取", "为了", "在更新之前", "在更改状态前"}
+				"如需", "要获取", "为了", "在更新之前", "在更改状态前",
+				"每个", "每次", "最多"}
 			stripRE := regexp.MustCompile(`<[^>]+>`)
 			for _, kw := range noteKeywords {
 				idx := strings.Index(desc, kw)

@@ -7,21 +7,10 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 获取已创建样件数据
-// Note: 请使用此方法获取 `exemplar_id`。
-func (s *Service) FbsPostingProductExemplarCreateOrGetV6(ctx context.Context, req *V6FbsPostingProductExemplarCreateOrGetV6Request) (*V6FbsPostingProductExemplarCreateOrGetV6Response, error) {
-	var resp V6FbsPostingProductExemplarCreateOrGetV6Response
-	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/create-or-get", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取FBS和rFBS仓库库存信息
-func (s *Service) ProductInfoWarehouseStocks(ctx context.Context, req *V1ProductInfoWarehouseStocksRequest) (*V1ProductInfoWarehouseStocksResponse, error) {
-	var resp V1ProductInfoWarehouseStocksResponse
-	err := s.Client.Post(ctx, "/v1/product/info/warehouse/stocks", req, &resp)
+// 获取折扣申请列表
+func (s *Service) GetDiscountTaskListV2(ctx context.Context, req *V2GetDiscountTaskListV2Request) (*V2GetDiscountTaskListV2Response, error) {
+	var resp V2GetDiscountTaskListV2Response
+	err := s.Client.Post(ctx, "/v2/actions/discounts-task/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -38,81 +27,10 @@ func (s *Service) SetProductStairwayDiscountByQuantity(ctx context.Context, req 
 	return &resp, nil
 }
 
-// 获取应计项目参考信息
-func (s *Service) GetFinanceAccrualTypes(ctx context.Context) (*V1GetFinanceAccrualTypesResponse, error) {
-	var resp V1GetFinanceAccrualTypesResponse
-	err := s.Client.Post(ctx, "/v1/finance/accrual/types", nil, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 检查并保存份数数据
-// Note: 请使用 [/v6/fbs/posting/product/exemplar/create-or-get](#operation/PostingAPI_FbsPostingProductExemplarCreateOrGetV6) 方式。
-// Note: 为了获取已创建样件的数据，请使用 [/v6/fbs/posting/product/exemplar/create-or-get](#operation/PostingAPI_FbsPostingProductExemplarCreateO...
-func (s *Service) FbsPostingProductExemplarSetV6(ctx context.Context, req *V6FbsPostingProductExemplarSetV6Request) error {
-	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/set", req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// 获取余额报告
-func (s *Service) GetFinanceBalanceV1(ctx context.Context, req *V1GetFinanceBalanceV1Request) (*V1GetFinanceBalanceV1Response, error) {
-	var resp V1GetFinanceBalanceV1Response
-	err := s.Client.Post(ctx, "/v1/finance/balance", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取按货件统计的应计项目
-func (s *Service) GetFinanceAccrualPostings(ctx context.Context, req *V1GetFinanceAccrualPostingsRequest) (*V1GetFinanceAccrualPostingsResponse, error) {
-	var resp V1GetFinanceAccrualPostingsResponse
-	err := s.Client.Post(ctx, "/v1/finance/accrual/postings", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// Обновить данные экземпляров
-// Note: 请使用 [/v6/fbs/posting/product/exemplar/set](#operation/PostingAPI_FbsPostingProductExemplarSetV6), 方法，在传输实例数据后调用该方法，以保存“等...
-func (s *Service) FbsPostingProductExemplarUpdate(ctx context.Context, req *V1FbsPostingProductExemplarUpdateRequest) error {
-	err := s.Client.Post(ctx, "/v1/fbs/posting/product/exemplar/update", req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// 将订单拆分为不带备货的货件
-func (s *Service) FbsSplit(ctx context.Context) (*V1PostingFbsSplitResponse, error) {
-	var resp V1PostingFbsSplitResponse
-	err := s.Client.Post(ctx, "/v1/posting/fbs/split", nil, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 获取按数量折扣信息
 func (s *Service) GetProductStairwayDiscountByQuantity(ctx context.Context, req *V1GetProductStairwayDiscountByQuantityRequest) (*V1GetProductStairwayDiscountByQuantityResponse, error) {
 	var resp V1GetProductStairwayDiscountByQuantityResponse
 	err := s.Client.Post(ctx, "/v1/product/stairway-discount/by-quantity/get", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取用于确定商品类目的提示
-func (s *Service) DescriptionCategoryTips(ctx context.Context, req *V1DescriptionCategoryTipsRequest) (*V1DescriptionCategoryTipsResponse, error) {
-	var resp V1DescriptionCategoryTipsResponse
-	err := s.Client.Post(ctx, "/v1/description-category/tips", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -129,30 +47,30 @@ func (s *Service) FbsPostingProductExemplarStatusV5(ctx context.Context, req *V5
 	return &resp, nil
 }
 
-// 标志代码验证
-func (s *Service) FbsPostingProductExemplarValidateV5(ctx context.Context, req *V5FbsPostingProductExemplarValidateV5Request) (*V5FbsPostingProductExemplarValidateV5Response, error) {
-	var resp V5FbsPostingProductExemplarValidateV5Response
-	err := s.Client.Post(ctx, "/v5/fbs/posting/product/exemplar/validate", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取折扣申请列表
-func (s *Service) GetDiscountTaskListV2(ctx context.Context, req *V2GetDiscountTaskListV2Request) (*V2GetDiscountTaskListV2Response, error) {
-	var resp V2GetDiscountTaskListV2Response
-	err := s.Client.Post(ctx, "/v2/actions/discounts-task/list", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 获取某日应计项目
 func (s *Service) GetFinanceAccrualByDay(ctx context.Context, req *V1GetFinanceAccrualByDayRequest) (*V1GetFinanceAccrualByDayResponse, error) {
 	var resp V1GetFinanceAccrualByDayResponse
 	err := s.Client.Post(ctx, "/v1/finance/accrual/by-day", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取FBS和rFBS仓库库存信息
+func (s *Service) ProductInfoWarehouseStocks(ctx context.Context, req *V1ProductInfoWarehouseStocksRequest) (*V1ProductInfoWarehouseStocksResponse, error) {
+	var resp V1ProductInfoWarehouseStocksResponse
+	err := s.Client.Post(ctx, "/v1/product/info/warehouse/stocks", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取按货件统计的应计项目
+func (s *Service) GetFinanceAccrualPostings(ctx context.Context, req *V1GetFinanceAccrualPostingsRequest) (*V1GetFinanceAccrualPostingsResponse, error) {
+	var resp V1GetFinanceAccrualPostingsResponse
+	err := s.Client.Post(ctx, "/v1/finance/accrual/postings", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -169,6 +87,36 @@ func (s *Service) ProductVisibilityInfo(ctx context.Context, req *V1ProductVisib
 	return &resp, nil
 }
 
+// 获取用于确定商品类目的提示
+func (s *Service) DescriptionCategoryTips(ctx context.Context, req *V1DescriptionCategoryTipsRequest) (*V1DescriptionCategoryTipsResponse, error) {
+	var resp V1DescriptionCategoryTipsResponse
+	err := s.Client.Post(ctx, "/v1/description-category/tips", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取余额报告
+func (s *Service) GetFinanceBalanceV1(ctx context.Context, req *V1GetFinanceBalanceV1Request) (*V1GetFinanceBalanceV1Response, error) {
+	var resp V1GetFinanceBalanceV1Response
+	err := s.Client.Post(ctx, "/v1/finance/balance", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 标志代码验证
+func (s *Service) FbsPostingProductExemplarValidateV5(ctx context.Context, req *V5FbsPostingProductExemplarValidateV5Request) (*V5FbsPostingProductExemplarValidateV5Response, error) {
+	var resp V5FbsPostingProductExemplarValidateV5Response
+	err := s.Client.Post(ctx, "/v5/fbs/posting/product/exemplar/validate", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 新增了用于设置商品在Ozon和Ozon Select橱窗可见性的Beta方法。
 func (s *Service) ProductVisibilitySet(ctx context.Context, req *V1ProductVisibilitySetRequest) (*V1ProductVisibilitySetResponse, error) {
 	var resp V1ProductVisibilitySetResponse
@@ -177,4 +125,57 @@ func (s *Service) ProductVisibilitySet(ctx context.Context, req *V1ProductVisibi
 		return nil, err
 	}
 	return &resp, nil
+}
+
+// 将订单拆分为不带备货的货件
+func (s *Service) FbsSplit(ctx context.Context) (*V1PostingFbsSplitResponse, error) {
+	var resp V1PostingFbsSplitResponse
+	err := s.Client.Post(ctx, "/v1/posting/fbs/split", nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取已创建样件数据
+// Note: 请使用此方法获取 `exemplar_id`。
+func (s *Service) FbsPostingProductExemplarCreateOrGetV6(ctx context.Context, req *V6FbsPostingProductExemplarCreateOrGetV6Request) (*V6FbsPostingProductExemplarCreateOrGetV6Response, error) {
+	var resp V6FbsPostingProductExemplarCreateOrGetV6Response
+	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/create-or-get", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 检查并保存份数数据
+// Note: 请使用 [/v6/fbs/posting/product/exemplar/create-or-get](#operation/PostingAPI_FbsPostingProductExemplarCreateOrGetV6) 方式。
+// Note: 为了获取已创建样件的数据，请使用 [/v6/fbs/posting/product/exemplar/create-or-get](#operation/PostingAPI_FbsPostingProductExemplarCreateO...
+// Note: 每个商品指出一个 `product_id` 和一组 `exemplars`。
+func (s *Service) FbsPostingProductExemplarSetV6(ctx context.Context, req *V6FbsPostingProductExemplarSetV6Request) error {
+	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/set", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 获取应计项目参考信息
+func (s *Service) GetFinanceAccrualTypes(ctx context.Context) (*V1GetFinanceAccrualTypesResponse, error) {
+	var resp V1GetFinanceAccrualTypesResponse
+	err := s.Client.Post(ctx, "/v1/finance/accrual/types", nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// Обновить данные экземпляров
+// Note: 请使用 [/v6/fbs/posting/product/exemplar/set](#operation/PostingAPI_FbsPostingProductExemplarSetV6), 方法，在传输实例数据后调用该方法，以保存“等...
+func (s *Service) FbsPostingProductExemplarUpdate(ctx context.Context, req *V1FbsPostingProductExemplarUpdateRequest) error {
+	err := s.Client.Post(ctx, "/v1/fbs/posting/product/exemplar/update", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }

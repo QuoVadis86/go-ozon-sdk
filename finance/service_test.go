@@ -17,16 +17,6 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestGetCompensationReport(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.GetCompensationReport(ctx, &V1GetCompensationReportRequest{})
-	if err != nil {
-		t.Fatalf("GetCompensationReport() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestGetRealizationReportV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -37,12 +27,12 @@ func TestGetRealizationReportV2(t *testing.T) {
 	_ = resp
 }
 
-func TestGetRealizationReportV1(t *testing.T) {
+func TestFinanceTransactionListV3(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.GetRealizationReportV1(ctx, &V1GetRealizationReportPostingRequest{})
+	resp, err := svc.FinanceTransactionListV3(ctx, &V3FinanceTransactionListV3Request{})
 	if err != nil {
-		t.Fatalf("GetRealizationReportV1() error: %v", err)
+		t.Fatalf("FinanceTransactionListV3() error: %v", err)
 	}
 	_ = resp
 }
@@ -67,12 +57,22 @@ func TestFinanceTransactionTotalV3(t *testing.T) {
 	_ = resp
 }
 
-func TestFinanceTransactionListV3(t *testing.T) {
+func TestGetCompensationReport(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.FinanceTransactionListV3(ctx, &V3FinanceTransactionListV3Request{})
+	resp, err := svc.GetCompensationReport(ctx, &V1GetCompensationReportRequest{})
 	if err != nil {
-		t.Fatalf("FinanceTransactionListV3() error: %v", err)
+		t.Fatalf("GetCompensationReport() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestGetRealizationReportV1(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetRealizationReportV1(ctx, &V1GetRealizationReportPostingRequest{})
+	if err != nil {
+		t.Fatalf("GetRealizationReportV1() error: %v", err)
 	}
 	_ = resp
 }
