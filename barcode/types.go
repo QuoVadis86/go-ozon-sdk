@@ -1,12 +1,5 @@
 package barcode
 
-type V1AddBarcodeResult struct {
-	Code string `json:"code"` // 错误代码。
-	Error string `json:"error"` // 错误描述。
-	Barcode string `json:"barcode"` // 未能绑定的条形码。
-	SKU int64 `json:"sku"` // 未能绑定条形码的商品标识符。
-}
-
 type V1GenerateBarcodeRequest struct {
 	ProductIds []string `json:"product_ids"` // 需要生成条形码的商品标识符。
 }
@@ -29,6 +22,13 @@ type V1Barcode struct {
 
 type V1AddBarcodeRequest struct {
 	Barcodes []V1Barcode `json:"barcodes"` // 条形码与商品的列表。
+}
+
+type V1AddBarcodeResult struct {
+	SKU int64 `json:"sku"` // 未能绑定条形码的商品标识符。
+	Code string `json:"code"` // 错误代码。
+	Error string `json:"error"` // 错误描述。
+	Barcode string `json:"barcode"` // 未能绑定的条形码。
 }
 
 type V1AddBarcodeResponse struct {

@@ -188,58 +188,128 @@ func sanitizeComment(s string) string {
 
 var enumRe = regexp.MustCompile("`([^`]+)`")
 
+var descRe = regexp.MustCompile("`([^`]+)`(?:\\s*[-–—]+\\s*([^\n\r;]*))?")
+
 // extractEnumValues parses field description for inline enum values like:
 // - `value` — description
 // Returns deduplicated non-boolean string values.
 func extractEnumValues(desc string) []string {
-	if desc == "" { return nil }
-	matches := enumRe.FindAllStringSubmatch(desc, -1)
-	if len(matches) < 2 { return nil } // Need at least 2 to be an enum
+	vals, _ := extractEnumValuesWithDesc(desc)
+	return vals
+}
+
+// extractEnumValuesWithDesc returns values and their descriptions.
+func extractEnumValuesWithDesc(desc string) ([]string, []string) {
+	if desc == "" { return nil, nil }
+	matches := descRe.FindAllStringSubmatch(desc, -1)
+	if len(matches) < 2 { return nil, nil }
 	boolSet := map[string]bool{"true": true, "false": true, "0": true, "1": true, "yes": true, "no": true}
 	seen := map[string]bool{}
 	var vals []string
+	var valDescs []string
 	for _, m := range matches {
 		v := strings.TrimSpace(m[1])
 		if v == "" || boolSet[strings.ToLower(v)] { continue }
 		if seen[v] { continue }
 		seen[v] = true
 		vals = append(vals, v)
+		d := strings.TrimSpace(m[2])
+		valDescs = append(valDescs, d)
 	}
-	if len(vals) < 2 { return nil }
-	return vals
+	if len(vals) < 2 { return nil, nil }
+	return vals, valDescs
 }
 
-// enumTypeName creates a Go type name for an enum derived from a struct and field name.
-func enumTypeName(structName, fieldName string) string {
-	return toGoName(structName + "_" + fieldName) + "Enum"
+// shortName shortens a struct+field name to a minimal but meaningful type name.
+// It uses just the field name, with struct context only when needed for uniqueness.
+func shortName(structName, fieldName string) string {
+	fn := toGoName(fieldName)
+	// If field name is already distinctive enough, use it alone
+	if len(fn) >= 3 {
+		return fn
+	}
+	// Otherwise combine with the last meaningful part of struct name
+	parts := splitCamel(structName)
+	if len(parts) > 1 {
+		return parts[len(parts)-1] + fn
+	}
+	return fn
 }
 
-// enumConstName creates a Go constant name for an enum value.
-func enumConstName(enumType, value string) string {
-	clean := strings.Map(func(r rune) rune {
+func splitCamel(s string) []string {
+	var parts []string
+	var cur []rune
+	for _, r := range s {
+		if r >= 'A' && r <= 'Z' && len(cur) > 0 {
+			parts = append(parts, string(cur))
+			cur = []rune{r}
+		} else {
+			cur = append(cur, r)
+		}
+	}
+	if len(cur) > 0 {
+		parts = append(parts, string(cur))
+	}
+	return parts
+}
+
+// shortEnumTypeName creates a short Go type name for an enum.
+func shortEnumTypeName(structName, fieldName string, usedNames map[string]string) string {
+	base := shortName(structName, fieldName)
+	if _, exists := usedNames[base]; !exists {
+		return base
+	}
+	// Collision: prepend distinguishing part from struct name
+	sParts := splitCamel(toGoName(structName))
+	for i := len(sParts) - 1; i >= 0; i-- {
+		candidate := sParts[i] + base
+		if _, exists := usedNames[candidate]; !exists {
+			return candidate
+		}
+	}
+	return toGoName(structName + "_" + fieldName)
+}
+
+// cleanEnumValue sanitizes a raw enum value string into a Go identifier fragment.
+func cleanEnumValue(value string) string {
+	s := strings.Map(func(r rune) rune {
 		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' {
 			return r
 		}
 		return '_'
 	}, value)
-	clean = strings.Trim(clean, "_")
-	if clean == "" || (clean[0] >= '0' && clean[0] <= '9') {
-		clean = "V" + clean
+	s = strings.Trim(s, "_")
+	if s == "" || (s[0] >= '0' && s[0] <= '9') {
+		s = "V" + s
 	}
+	return s
+}
+
+// valueToCamel converts a raw value like "FBS_DELIVERY" to "FBSDelivery" or "pending" to "Pending".
+func valueToCamel(value string) string {
+	clean := cleanEnumValue(value)
 	parts := strings.Split(clean, "_")
 	var cased []string
 	for _, p := range parts {
 		if p == "" { continue }
-		cased = append(cased, strings.ToUpper(p[:1])+p[1:])
+		allUpper := strings.ToUpper(p) == p
+		if len(p) <= 3 && allUpper {
+			// Short all-caps like FBS, ID -> keep uppercase
+			cased = append(cased, p)
+		} else if allUpper {
+			// Long all-caps like DELIVERY -> capitalize first letter
+			cased = append(cased, strings.ToUpper(p[:1])+strings.ToLower(p[1:]))
+		} else {
+			cased = append(cased, strings.ToUpper(p[:1])+p[1:])
+		}
 	}
-	s := enumType + "_" + strings.Join(cased, "")
-	s = strings.ReplaceAll(s, "__", "_")
-	return s
+	return strings.Join(cased, "")
 }
 
 var (
 	enumTypeGenerated map[string]bool
 	allGeneratedTypes map[string]bool
+	enumNameUsed      map[string]string
 )
 
 func appendType(out *[]string, name string, s Schema, cache map[string]string, schemas map[string]Schema) {
@@ -270,21 +340,22 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 
 	// First pass: collect inline enum definitions and generate type+const blocks
 	type enumDef struct {
-		typeName string
-		values   []string
-		desc     string
+		typeName     string
+		values       []string
+		valueDescs   []string
 	}
 	var enums []enumDef
 	for pn, pv := range s.Properties {
 		pvMap, _ := pv.(map[string]interface{})
 		if pvMap == nil { continue }
 		desc, _ := pvMap["description"].(string)
-		vals := extractEnumValues(desc)
+		vals, valDescs := extractEnumValuesWithDesc(desc)
 		if vals == nil { continue }
+		typeName := shortEnumTypeName(name, pn, enumNameUsed)
 		enums = append(enums, enumDef{
-			typeName: enumTypeName(name, pn),
-			values:   vals,
-			desc:     desc,
+			typeName:   typeName,
+			values:     vals,
+			valueDescs: valDescs,
 		})
 	}
 
@@ -292,28 +363,23 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 	for _, e := range enums {
 		if allGeneratedTypes[e.typeName] { continue }
 		allGeneratedTypes[e.typeName] = true
-		// Add description as doc comment
-		firstLine := strings.SplitN(e.desc, "\n", 2)[0]
-		firstLine = strings.SplitN(firstLine, "。", 2)[0]
-		firstLine = sanitizeComment(firstLine)
-		if firstLine != "" {
-			*out = append(*out, fmt.Sprintf("// %s", firstLine))
-		}
+		*out = append(*out, fmt.Sprintf("// %s values", e.typeName))
 		*out = append(*out, fmt.Sprintf("type %s string", e.typeName))
-		*out = append(*out, fmt.Sprintf("const ("))
+		*out = append(*out, "const (")
 		usedNames := map[string]bool{}
-		for _, v := range e.values {
-			constName := enumConstName(e.typeName, v)
+		for i, v := range e.values {
+			constName := e.typeName + valueToCamel(v)
 			if usedNames[constName] {
-				// Add suffix to make unique
 				suffix := 1
-				for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] {
-					suffix++
-				}
+				for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] { suffix++ }
 				constName = fmt.Sprintf("%s_%d", constName, suffix)
 			}
 			usedNames[constName] = true
-			*out = append(*out, fmt.Sprintf("\t%s %s = %q", constName, e.typeName, v))
+			line := fmt.Sprintf("\t%s %s = %q", constName, e.typeName, v)
+			if i < len(e.valueDescs) && e.valueDescs[i] != "" {
+				line += fmt.Sprintf(" // %s", sanitizeComment(e.valueDescs[i]))
+			}
+			*out = append(*out, line)
 		}
 		*out = append(*out, ")")
 		*out = append(*out, "")
@@ -328,9 +394,8 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		desc, _ := pvMap["description"].(string)
 		fn := toGoName(pn)
 		ft := resolveFieldType(pvMap, cache, schemas)
-		// Replace string type with enum type when inline enum values exist
 		if ft == "string" && extractEnumValues(desc) != nil {
-			ft = enumTypeName(name, pn)
+			ft = shortEnumTypeName(name, pn, enumNameUsed)
 		}
 		jtag := pn
 		if pn == "type" { jtag = "type_" }
@@ -530,6 +595,7 @@ func main() {
 		dirGoNames := map[string]string{}
 		enumTypeGenerated = map[string]bool{}
 		allGeneratedTypes = map[string]bool{}
+		enumNameUsed = map[string]string{}
 
 		var writeType func(string)
 		writeType = func(sname string) {
