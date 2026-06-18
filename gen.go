@@ -69,20 +69,84 @@ func toGoName(s string) string {
 }
 
 type Schema struct {
-	Type        string                 `json:"type"`
-	Properties  map[string]interface{} `json:"properties"`
-	Description string                 `json:"description"`
-	Title       string                 `json:"title"`
+	Type        string                   `json:"type"`
+	Properties  map[string]interface{}   `json:"properties"`
+	Items       *Schema                  `json:"items"`
+	Enum        []interface{}            `json:"enum"`
+	Description string                   `json:"description"`
+	Title       string                   `json:"title"`
+	Ref         string                   `json:"$ref"`
+	Format      string                   `json:"format"`
+	Nullable    bool                     `json:"nullable"`
 }
 
-type PathItem struct {
-	Summary     string `json:"summary"`
-	Description string `json:"description"`
-}
 type ReqBody struct {
 	Content map[string]struct {
 		Schema struct{ Ref string `json:"$ref"` } `json:"schema"`
 	} `json:"content"`
+}
+
+// resolveFieldType determines the Go type for a property, handling enums, arrays, etc.
+func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas map[string]Schema) string {
+	ref, _ := p["$ref"].(string)
+	if ref != "" {
+		rname := strings.TrimPrefix(ref, "#/components/schemas/")
+		if t, ok := cache[rname]; ok { return t }
+		return "any"
+	}
+
+	typ, _ := p["type"].(string)
+	fmt := ""
+	if f, ok := p["format"].(string); ok { fmt = f }
+
+	// Check for array via items field (even without explicit type: array)
+	if _, hasItems := p["items"]; hasItems {
+		itemsRaw, _ := json.Marshal(p["items"])
+		var items Schema
+		json.Unmarshal(itemsRaw, &items)
+		itemType := resolveFieldTypeFromSchema(&items, cache, schemas)
+		return "[]" + itemType
+	}
+
+	switch typ {
+	case "array":
+		return "[]any"
+	case "string":
+		return "string"
+	case "integer":
+		if fmt == "int32" { return "int32" }
+		return "int64"
+	case "number":
+		return "float64"
+	case "boolean":
+		return "bool"
+	case "object":
+		return "map[string]any"
+	default:
+		return "any"
+	}
+}
+
+func resolveFieldTypeFromSchema(s *Schema, cache map[string]string, schemas map[string]Schema) string {
+	if s.Ref != "" {
+		rname := strings.TrimPrefix(s.Ref, "#/components/schemas/")
+		if t, ok := cache[rname]; ok { return t }
+		return "any"
+	}
+	if s.Type == "array" || s.Items != nil {
+		sub := resolveFieldTypeFromSchema(s.Items, cache, schemas)
+		return "[]" + sub
+	}
+	switch s.Type {
+	case "string": return "string"
+	case "integer":
+		if s.Format == "int32" { return "int32" }
+		return "int64"
+	case "number": return "float64"
+	case "boolean": return "bool"
+	case "object": return "map[string]any"
+	default: return "any"
+	}
 }
 
 func containsAny(s string, list []string) bool {
@@ -122,42 +186,39 @@ func sanitizeComment(s string) string {
 	return strings.TrimSpace(truncateRunes(s, 120))
 }
 
-func appendType(out *[]string, name string, s Schema, cache map[string]string) {
+func appendType(out *[]string, name string, s Schema, cache map[string]string, schemas map[string]Schema) {
 	if s.Description != "" {
 		*out = append(*out, fmt.Sprintf("// %s", sanitizeComment(s.Description)))
 	}
 	if s.Properties == nil || len(s.Properties) == 0 {
 		switch s.Type {
-		case "array": *out = append(*out, fmt.Sprintf("type %s []interface{}", name))
+		case "array":
+			itemType := "any"
+			if s.Items != nil {
+				itemType = resolveFieldTypeFromSchema(s.Items, cache, schemas)
+			}
+			*out = append(*out, fmt.Sprintf("type %s []%s", name, itemType))
 		case "string": *out = append(*out, fmt.Sprintf("type %s string", name))
 		case "integer": *out = append(*out, fmt.Sprintf("type %s int64", name))
 		case "number": *out = append(*out, fmt.Sprintf("type %s float64", name))
 		case "boolean": *out = append(*out, fmt.Sprintf("type %s bool", name))
-		default: *out = append(*out, fmt.Sprintf("type %s interface{}", name))
+		default: *out = append(*out, fmt.Sprintf("type %s any", name))
 		}
 		*out = append(*out, "")
 		return
 	}
 	*out = append(*out, fmt.Sprintf("type %s struct {", name))
 	for pn, pv := range s.Properties {
-		pr, _ := json.Marshal(pv)
-		var p struct{ Ref, Type, Format, Description string }
-		json.Unmarshal(pr, &p)
+		pvMap, _ := pv.(map[string]interface{})
+		if pvMap == nil { continue }
+		desc, _ := pvMap["description"].(string)
 		fn := toGoName(pn)
-		ft := "interface{}"
-		if p.Ref != "" { ft = cache[strings.TrimPrefix(p.Ref, "#/components/schemas/")]
-		} else if p.Type == "array" { ft = "[]interface{}"
-		} else if p.Type == "string" { ft = "string"
-		} else if p.Type == "integer" {
-			if p.Format == "int32" { ft = "int32" } else { ft = "int64" }
-		} else if p.Type == "number" { ft = "float64"
-		} else if p.Type == "boolean" { ft = "bool"
-		} else if p.Type == "object" { ft = "map[string]interface{}" }
+		ft := resolveFieldType(pvMap, cache, schemas)
 		jtag := pn
 		if pn == "type" { jtag = "type_" }
 		line := fmt.Sprintf("\t%s %s `json:\"%s\"`", fn, ft, jtag)
-		if p.Description != "" {
-			comment := sanitizeComment(p.Description)
+		if desc != "" {
+			comment := sanitizeComment(desc)
 			if comment != "" {
 				line += fmt.Sprintf(" // %s", comment)
 			}
@@ -190,10 +251,19 @@ func main() {
 		if s.Properties == nil { continue }
 		for _, pv := range s.Properties {
 			pr, _ := json.Marshal(pv)
-			var p struct{ Ref string }
+			var p struct {
+				Ref   string `json:"$ref"`
+				Items *struct {
+					Ref string `json:"$ref"`
+				} `json:"items"`
+			}
 			json.Unmarshal(pr, &p)
 			if p.Ref != "" {
 				rn := strings.TrimPrefix(p.Ref, "#/components/schemas/")
+				if rn != sname { depOf[sname][rn] = true }
+			}
+			if p.Items != nil && p.Items.Ref != "" {
+				rn := strings.TrimPrefix(p.Items.Ref, "#/components/schemas/")
 				if rn != sname { depOf[sname][rn] = true }
 			}
 		}
@@ -331,90 +401,47 @@ func main() {
 		dirAllTypes[dir] = visited
 	}
 
-	typeDirCount := map[string]int{}
-	for _, types := range dirAllTypes {
-		for t := range types { typeDirCount[t]++ }
-	}
-
-	sharedTypes := map[string]bool{}
-	for t, c := range typeDirCount {
-		if c > 1 { sharedTypes[t] = true }
-	}
-
-	forcedShared := map[string]bool{"rpcStatus": true, "googlerpcStatus": true, "protobufAny": true}
-	for t := range forcedShared { sharedTypes[t] = true }
-
-	os.MkdirAll("types", 0755)
-	genned := map[string]bool{}
-	inProg := map[string]bool{}
-	nameUsed := map[string]string{}
-	tlines := []string{"package types", ""}
-
-	var genType func(string, *[]string)
-	genType = func(sname string, out *[]string) {
-		if genned[sname] || inProg[sname] { return }
-		inProg[sname] = true
-		s, ok := schemas[sname]
-		if !ok { inProg[sname] = false; return }
-		gn := cache[sname]
-		if prev, exists := nameUsed[gn]; exists && prev != sname {
-			inProg[sname] = false; genned[sname] = true; return
-		}
-		nameUsed[gn] = sname
-		for dep := range depOf[sname] {
-			if dep != sname { genType(dep, out) }
-		}
-		inProg[sname] = false
-		genned[sname] = true
-		appendType(out, gn, s, cache)
-	}
-
-	for sname := range sharedTypes { genType(sname, &tlines) }
-	os.WriteFile("types/types.go", []byte(strings.Join(tlines, "\n")), 0644)
-	fmt.Printf("types/types.go: %d shared types\n", len(genned))
-
 	for dir, methods := range dirMethods {
 		dp := filepath.Join(dir)
 		os.MkdirAll(dp, 0755)
 
 		dlines := []string{fmt.Sprintf("package %s", dir), ""}
 		typeCount := 0
+		dirGenned := map[string]bool{}
+		dirInProg := map[string]bool{}
+		dirGoNames := map[string]string{}
+
+		var writeType func(string)
+		writeType = func(sname string) {
+			if dirGenned[sname] || dirInProg[sname] { return }
+			dirInProg[sname] = true
+			s, ok := schemas[sname]
+			if !ok { dirInProg[sname] = false; return }
+			gn := cache[sname]
+			if prev, exists := dirGoNames[gn]; exists && prev != sname {
+				dirInProg[sname] = false; dirGenned[sname] = true; return
+			}
+			dirGoNames[gn] = sname
+			for dep := range depOf[sname] {
+				if dep != sname { writeType(dep) }
+			}
+			dirInProg[sname] = false
+			dirGenned[sname] = true
+			if dirAllTypes[dir][sname] {
+				appendType(&dlines, gn, s, cache, schemas)
+				typeCount++
+			}
+		}
+
 		for t := range dirAllTypes[dir] {
-			if sharedTypes[t] || genned[t] { continue }
-			if _, ok := schemas[t]; !ok { continue }
-			var writeWithDeps func(string)
-			writeWithDeps = func(sname string) {
-				if genned[sname] || sharedTypes[sname] { return }
-				s2, ok2 := schemas[sname]
-				if !ok2 { return }
-				for dep := range depOf[sname] {
-					if !sharedTypes[dep] && !genned[dep] { writeWithDeps(dep) }
-				}
-				appendType(&dlines, cache[sname], s2, cache)
-				genned[sname] = true
-			}
-			writeWithDeps(t)
-			typeCount++
+			writeType(t)
 		}
 
-		if typeCount > 0 {
-			os.WriteFile(dp+"/types.go", []byte(strings.Join(dlines, "\n")), 0644)
-		}
-
-		needsTypes := false
-		for _, m := range methods {
-			for _, t := range []string{m.ReqT, m.RespT} {
-				if t == "" { continue }
-				for sname := range sharedTypes {
-					if cache[sname] == t { needsTypes = true; break }
-				}
-			}
-		}
+		os.WriteFile(dp+"/types.go", []byte(strings.Join(dlines, "\n")), 0644)
 
 		var ml []string
 		ml = append(ml, fmt.Sprintf("package %s", dir), "")
 		imports := `"context"; "github.com/QuoVadis86/go-ozon-sdk/transport"`
-		if needsTypes { imports += `; "github.com/QuoVadis86/go-ozon-sdk/types"` }
 		ml = append(ml, fmt.Sprintf("import (%s)", imports), "")
 		ml = append(ml, "type Service struct { Client *transport.Client }", "")
 		for _, m := range methods {
@@ -432,34 +459,16 @@ func main() {
 				ml = append(ml, fmt.Sprintf("// Note: %s", note))
 			}
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)
-			pkg := ""
 			if m.ReqT != "" {
-				isShared := false
-				for sname := range sharedTypes {
-					if cache[sname] == m.ReqT { isShared = true; break }
-				}
-				if isShared { pkg = "types." }
-				fn += fmt.Sprintf(", req *%s%s", pkg, m.ReqT)
+				fn += fmt.Sprintf(", req *%s", m.ReqT)
 			}
 			fn += ") "
 			if m.RespT != "" {
-				isShared := false
-				for sname := range sharedTypes {
-					if cache[sname] == m.RespT { isShared = true; break }
-				}
-				pkg2 := ""
-				if isShared { pkg2 = "types." }
-				fn += fmt.Sprintf("(*%s%s, error)", pkg2, m.RespT)
+				fn += fmt.Sprintf("(*%s, error)", m.RespT)
 			} else { fn += "error" }
 			ml = append(ml, fn+" {")
 			if m.RespT != "" {
-				isShared := false
-				for sname := range sharedTypes {
-					if cache[sname] == m.RespT { isShared = true; break }
-				}
-				pkg2 := ""
-				if isShared { pkg2 = "types." }
-				ml = append(ml, fmt.Sprintf("\tvar resp %s%s", pkg2, m.RespT))
+				ml = append(ml, fmt.Sprintf("\tvar resp %s", m.RespT))
 			}
 			meth := "Post"
 			if m.HTTPM == "GET" { meth = "Get" }

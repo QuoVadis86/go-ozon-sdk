@@ -4,10 +4,11 @@ import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
 
 type Service struct { Client *transport.Client }
 
-// 赔偿返还报告
-func (s *Service) GetDecompensationReport(ctx context.Context, req *V1GetDecompensationReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/finance/decompensation", req, &resp)
+// Deprecated: use /v1/finance/accrual/postings instead
+// 清单数目
+func (s *Service) FinanceTransactionTotalV3(ctx context.Context, req *Financev3FinanceTransactionTotalsV3Request) (*Financev3FinanceTransactionTotalsV3Response, error) {
+	var resp Financev3FinanceTransactionTotalsV3Response
+	err := s.Client.Post(ctx, "/v3/finance/transaction/totals", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -24,10 +25,10 @@ func (s *Service) GetRealizationReportV2(ctx context.Context, req *V2GetRealizat
 	return &resp, nil
 }
 
-// 赔偿报告
-func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensationReportRequest) (*CreateReportResponse, error) {
+// 赔偿返还报告
+func (s *Service) GetDecompensationReport(ctx context.Context, req *V1GetDecompensationReportRequest) (*CreateReportResponse, error) {
 	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/finance/compensation", req, &resp)
+	err := s.Client.Post(ctx, "/v1/finance/decompensation", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +58,10 @@ func (s *Service) GetRealizationReportV1(ctx context.Context, req *V1GetRealizat
 	return &resp, nil
 }
 
-// Deprecated: use /v1/finance/accrual/postings instead
-// 清单数目
-func (s *Service) FinanceTransactionTotalV3(ctx context.Context, req *Financev3FinanceTransactionTotalsV3Request) (*Financev3FinanceTransactionTotalsV3Response, error) {
-	var resp Financev3FinanceTransactionTotalsV3Response
-	err := s.Client.Post(ctx, "/v3/finance/transaction/totals", req, &resp)
+// 赔偿报告
+func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensationReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/finance/compensation", req, &resp)
 	if err != nil {
 		return nil, err
 	}

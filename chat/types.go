@@ -1,15 +1,9 @@
 package chat
 
-type ChatChatStartResponse struct {
-	Result interface{} `json:"result"`
-}
-
-type V3ChatHistoryRequest struct {
-	ChatID string `json:"chat_id"` // 聊天识别码。
-	Direction string `json:"direction"` // 信息排序方向： - `Forward` — 从旧到新。 - `Backward` — 从新到旧。 默认值是 — `Backward`。消息的数量可以在 `limit`参数中设置。
-	Filter interface{} `json:"filter"`
-	FromMessageID int64 `json:"from_message_id"` // 从该信息开始整理聊天记录的消息识别码。默认为从最后一条可见信息。 当 `direction = Forward` 时，`from_message_id` 参数为必填。
-	Limit int64 `json:"limit"` // 答复的信息数量。默认设置为50。最大值是1000。
+// 关于聊天参与者的信息。
+type V3User struct {
+	Type string `json:"type_"` // 聊天参与者类型： - `Customer` — 买家， - `Seller` — 卖家， - `Crm` — 系统信息， - `Courier` — 快递员， - `Support` — 客服， - `NotificationUser` —...
+	ID string `json:"id"` // 聊天参与者的身份。
 }
 
 type ChatChatSendMessageRequest struct {
@@ -17,13 +11,76 @@ type ChatChatSendMessageRequest struct {
 	Text string `json:"text"` // plain文本格式的信息文本1到1000个字符。
 }
 
+// 消息过滤器。
+type ChatHistoryRequestFilter struct {
+	MessageIds []string `json:"message_ids"` // 消息标识符。
+}
+
 type ChatRead struct {
 	ChatID string `json:"chat_id"` // 聊天识别码。
 	FromMessageID int64 `json:"from_message_id"` // 信息识别码。
 }
 
-type ChatChatSendMessageResponse struct {
-	Result string `json:"result"` // 请求的处理结果。
+type V2ChatReadResponse struct {
+	UnreadCount int64 `json:"unread_count"` // 聊天中未读消息的数量。
+}
+
+type ChatChatStartRequest struct {
+	PostingNumber string `json:"posting_number"` // 发货识别码。
+}
+
+// 方法运行结果。
+type ChatStartResponseResult struct {
+	ChatID string `json:"chat_id"` // 聊天识别码。
+}
+
+type ChatChatStartResponse struct {
+	Result ChatStartResponseResult `json:"result"`
+}
+
+// 聊天类型：' - `UNSPECIFIED` — 未指定； - `SELLER_SUPPORT` — 与帮助中心聊天； - `BUYER_SELLER` — 与买家聊天； - `BUYER_SELLER_SELECT` — 与买家的聊天：关...
+type ChatInfoChatTypeEnum string
+
+// 聊天状态： - `UNSPECIFIED` — 未指定， - `All` — 所有聊天， - `OPENED` — 开放的聊天， - `CLOSED` — 不开放的聊天。
+type ChatInfoChatStatusEnum string
+
+// 聊天信息。
+type V3ChatDetailsInfo struct {
+	CreatedAt string `json:"created_at"` // 聊天的创建日期。
+	ChatID string `json:"chat_id"` // 聊天识别码。
+	ChatStatus ChatInfoChatStatusEnum `json:"chat_status"`
+	ChatType ChatInfoChatTypeEnum `json:"chat_type"`
+}
+
+// 按聊天过滤。
+type V3ChatListRequestFilter struct {
+	UnreadOnly bool `json:"unread_only"` // 按有未读信息的聊天过滤。
+	ChatStatus string `json:"chat_status"` // 按聊天状态过滤： - `All` — 所有聊天。 - `Opened` — 开放的聊天。 - `Closed` — 不开放的聊天。 默认值：`All`。
+}
+
+// 聊天室信息。
+type ChatMessageContext struct {
+	OrderNumber string `json:"order_number"` // 订单编号。
+	SKU string `json:"sku"` // Ozon系统中的商品识别码是SKU。
+}
+
+// 图片审核状态： - `SUCCESS` — 审核成功了; - `MODERATION` — 审核中; - `FAILED` — 审核失败了.
+type ChatMessageModerateImageStatus string
+
+type V3ChatMessage struct {
+	ModerateImageStatus ChatMessageModerateImageStatus `json:"moderate_image_status"`
+	User V3User `json:"user"`
+	Context ChatMessageContext `json:"context"`
+	CreatedAt string `json:"created_at"` // 信息创建日期。
+	Data []string `json:"data"` // Markdown格式的带有信息内容的数组。
+	IsImage bool `json:"is_image"` // 消息包含图片的标志。
+	IsRead bool `json:"is_read"` // 表示信息已读。
+	MessageId int64 `json:"messageId"` // 信息识别码。
+}
+
+type V3ChatHistoryResponse struct {
+	Messages []V3ChatMessage `json:"messages"` // 根据请求正文中的`direction`参数排序的信息数组。
+	HasNext bool `json:"has_next"` // 表示不是所有信息都在答复中返回。
 }
 
 type ChatChatSendFileRequest struct {
@@ -37,27 +94,33 @@ type ChatChatSendFileResponse struct {
 }
 
 type V3ChatList struct {
-	Cursor string `json:"cursor"` // 后续数据的选择标志。
-	Filter interface{} `json:"filter"`
+	Filter V3ChatListRequestFilter `json:"filter"`
 	Limit int64 `json:"limit"` // 回答中值的数量。默认值为30。最大值是100。
+	Cursor string `json:"cursor"` // 后续数据的选择标志。
 }
 
-type ChatChatStartRequest struct {
-	PostingNumber string `json:"posting_number"` // 发货识别码。
-}
-
-type V3ChatHistoryResponse struct {
-	Messages []interface{} `json:"messages"` // 根据请求正文中的`direction`参数排序的信息数组。
-	HasNext bool `json:"has_next"` // 表示不是所有信息都在答复中返回。
-}
-
-type V2ChatReadResponse struct {
+type V3ChatInfo struct {
+	Chat V3ChatDetailsInfo `json:"chat"`
+	FirstUnreadMessageID int64 `json:"first_unread_message_id"` // 第一条未读聊天信息的识别码。
+	LastMessageID int64 `json:"last_message_id"` // 最后一条聊天信息的识别码。
 	UnreadCount int64 `json:"unread_count"` // 聊天中未读消息的数量。
 }
 
 type V3ChatListResponse struct {
-	Cursor string `json:"cursor"` // 后续数据的选择标志。
 	HasNext bool `json:"has_next"` // 表示响应中未包含全部聊天: - `true` — 使用新的 `cursor` 参数重新发送请求以获取剩余聊天; - `false` — 响应中已包含匹配请求筛选器的所有聊天。
-	Chats interface{} `json:"chats"` // 聊天数据。
+	Chats []V3ChatInfo `json:"chats"` // 聊天数据。
 	TotalUnreadCount int64 `json:"total_unread_count"` // 未读信息总数。
+	Cursor string `json:"cursor"` // 后续数据的选择标志。
+}
+
+type V3ChatHistoryRequest struct {
+	Direction string `json:"direction"` // 信息排序方向： - `Forward` — 从旧到新。 - `Backward` — 从新到旧。 默认值是 — `Backward`。消息的数量可以在 `limit`参数中设置。
+	Filter ChatHistoryRequestFilter `json:"filter"`
+	FromMessageID int64 `json:"from_message_id"` // 从该信息开始整理聊天记录的消息识别码。默认为从最后一条可见信息。 当 `direction = Forward` 时，`from_message_id` 参数为必填。
+	Limit int64 `json:"limit"` // 答复的信息数量。默认设置为50。最大值是1000。
+	ChatID string `json:"chat_id"` // 聊天识别码。
+}
+
+type ChatChatSendMessageResponse struct {
+	Result string `json:"result"` // 请求的处理结果。
 }
