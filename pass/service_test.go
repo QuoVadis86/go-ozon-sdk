@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestReturnsCompanyFBSInfo(t *testing.T) {
-	handler := transport.MockHandler(200, V1ReturnsCompanyFbsInfoResponse{})
+func TestReturnPassCreate(t *testing.T) {
+	handler := transport.MockHandler(200, ArrivalpassArrivalPassCreateResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.ReturnsCompanyFBSInfo(ctx, &V1ReturnsCompanyFbsInfoRequest{})
+	resp, err := svc.ReturnPassCreate(ctx, &ArrivalpassArrivalPassCreateRequest{})
 	if err != nil {
-		t.Fatalf("ReturnsCompanyFBSInfo() error: %v", err)
+		t.Fatalf("ReturnPassCreate() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("ReturnsCompanyFBSInfo() returned nil")
+		t.Fatal("ReturnPassCreate() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.ReturnsCompanyFBSInfo(ctx, &V1ReturnsCompanyFbsInfoRequest{})
+	_, err := svc.ReturnPassCreate(ctx, &ArrivalpassArrivalPassCreateRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

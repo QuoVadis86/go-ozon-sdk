@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestActionsAutoAddProductsList(t *testing.T) {
-	handler := transport.MockHandler(200, ActionsV1ActionsAutoAddProductsListResponse{})
+func TestActionsAutoAddProductsDelete(t *testing.T) {
+	handler := transport.MockHandler(200, ActionsV1ActionsAutoAddProductsDeleteResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.ActionsAutoAddProductsList(ctx, &ActionsV1ActionsAutoAddProductsListRequest{})
+	resp, err := svc.ActionsAutoAddProductsDelete(ctx, &ActionsV1ActionsAutoAddProductsDeleteRequest{})
 	if err != nil {
-		t.Fatalf("ActionsAutoAddProductsList() error: %v", err)
+		t.Fatalf("ActionsAutoAddProductsDelete() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("ActionsAutoAddProductsList() returned nil")
+		t.Fatal("ActionsAutoAddProductsDelete() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.ActionsAutoAddProductsList(ctx, &ActionsV1ActionsAutoAddProductsListRequest{})
+	_, err := svc.ActionsAutoAddProductsDelete(ctx, &ActionsV1ActionsAutoAddProductsDeleteRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

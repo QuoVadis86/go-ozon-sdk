@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbpDraftDirectDelete(t *testing.T) {
-	handler := transport.MockHandler(200, V1FbpDraftDirectDeleteResponse{})
+func TestFbpCreateLabel(t *testing.T) {
+	handler := transport.MockHandler(200, V1FbpCreateLabelResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbpDraftDirectDelete(ctx, &V1FbpDraftDirectDeleteRequest{})
+	resp, err := svc.FbpCreateLabel(ctx, &V1FbpCreateLabelRequest{})
 	if err != nil {
-		t.Fatalf("FbpDraftDirectDelete() error: %v", err)
+		t.Fatalf("FbpCreateLabel() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbpDraftDirectDelete() returned nil")
+		t.Fatal("FbpCreateLabel() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbpDraftDirectDelete(ctx, &V1FbpDraftDirectDeleteRequest{})
+	_, err := svc.FbpCreateLabel(ctx, &V1FbpCreateLabelRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

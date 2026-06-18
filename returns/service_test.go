@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestGetConditionalCancellationListV2(t *testing.T) {
-	handler := transport.MockHandler(200, V2GetConditionalCancellationListV2Response{})
+func TestReturnsRfbsListV2(t *testing.T) {
+	handler := transport.MockHandler(200, V2ReturnsRfbsListResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.GetConditionalCancellationListV2(ctx, &V2GetConditionalCancellationListV2Request{})
+	resp, err := svc.ReturnsRfbsListV2(ctx, &V2ReturnsRfbsListRequest{})
 	if err != nil {
-		t.Fatalf("GetConditionalCancellationListV2() error: %v", err)
+		t.Fatalf("ReturnsRfbsListV2() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("GetConditionalCancellationListV2() returned nil")
+		t.Fatal("ReturnsRfbsListV2() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.GetConditionalCancellationListV2(ctx, &V2GetConditionalCancellationListV2Request{})
+	_, err := svc.ReturnsRfbsListV2(ctx, &V2ReturnsRfbsListRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

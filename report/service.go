@@ -7,12 +7,42 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 减价商品报告
-// Note: 每分钟可以发送1次请求
-// Note: 要获取报告，请在 [/v1/report/info](#operation/ReportAPI_ReportInfo) 方法请求中发送ID
-func (s *Service) CreateDiscountedReport(ctx context.Context, req *CreateDiscountedRequest) (*CreateDiscountedResponse, error) {
-	var resp CreateDiscountedResponse
-	err := s.Client.Post(ctx, "/v1/report/discounted/create", req, &resp)
+// 商品报告
+// Note: 不能购买该商品
+func (s *Service) CreateCompanyProductsReport(ctx context.Context, req *CreateCompanyProductsReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/products/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 报告信息
+func (s *Service) ReportInfo(ctx context.Context, req *ReportInfoRequest) (*ReportInfoResponse, error) {
+	var resp ReportInfoResponse
+	err := s.Client.Post(ctx, "/v1/report/info", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 关于FBS仓库库存报告
+// Note: 要获取报告，请在 [/v1/report/info](#operation/ReportAPI_ReportInfo) 方法的请求中发送ID
+func (s *Service) CreateStockByWarehouseReport(ctx context.Context, req *V1CreateStockByWarehouseReportRequest) (*CommonCreateReportResponse, error) {
+	var resp CommonCreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/warehouse/stock", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 发货报告
+func (s *Service) CreateCompanyPostingsReport(ctx context.Context, req *CreateCompanyPostingsReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/report/postings/create", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -31,37 +61,6 @@ func (s *Service) CreateCompanyMarkedProductsSalesReport(ctx context.Context, re
 	return &resp, nil
 }
 
-// 关于FBS仓库库存报告
-// Note: 要获取报告，请在 [/v1/report/info](#operation/ReportAPI_ReportInfo) 方法的请求中发送ID
-func (s *Service) CreateStockByWarehouseReport(ctx context.Context, req *V1CreateStockByWarehouseReportRequest) (*CommonCreateReportResponse, error) {
-	var resp CommonCreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/warehouse/stock", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 报告信息
-func (s *Service) ReportInfo(ctx context.Context, req *ReportInfoRequest) (*ReportInfoResponse, error) {
-	var resp ReportInfoResponse
-	err := s.Client.Post(ctx, "/v1/report/info", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 发货报告
-func (s *Service) CreateCompanyPostingsReport(ctx context.Context, req *CreateCompanyPostingsReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/postings/create", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 报告清单
 func (s *Service) ReportList(ctx context.Context, req *ReportListRequest) (*ReportListResponse, error) {
 	var resp ReportListResponse
@@ -72,21 +71,22 @@ func (s *Service) ReportList(ctx context.Context, req *ReportListRequest) (*Repo
 	return &resp, nil
 }
 
-// 商品报告
-// Note: 不能购买该商品
-func (s *Service) CreateCompanyProductsReport(ctx context.Context, req *CreateCompanyProductsReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/report/products/create", req, &resp)
+// 财务报告
+func (s *Service) FinanceCashFlowStatementList(ctx context.Context, req *V3FinanceCashFlowStatementListRequest) (*V3FinanceCashFlowStatementListResponse, error) {
+	var resp V3FinanceCashFlowStatementListResponse
+	err := s.Client.Post(ctx, "/v1/finance/cash-flow-statement/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-// 财务报告
-func (s *Service) FinanceCashFlowStatementList(ctx context.Context, req *V3FinanceCashFlowStatementListRequest) (*V3FinanceCashFlowStatementListResponse, error) {
-	var resp V3FinanceCashFlowStatementListResponse
-	err := s.Client.Post(ctx, "/v1/finance/cash-flow-statement/list", req, &resp)
+// 减价商品报告
+// Note: 每分钟可以发送1次请求
+// Note: 要获取报告，请在 [/v1/report/info](#operation/ReportAPI_ReportInfo) 方法请求中发送ID
+func (s *Service) CreateDiscountedReport(ctx context.Context, req *CreateDiscountedRequest) (*CreateDiscountedResponse, error) {
+	var resp CreateDiscountedResponse
+	err := s.Client.Post(ctx, "/v1/report/discounted/create", req, &resp)
 	if err != nil {
 		return nil, err
 	}

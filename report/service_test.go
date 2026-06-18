@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestCreateCompanyMarkedProductsSalesReport(t *testing.T) {
-	handler := transport.MockHandler(200, CommonCreateReportResponse{})
+func TestCreateCompanyProductsReport(t *testing.T) {
+	handler := transport.MockHandler(200, CreateReportResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.CreateCompanyMarkedProductsSalesReport(ctx, &V1ReportMarkedProductsSalesCreateRequest{})
+	resp, err := svc.CreateCompanyProductsReport(ctx, &CreateCompanyProductsReportRequest{})
 	if err != nil {
-		t.Fatalf("CreateCompanyMarkedProductsSalesReport() error: %v", err)
+		t.Fatalf("CreateCompanyProductsReport() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("CreateCompanyMarkedProductsSalesReport() returned nil")
+		t.Fatal("CreateCompanyProductsReport() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.CreateCompanyMarkedProductsSalesReport(ctx, &V1ReportMarkedProductsSalesCreateRequest{})
+	_, err := svc.CreateCompanyProductsReport(ctx, &CreateCompanyProductsReportRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

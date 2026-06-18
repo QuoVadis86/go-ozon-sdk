@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestWarehouseInvalidProductsGet(t *testing.T) {
-	handler := transport.MockHandler(200, V1WarehouseInvalidProductsGetResponse{})
+func TestDeliveryMethodListV2(t *testing.T) {
+	handler := transport.MockHandler(200, V2DeliveryMethodListV2Response{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseInvalidProductsGet(ctx, &V1WarehouseInvalidProductsGetRequest{})
+	resp, err := svc.DeliveryMethodListV2(ctx, &V2DeliveryMethodListV2Request{})
 	if err != nil {
-		t.Fatalf("WarehouseInvalidProductsGet() error: %v", err)
+		t.Fatalf("DeliveryMethodListV2() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("WarehouseInvalidProductsGet() returned nil")
+		t.Fatal("DeliveryMethodListV2() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.WarehouseInvalidProductsGet(ctx, &V1WarehouseInvalidProductsGetRequest{})
+	_, err := svc.DeliveryMethodListV2(ctx, &V2DeliveryMethodListV2Request{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

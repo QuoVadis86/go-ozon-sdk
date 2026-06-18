@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestAddBarcode(t *testing.T) {
-	handler := transport.MockHandler(200, V1AddBarcodeResponse{})
+func TestGenerateBarcode(t *testing.T) {
+	handler := transport.MockHandler(200, V1GenerateBarcodeResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.AddBarcode(ctx, &V1AddBarcodeRequest{})
+	resp, err := svc.GenerateBarcode(ctx, &V1GenerateBarcodeRequest{})
 	if err != nil {
-		t.Fatalf("AddBarcode() error: %v", err)
+		t.Fatalf("GenerateBarcode() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("AddBarcode() returned nil")
+		t.Fatal("GenerateBarcode() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.AddBarcode(ctx, &V1AddBarcodeRequest{})
+	_, err := svc.GenerateBarcode(ctx, &V1GenerateBarcodeRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

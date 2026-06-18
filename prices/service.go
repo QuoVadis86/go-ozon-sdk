@@ -7,10 +7,32 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 关于卖家库存余额的信息
-func (s *Service) ProductStocksByWarehouseFbs(ctx context.Context, req *Sv1GetProductInfoStocksByWarehouseFbsRequest) (*Sv1GetProductInfoStocksByWarehouseFbsResponse, error) {
-	var resp Sv1GetProductInfoStocksByWarehouseFbsResponse
-	err := s.Client.Post(ctx, "/v1/product/info/stocks-by-warehouse/fbs", req, &resp)
+// 更新价格
+// Note: 每个商品的价格每小时不能更新超过10次
+// Note: 不能更新超过10次
+func (s *Service) ImportProductsPrices(ctx context.Context, req *ImportProductsPricesRequest) (*ImportProductsPricesResponse, error) {
+	var resp ImportProductsPricesResponse
+	err := s.Client.Post(ctx, "/v1/product/import/prices", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取卖家仓库库存信息
+func (s *Service) GetProductInfoStocksByWarehouseFbsV2(ctx context.Context, req *V2GetProductInfoStocksByWarehouseFbsRequestV2) (*V2GetProductInfoStocksByWarehouseFbsResponseV2, error) {
+	var resp V2GetProductInfoStocksByWarehouseFbsResponseV2
+	err := s.Client.Post(ctx, "/v2/product/info/stocks-by-warehouse/fbs", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 关于商品数量的信息
+func (s *Service) GetProductInfoStocks(ctx context.Context, req *V4GetProductInfoStocksRequest) (*V4GetProductInfoStocksResponse, error) {
+	var resp V4GetProductInfoStocksResponse
+	err := s.Client.Post(ctx, "/v4/product/info/stocks", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -21,25 +43,6 @@ func (s *Service) ProductStocksByWarehouseFbs(ctx context.Context, req *Sv1GetPr
 func (s *Service) ProductUpdateDiscount(ctx context.Context, req *V1ProductUpdateDiscountRequest) (*V1ProductUpdateDiscountResponse, error) {
 	var resp V1ProductUpdateDiscountResponse
 	err := s.Client.Post(ctx, "/v1/product/update/discount", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 最低价格时效性计时器更新
-func (s *Service) ActionTimerUpdate(ctx context.Context, req *V1ProductActionTimerUpdateRequest) error {
-	err := s.Client.Post(ctx, "/v1/product/action/timer/update", req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// 获取商品价格信息
-func (s *Service) GetProductInfoPrices(ctx context.Context, req *V5GetProductInfoPricesV5Request) (*V5GetProductInfoPricesV5Response, error) {
-	var resp V5GetProductInfoPricesV5Response
-	err := s.Client.Post(ctx, "/v5/product/info/prices", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +62,35 @@ func (s *Service) ProductsStocksV2(ctx context.Context, req *V2ProductsStocksReq
 	return &resp, nil
 }
 
+// 获取商品价格信息
+func (s *Service) GetProductInfoPrices(ctx context.Context, req *V5GetProductInfoPricesV5Request) (*V5GetProductInfoPricesV5Response, error) {
+	var resp V5GetProductInfoPricesV5Response
+	err := s.Client.Post(ctx, "/v5/product/info/prices", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 关于卖家库存余额的信息
+func (s *Service) ProductStocksByWarehouseFbs(ctx context.Context, req *Sv1GetProductInfoStocksByWarehouseFbsRequest) (*Sv1GetProductInfoStocksByWarehouseFbsResponse, error) {
+	var resp Sv1GetProductInfoStocksByWarehouseFbsResponse
+	err := s.Client.Post(ctx, "/v1/product/info/stocks-by-warehouse/fbs", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 最低价格时效性计时器更新
+func (s *Service) ActionTimerUpdate(ctx context.Context, req *V1ProductActionTimerUpdateRequest) error {
+	err := s.Client.Post(ctx, "/v1/product/action/timer/update", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // 通过减价商品的SKU查找减价商品和主商品的信息
 func (s *Service) GetProductInfoDiscounted(ctx context.Context, req *V1GetProductInfoDiscountedRequest) (*V1GetProductInfoDiscountedResponse, error) {
 	var resp V1GetProductInfoDiscountedResponse
@@ -73,38 +105,6 @@ func (s *Service) GetProductInfoDiscounted(ctx context.Context, req *V1GetProduc
 func (s *Service) ActionTimerStatus(ctx context.Context, req *V1ProductActionTimerStatusRequest) (*V1ProductActionTimerStatusResponse, error) {
 	var resp V1ProductActionTimerStatusResponse
 	err := s.Client.Post(ctx, "/v1/product/action/timer/status", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 关于商品数量的信息
-func (s *Service) GetProductInfoStocks(ctx context.Context, req *V4GetProductInfoStocksRequest) (*V4GetProductInfoStocksResponse, error) {
-	var resp V4GetProductInfoStocksResponse
-	err := s.Client.Post(ctx, "/v4/product/info/stocks", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 更新价格
-// Note: 每个商品的价格每小时不能更新超过10次
-// Note: 不能更新超过10次
-func (s *Service) ImportProductsPrices(ctx context.Context, req *ImportProductsPricesRequest) (*ImportProductsPricesResponse, error) {
-	var resp ImportProductsPricesResponse
-	err := s.Client.Post(ctx, "/v1/product/import/prices", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取卖家仓库库存信息
-func (s *Service) GetProductInfoStocksByWarehouseFbsV2(ctx context.Context, req *V2GetProductInfoStocksByWarehouseFbsRequestV2) (*V2GetProductInfoStocksByWarehouseFbsResponseV2, error) {
-	var resp V2GetProductInfoStocksByWarehouseFbsResponseV2
-	err := s.Client.Post(ctx, "/v2/product/info/stocks-by-warehouse/fbs", req, &resp)
 	if err != nil {
 		return nil, err
 	}

@@ -7,16 +7,6 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 赔偿报告
-func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensationReportRequest) (*CreateReportResponse, error) {
-	var resp CreateReportResponse
-	err := s.Client.Post(ctx, "/v1/finance/compensation", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // Deprecated: use /v1/finance/accrual/postings instead
 // 交易清单
 // Note: 请使用顺序发送请求的方式
@@ -39,6 +29,27 @@ func (s *Service) GetRealizationReportV2(ctx context.Context, req *V2GetRealizat
 	return &resp, nil
 }
 
+// 赔偿报告
+func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensationReportRequest) (*CreateReportResponse, error) {
+	var resp CreateReportResponse
+	err := s.Client.Post(ctx, "/v1/finance/compensation", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// Deprecated: use /v1/finance/accrual/postings instead
+// 清单数目
+func (s *Service) FinanceTransactionTotalV3(ctx context.Context, req *V3FinanceTransactionTotalsV3Request) (*V3FinanceTransactionTotalsV3Response, error) {
+	var resp V3FinanceTransactionTotalsV3Response
+	err := s.Client.Post(ctx, "/v3/finance/transaction/totals", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 赔偿返还报告
 func (s *Service) GetDecompensationReport(ctx context.Context, req *V1GetDecompensationReportRequest) (*CreateReportResponse, error) {
 	var resp CreateReportResponse
@@ -54,17 +65,6 @@ func (s *Service) GetDecompensationReport(ctx context.Context, req *V1GetDecompe
 func (s *Service) GetRealizationReportV1(ctx context.Context, req *V1GetRealizationReportPostingRequest) (*V1GetRealizationReportPostingResponse, error) {
 	var resp V1GetRealizationReportPostingResponse
 	err := s.Client.Post(ctx, "/v1/finance/realization/posting", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// Deprecated: use /v1/finance/accrual/postings instead
-// 清单数目
-func (s *Service) FinanceTransactionTotalV3(ctx context.Context, req *V3FinanceTransactionTotalsV3Request) (*V3FinanceTransactionTotalsV3Response, error) {
-	var resp V3FinanceTransactionTotalsV3Response
-	err := s.Client.Post(ctx, "/v3/finance/transaction/totals", req, &resp)
 	if err != nil {
 		return nil, err
 	}

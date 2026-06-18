@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestGetFBSRatingIndexInfoV1(t *testing.T) {
-	handler := transport.MockHandler(200, V1GetFBSRatingIndexInfoV1Response{})
+func TestListFBSRatingIndexPostingsV1(t *testing.T) {
+	handler := transport.MockHandler(200, V1ListFBSRatingIndexPostingsV1Response{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.GetFBSRatingIndexInfoV1(ctx)
+	resp, err := svc.ListFBSRatingIndexPostingsV1(ctx, &V1ListFBSRatingIndexPostingsV1Request{})
 	if err != nil {
-		t.Fatalf("GetFBSRatingIndexInfoV1() error: %v", err)
+		t.Fatalf("ListFBSRatingIndexPostingsV1() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("GetFBSRatingIndexInfoV1() returned nil")
+		t.Fatal("ListFBSRatingIndexPostingsV1() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.GetFBSRatingIndexInfoV1(ctx)
+	_, err := svc.ListFBSRatingIndexPostingsV1(ctx, &V1ListFBSRatingIndexPostingsV1Request{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

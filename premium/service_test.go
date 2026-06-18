@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestSearchQueriesTop(t *testing.T) {
-	handler := transport.MockHandler(200, V1SearchQueriesTopResponse{})
+func TestGetRealizationByDayReportV1(t *testing.T) {
+	handler := transport.MockHandler(200, GetRealizationReportByDayResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.SearchQueriesTop(ctx, &V1SearchQueriesTopRequest{})
+	resp, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
 	if err != nil {
-		t.Fatalf("SearchQueriesTop() error: %v", err)
+		t.Fatalf("GetRealizationByDayReportV1() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("SearchQueriesTop() returned nil")
+		t.Fatal("GetRealizationByDayReportV1() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.SearchQueriesTop(ctx, &V1SearchQueriesTopRequest{})
+	_, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
