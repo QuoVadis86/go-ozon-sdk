@@ -17,22 +17,22 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
+func TestSearchQueriesText(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.SearchQueriesText(ctx, &V1SearchQueriesTextRequest{})
+	if err != nil {
+		t.Fatalf("SearchQueriesText() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestGetRealizationByDayReportV1(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	resp, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
 	if err != nil {
 		t.Fatalf("GetRealizationByDayReportV1() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestAnalyticsProductQueriesDetails(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.AnalyticsProductQueriesDetails(ctx, &V1AnalyticsProductQueriesDetailsRequest{})
-	if err != nil {
-		t.Fatalf("AnalyticsProductQueriesDetails() error: %v", err)
 	}
 	_ = resp
 }
@@ -47,12 +47,12 @@ func TestAnalyticsProductQueries(t *testing.T) {
 	_ = resp
 }
 
-func TestAnalyticsGetData(t *testing.T) {
+func TestProductPricesDetails(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.AnalyticsGetData(ctx, &AnalyticsAnalyticsGetDataRequest{})
+	resp, err := svc.ProductPricesDetails(ctx, &V1ProductPricesDetailsRequest{})
 	if err != nil {
-		t.Fatalf("AnalyticsGetData() error: %v", err)
+		t.Fatalf("ProductPricesDetails() error: %v", err)
 	}
 	_ = resp
 }
@@ -67,22 +67,22 @@ func TestSearchQueriesTop(t *testing.T) {
 	_ = resp
 }
 
-func TestProductPricesDetails(t *testing.T) {
+func TestAnalyticsGetData(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ProductPricesDetails(ctx, &V1ProductPricesDetailsRequest{})
+	resp, err := svc.AnalyticsGetData(ctx, &AnalyticsAnalyticsGetDataRequest{})
 	if err != nil {
-		t.Fatalf("ProductPricesDetails() error: %v", err)
+		t.Fatalf("AnalyticsGetData() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestSearchQueriesText(t *testing.T) {
+func TestAnalyticsProductQueriesDetails(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.SearchQueriesText(ctx, &V1SearchQueriesTextRequest{})
+	resp, err := svc.AnalyticsProductQueriesDetails(ctx, &V1AnalyticsProductQueriesDetailsRequest{})
 	if err != nil {
-		t.Fatalf("SearchQueriesText() error: %v", err)
+		t.Fatalf("AnalyticsProductQueriesDetails() error: %v", err)
 	}
 	_ = resp
 }

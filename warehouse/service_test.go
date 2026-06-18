@@ -17,22 +17,22 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestUpdateWarehouseFBSFirstMile(t *testing.T) {
+func TestWarehouseFbsUpdateDropOffTimeslotList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.UpdateWarehouseFBSFirstMile(ctx, &V1UpdateWarehouseFBSFirstMileRequest{})
+	resp, err := svc.WarehouseFbsUpdateDropOffTimeslotList(ctx, &V1WarehouseFbsUpdateDropOffTimeslotListRequest{})
 	if err != nil {
-		t.Fatalf("UpdateWarehouseFBSFirstMile() error: %v", err)
+		t.Fatalf("WarehouseFbsUpdateDropOffTimeslotList() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestWarehouseListV2(t *testing.T) {
+func TestListDropOffPointsForCreateFBSWarehouse(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseListV2(ctx, &V2WarehouseListV2Request{})
+	resp, err := svc.ListDropOffPointsForCreateFBSWarehouse(ctx, &V1ListDropOffPointsForCreateFBSWarehouseRequest{})
 	if err != nil {
-		t.Fatalf("WarehouseListV2() error: %v", err)
+		t.Fatalf("ListDropOffPointsForCreateFBSWarehouse() error: %v", err)
 	}
 	_ = resp
 }
@@ -47,32 +47,22 @@ func TestDeliveryMethodList(t *testing.T) {
 	_ = resp
 }
 
-func TestDeliveryMethodListV2(t *testing.T) {
+func TestWarehouseWithInvalidProducts(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.DeliveryMethodListV2(ctx, &V2DeliveryMethodListV2Request{})
+	resp, err := svc.WarehouseWithInvalidProducts(ctx)
 	if err != nil {
-		t.Fatalf("DeliveryMethodListV2() error: %v", err)
+		t.Fatalf("WarehouseWithInvalidProducts() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestCreateWarehouseFBS(t *testing.T) {
+func TestWarehouseFbsUpdatePickUpTimeslotList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.CreateWarehouseFBS(ctx, &V1CreateWarehouseFBSRequest{})
+	resp, err := svc.WarehouseFbsUpdatePickUpTimeslotList(ctx, &V1WarehouseFbsUpdatePickUpTimeslotListRequest{})
 	if err != nil {
-		t.Fatalf("CreateWarehouseFBS() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestGetWarehouseFBSOperationStatus(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.GetWarehouseFBSOperationStatus(ctx, &V1GetWarehouseFBSOperationStatusRequest{})
-	if err != nil {
-		t.Fatalf("GetWarehouseFBSOperationStatus() error: %v", err)
+		t.Fatalf("WarehouseFbsUpdatePickUpTimeslotList() error: %v", err)
 	}
 	_ = resp
 }
@@ -87,32 +77,52 @@ func TestWarehouseFbsCreatePickUpTimeslotList(t *testing.T) {
 	_ = resp
 }
 
-func TestWarehouseInvalidProductsGet(t *testing.T) {
+func TestUnarchiveWarehouseFBS(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseInvalidProductsGet(ctx, &V1WarehouseInvalidProductsGetRequest{})
+	resp, err := svc.UnarchiveWarehouseFBS(ctx, &V1UnarchiveWarehouseFBSRequest{})
 	if err != nil {
-		t.Fatalf("WarehouseInvalidProductsGet() error: %v", err)
+		t.Fatalf("UnarchiveWarehouseFBS() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestWarehouseWithInvalidProducts(t *testing.T) {
+func TestDeliveryMethodListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseWithInvalidProducts(ctx)
+	resp, err := svc.DeliveryMethodListV2(ctx, &V2DeliveryMethodListV2Request{})
 	if err != nil {
-		t.Fatalf("WarehouseWithInvalidProducts() error: %v", err)
+		t.Fatalf("DeliveryMethodListV2() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestListDropOffPointsForCreateFBSWarehouse(t *testing.T) {
+func TestWarehouseList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ListDropOffPointsForCreateFBSWarehouse(ctx, &V1ListDropOffPointsForCreateFBSWarehouseRequest{})
+	resp, err := svc.WarehouseList(ctx, &V1WarehouseListRequest{})
 	if err != nil {
-		t.Fatalf("ListDropOffPointsForCreateFBSWarehouse() error: %v", err)
+		t.Fatalf("WarehouseList() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCreateWarehouseFBS(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CreateWarehouseFBS(ctx, &V1CreateWarehouseFBSRequest{})
+	if err != nil {
+		t.Fatalf("CreateWarehouseFBS() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestWarehouseFbsCreateDropOffTimeslotList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.WarehouseFbsCreateDropOffTimeslotList(ctx, &V1WarehouseFbsCreateDropOffTimeslotListRequest{})
+	if err != nil {
+		t.Fatalf("WarehouseFbsCreateDropOffTimeslotList() error: %v", err)
 	}
 	_ = resp
 }
@@ -147,52 +157,42 @@ func TestUpdateWarehouseFBS(t *testing.T) {
 	_ = resp
 }
 
-func TestWarehouseFbsUpdateDropOffTimeslotList(t *testing.T) {
+func TestWarehouseListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseFbsUpdateDropOffTimeslotList(ctx, &V1WarehouseFbsUpdateDropOffTimeslotListRequest{})
+	resp, err := svc.WarehouseListV2(ctx, &V2WarehouseListV2Request{})
 	if err != nil {
-		t.Fatalf("WarehouseFbsUpdateDropOffTimeslotList() error: %v", err)
+		t.Fatalf("WarehouseListV2() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestWarehouseList(t *testing.T) {
+func TestGetWarehouseFBSOperationStatus(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseList(ctx, &V1WarehouseListRequest{})
+	resp, err := svc.GetWarehouseFBSOperationStatus(ctx, &V1GetWarehouseFBSOperationStatusRequest{})
 	if err != nil {
-		t.Fatalf("WarehouseList() error: %v", err)
+		t.Fatalf("GetWarehouseFBSOperationStatus() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestWarehouseFbsUpdatePickUpTimeslotList(t *testing.T) {
+func TestWarehouseInvalidProductsGet(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseFbsUpdatePickUpTimeslotList(ctx, &V1WarehouseFbsUpdatePickUpTimeslotListRequest{})
+	resp, err := svc.WarehouseInvalidProductsGet(ctx, &V1WarehouseInvalidProductsGetRequest{})
 	if err != nil {
-		t.Fatalf("WarehouseFbsUpdatePickUpTimeslotList() error: %v", err)
+		t.Fatalf("WarehouseInvalidProductsGet() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestUnarchiveWarehouseFBS(t *testing.T) {
+func TestUpdateWarehouseFBSFirstMile(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.UnarchiveWarehouseFBS(ctx, &V1UnarchiveWarehouseFBSRequest{})
+	resp, err := svc.UpdateWarehouseFBSFirstMile(ctx, &V1UpdateWarehouseFBSFirstMileRequest{})
 	if err != nil {
-		t.Fatalf("UnarchiveWarehouseFBS() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestWarehouseFbsCreateDropOffTimeslotList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.WarehouseFbsCreateDropOffTimeslotList(ctx, &V1WarehouseFbsCreateDropOffTimeslotListRequest{})
-	if err != nil {
-		t.Fatalf("WarehouseFbsCreateDropOffTimeslotList() error: %v", err)
+		t.Fatalf("UpdateWarehouseFBSFirstMile() error: %v", err)
 	}
 	_ = resp
 }

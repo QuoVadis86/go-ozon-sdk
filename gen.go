@@ -696,24 +696,54 @@ func main() {
 
 			// Extract important usage notes from description
 			var notes []string
-			noteKeywords := []string{"请使用", "请确保", "请注意", "每30秒", "每", "状态码为200",
+			noteKeywords := []string{"请使用", "请确保", "请注意", "每30秒", "状态码为200",
 				"不能", "无法", "不可", "必须先", "请先",
-				"每", "如需", "要获取", "为了", "在更新之前", "在更改状态前"}
+				"如需", "要获取", "为了", "在更新之前", "在更改状态前"}
 			stripRE := regexp.MustCompile(`<[^>]+>`)
 			for _, kw := range noteKeywords {
 				idx := strings.Index(desc, kw)
 				if idx < 0 {
 					continue
 				}
+				// Find complete sentence: end at 。. or \n\n (paragraph break)
 				start := idx
-				end := idx + 130
-				if end > len(desc) {
-					end = len(desc)
+				// Look forward up to 200 bytes for sentence ending
+				maxLen := 200
+				if start+maxLen > len(desc) {
+					maxLen = len(desc) - start
 				}
-				note := desc[start:end]
-				if nl := strings.IndexAny(note, ".\n。"); nl > 20 {
-					note = note[:nl+1]
+				chunk := desc[start : start+maxLen]
+				// Find sentence end: look for 。 or . followed by space/end, or double newline
+				sentenceEnd := -1
+				for i := 0; i < len(chunk); {
+					r, size := utf8.DecodeRuneInString(chunk[i:])
+					if r == utf8.RuneError && size <= 1 {
+						i++
+						continue
+					}
+					if r == '。' && i > 10 {
+						sentenceEnd = i + size
+						break
+					}
+					if r == '.' && i > 10 {
+						// Skip if this is a numbered list item (preceded by digit)
+						if i > 0 && chunk[i-1] >= '0' && chunk[i-1] <= '9' {
+							i += size
+							continue
+						}
+						sentenceEnd = i + size
+						break
+					}
+					if r == '\n' && i+1 < len(chunk) && chunk[i+1] == '\n' {
+						sentenceEnd = i
+						break
+					}
+					i += size
 				}
+				if sentenceEnd < 0 {
+					sentenceEnd = maxLen
+				}
+				note := chunk[:sentenceEnd]
 				note = stripRE.ReplaceAllString(note, "")
 				note = strings.TrimSpace(note)
 				note = sanitizeComment(note)
