@@ -694,66 +694,60 @@ func main() {
 				}
 			}
 
-			// Extract important usage notes from description
+			// Extract important usage notes from <aside> blocks and notable sentences
 			var notes []string
-			noteKeywords := []string{"请使用", "请确保", "请注意", "每30秒", "状态码为200",
-				"不能", "无法", "不可", "必须先", "请先",
-				"如需", "要获取", "为了", "在更新之前", "在更改状态前",
-				"每个", "每次", "最多"}
+			asideRE := regexp.MustCompile(`<aside[^>]*>(.*?)</aside>`)
 			stripRE := regexp.MustCompile(`<[^>]+>`)
-			for _, kw := range noteKeywords {
-				idx := strings.Index(desc, kw)
+			skipWords := []string{"停用", "弃用", "过时", "关闭", "deprecated"}
+			for _, m := range asideRE.FindAllStringSubmatch(desc, -1) {
+				content := m[1]
+				hasSkip := false
+				for _, sw := range skipWords {
+					if strings.Contains(content, sw) {
+						hasSkip = true
+						break
+					}
+				}
+				if hasSkip {
+					continue
+				}
+				content = stripRE.ReplaceAllString(content, "")
+				content = strings.TrimSpace(content)
+				content = sanitizeComment(content)
+				if len(content) > 15 && !containsAny(content, notes) {
+					notes = append(notes, content)
+				}
+			}
+			// Also extract notable sentences for limits: look for specific patterns
+			limitPatterns := []string{"每30秒", "不能更新超过", "最多可", "每分钟", "每天"}
+			for _, pat := range limitPatterns {
+				idx := strings.Index(desc, pat)
 				if idx < 0 {
 					continue
 				}
-				// Find complete sentence: end at 。. or \n\n (paragraph break)
-				start := idx
-				// Look forward up to 200 bytes for sentence ending
-				maxLen := 200
-				if start+maxLen > len(desc) {
-					maxLen = len(desc) - start
+				// Find sentence containing this pattern
+				sentenceStart := 0
+				if prev := strings.LastIndex(desc[:idx], "。"); prev > 0 {
+					sentenceStart = prev + 3
 				}
-				chunk := desc[start : start+maxLen]
-				// Find sentence end: look for 。 or . followed by space/end, or double newline
-				sentenceEnd := -1
-				for i := 0; i < len(chunk); {
-					r, size := utf8.DecodeRuneInString(chunk[i:])
-					if r == utf8.RuneError && size <= 1 {
-						i++
-						continue
-					}
-					if r == '。' && i > 10 {
-						sentenceEnd = i + size
-						break
-					}
-					if r == '.' && i > 10 {
-						// Skip if this is a numbered list item (preceded by digit)
-						if i > 0 && chunk[i-1] >= '0' && chunk[i-1] <= '9' {
-							i += size
-							continue
-						}
-						sentenceEnd = i + size
-						break
-					}
-					if r == '\n' && i+1 < len(chunk) && chunk[i+1] == '\n' {
-						sentenceEnd = i
-						break
-					}
-					i += size
+				if newline := strings.LastIndex(desc[:idx], "\n"); newline > sentenceStart {
+					sentenceStart = newline + 1
+				}
+				sentenceEnd := strings.Index(desc[idx:], "。")
+				if sentenceEnd < 0 {
+					sentenceEnd = strings.Index(desc[idx:], "\n")
 				}
 				if sentenceEnd < 0 {
-					sentenceEnd = maxLen
+					sentenceEnd = len(desc) - idx
 				}
-				note := chunk[:sentenceEnd]
-				note = stripRE.ReplaceAllString(note, "")
-				note = strings.TrimSpace(note)
-				note = sanitizeComment(note)
-				if len(note) > 15 && !containsAny(note, notes) &&
-					!strings.Contains(note, "停用") && !strings.Contains(note, "弃用") {
-					notes = append(notes, note)
+				sentence := desc[sentenceStart : idx+sentenceEnd+1]
+				sentence = stripRE.ReplaceAllString(sentence, "")
+				sentence = strings.TrimSpace(sentence)
+				sentence = sanitizeComment(sentence)
+				if len(sentence) > 15 && !containsAny(sentence, notes) {
+					notes = append(notes, sentence)
 				}
 			}
-			// Deduplicate and limit
 			if len(notes) > 3 {
 				notes = notes[:3]
 			}

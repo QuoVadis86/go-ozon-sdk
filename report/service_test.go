@@ -27,32 +27,22 @@ func TestCreateCompanyMarkedProductsSalesReport(t *testing.T) {
 	_ = resp
 }
 
-func TestCreateStockByWarehouseReport(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.CreateStockByWarehouseReport(ctx, &V1CreateStockByWarehouseReportRequest{})
-	if err != nil {
-		t.Fatalf("CreateStockByWarehouseReport() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestFinanceCashFlowStatementList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.FinanceCashFlowStatementList(ctx, &V3FinanceCashFlowStatementListRequest{})
-	if err != nil {
-		t.Fatalf("FinanceCashFlowStatementList() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestCreateCompanyPostingsReport(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	resp, err := svc.CreateCompanyPostingsReport(ctx, &CreateCompanyPostingsReportRequest{})
 	if err != nil {
 		t.Fatalf("CreateCompanyPostingsReport() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCreateCompanyProductsReport(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CreateCompanyProductsReport(ctx, &CreateCompanyProductsReportRequest{})
+	if err != nil {
+		t.Fatalf("CreateCompanyProductsReport() error: %v", err)
 	}
 	_ = resp
 }
@@ -67,6 +57,16 @@ func TestReportInfo(t *testing.T) {
 	_ = resp
 }
 
+func TestFinanceCashFlowStatementList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.FinanceCashFlowStatementList(ctx, &V3FinanceCashFlowStatementListRequest{})
+	if err != nil {
+		t.Fatalf("FinanceCashFlowStatementList() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestReportList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -77,12 +77,12 @@ func TestReportList(t *testing.T) {
 	_ = resp
 }
 
-func TestCreateCompanyProductsReport(t *testing.T) {
+func TestCreateStockByWarehouseReport(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.CreateCompanyProductsReport(ctx, &CreateCompanyProductsReportRequest{})
+	resp, err := svc.CreateStockByWarehouseReport(ctx, &V1CreateStockByWarehouseReportRequest{})
 	if err != nil {
-		t.Fatalf("CreateCompanyProductsReport() error: %v", err)
+		t.Fatalf("CreateStockByWarehouseReport() error: %v", err)
 	}
 	_ = resp
 }

@@ -17,12 +17,12 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestIds(t *testing.T) {
+func TestCompetitors(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Ids(ctx, &V1ItemIDsRequest{})
+	resp, err := svc.Competitors(ctx, &V1GetCompetitorsRequest{})
 	if err != nil {
-		t.Fatalf("Ids() error: %v", err)
+		t.Fatalf("Competitors() error: %v", err)
 	}
 	_ = resp
 }
@@ -37,12 +37,12 @@ func TestItemsList(t *testing.T) {
 	_ = resp
 }
 
-func TestItemsInfo(t *testing.T) {
+func TestItemsAdd(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ItemsInfo(ctx, &V1GetStrategyItemInfoRequest{})
+	resp, err := svc.ItemsAdd(ctx, &V1AddStrategyItemsRequest{})
 	if err != nil {
-		t.Fatalf("ItemsInfo() error: %v", err)
+		t.Fatalf("ItemsAdd() error: %v", err)
 	}
 	_ = resp
 }
@@ -57,12 +57,12 @@ func TestList(t *testing.T) {
 	_ = resp
 }
 
-func TestCreate(t *testing.T) {
+func TestInfo(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Create(ctx, &V1CreatePricingStrategyRequest{})
+	resp, err := svc.Info(ctx, &V1StrategyRequest{})
 	if err != nil {
-		t.Fatalf("Create() error: %v", err)
+		t.Fatalf("Info() error: %v", err)
 	}
 	_ = resp
 }
@@ -77,32 +77,32 @@ func TestItemsDelete(t *testing.T) {
 	_ = resp
 }
 
-func TestItemsAdd(t *testing.T) {
+func TestIds(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ItemsAdd(ctx, &V1AddStrategyItemsRequest{})
+	resp, err := svc.Ids(ctx, &V1ItemIDsRequest{})
 	if err != nil {
-		t.Fatalf("ItemsAdd() error: %v", err)
+		t.Fatalf("Ids() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestCompetitors(t *testing.T) {
+func TestCreate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Competitors(ctx, &V1GetCompetitorsRequest{})
+	resp, err := svc.Create(ctx, &V1CreatePricingStrategyRequest{})
 	if err != nil {
-		t.Fatalf("Competitors() error: %v", err)
+		t.Fatalf("Create() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestInfo(t *testing.T) {
+func TestItemsInfo(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Info(ctx, &V1StrategyRequest{})
+	resp, err := svc.ItemsInfo(ctx, &V1GetStrategyItemInfoRequest{})
 	if err != nil {
-		t.Fatalf("Info() error: %v", err)
+		t.Fatalf("ItemsInfo() error: %v", err)
 	}
 	_ = resp
 }
