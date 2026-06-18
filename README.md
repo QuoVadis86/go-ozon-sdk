@@ -56,27 +56,27 @@ func main() {
 
 | Service | Endpoints | Description |
 |---------|-----------|-------------|
-| [Seller](./seller/) | 3 | Account info, roles, API key info |
-| [Category](./category/) | 4 | Category tree, attributes, values |
-| [Product](./product/) | 20 | Create, update, list, archive products |
-| [Prices](./prices/) | 10 | Prices, stocks, discounts |
-| [Barcode](./barcode/) | 2 | Generate and bind barcodes |
-| [Warehouse](./warehouse/) | 18 | Warehouse management, delivery methods |
-| [FBS](./fbs/) | 33 | FBS orders, shipments, marks, delivery |
-| [FBO](./fbo/) | 47 | FBO orders, supply requests, FBP drafts |
-| [Finance](./finance/) | 6 | Financial reports, transactions |
-| [Promo](./promo/) | 30 | Promotions, seller actions, pricing strategies |
-| [Pricing](./pricing/) | 12 | Pricing strategies, competitors |
-| [Report](./report/) | 8 | Report generation and management |
-| [Review](./review/) | 16 | Reviews, questions and answers |
-| [Chat](./chat/) | 6 | Customer chats |
-| [Notification](./notification/) | - | Push notification configuration |
-| [Returns](./returns/) | 12 | Returns management (FBO, FBS, rFBS) |
-| [Pass](./pass/) | 8 | Access passes |
-| [Rating](./rating/) | 2 | Seller rating |
-| [Delivery](./delivery/) | 2 | Delivery methods, polygons |
-| [Beta](./beta/) | 17 | Beta methods, analytics, visibility |
-| [Premium](./premium/) | 7 | Premium analytics, chat, finance |
+| [Seller](./seller/service.go) | 3 | Account info, roles, API key info |
+| [Category](./category/service.go) | 4 | Category tree, attributes, values |
+| [Product](./product/service.go) | 20 | Create, update, list, archive products |
+| [Prices](./prices/service.go) | 10 | Prices, stocks, discounts |
+| [Barcode](./barcode/service.go) | 2 | Generate and bind barcodes |
+| [Warehouse](./warehouse/service.go) | 18 | Warehouse management, delivery methods |
+| [FBS](./fbs/service.go) | 33 | FBS orders, shipments, marks, delivery |
+| [FBO](./fbo/service.go) | 47 | FBO orders, supply requests, FBP drafts |
+| [Finance](./finance/service.go) | 6 | Financial reports, transactions |
+| [Promo](./promo/service.go) | 30 | Promotions, seller actions, pricing strategies |
+| [Pricing](./pricing/service.go) | 12 | Pricing strategies, competitors |
+| [Report](./report/service.go) | 8 | Report generation and management |
+| [Review](./review/service.go) | 16 | Reviews, questions and answers |
+| [Chat](./chat/service.go) | 6 | Customer chats |
+| [Notification](./notification/service.go) | - | Push notification configuration |
+| [Returns](./returns/service.go) | 12 | Returns management (FBO, FBS, rFBS) |
+| [Pass](./pass/service.go) | 8 | Access passes |
+| [Rating](./rating/service.go) | 2 | Seller rating |
+| [Delivery](./delivery/service.go) | 2 | Delivery methods, polygons |
+| [Beta](./beta/service.go) | 17 | Beta methods, analytics, visibility |
+| [Premium](./premium/service.go) | 7 | Premium analytics, chat, finance |
 
 ## Examples
 
