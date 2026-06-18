@@ -27,6 +27,16 @@ func TestCarriagePassCreate(t *testing.T) {
 	_ = resp
 }
 
+func TestPassList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.PassList(ctx, &ArrivalpassArrivalPassListRequest{})
+	if err != nil {
+		t.Fatalf("PassList() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestReturnPassCreate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -37,28 +47,11 @@ func TestReturnPassCreate(t *testing.T) {
 	_ = resp
 }
 
-func TestReturnPassDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.ReturnPassDelete(ctx, &ArrivalpassArrivalPassDeleteRequest{})
-	_ = err
-}
-
 func TestCarriagePassUpdate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	err := svc.CarriagePassUpdate(ctx, &SellerAPIArrivalPassUpdateRequest{})
 	_ = err
-}
-
-func TestPassList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.PassList(ctx, &ArrivalpassArrivalPassListRequest{})
-	if err != nil {
-		t.Fatalf("PassList() error: %v", err)
-	}
-	_ = resp
 }
 
 func TestReturnsCompanyFBSInfo(t *testing.T) {
@@ -82,5 +75,12 @@ func TestReturnPassUpdate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
+	_ = err
+}
+
+func TestReturnPassDelete(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ReturnPassDelete(ctx, &ArrivalpassArrivalPassDeleteRequest{})
 	_ = err
 }

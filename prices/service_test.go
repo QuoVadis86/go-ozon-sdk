@@ -17,26 +17,6 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestProductsStocksV2(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ProductsStocksV2(ctx, &V2ProductsStocksRequest{})
-	if err != nil {
-		t.Fatalf("ProductsStocksV2() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestImportProductsPrices(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ImportProductsPrices(ctx, &ImportProductsPricesRequest{})
-	if err != nil {
-		t.Fatalf("ImportProductsPrices() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestProductUpdateDiscount(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -47,12 +27,19 @@ func TestProductUpdateDiscount(t *testing.T) {
 	_ = resp
 }
 
-func TestGetProductInfoDiscounted(t *testing.T) {
+func TestActionTimerUpdate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.GetProductInfoDiscounted(ctx, &V1GetProductInfoDiscountedRequest{})
+	err := svc.ActionTimerUpdate(ctx, &V1ProductActionTimerUpdateRequest{})
+	_ = err
+}
+
+func TestGetProductInfoPrices(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetProductInfoPrices(ctx, &V5GetProductInfoPricesV5Request{})
 	if err != nil {
-		t.Fatalf("GetProductInfoDiscounted() error: %v", err)
+		t.Fatalf("GetProductInfoPrices() error: %v", err)
 	}
 	_ = resp
 }
@@ -87,12 +74,12 @@ func TestProductStocksByWarehouseFbs(t *testing.T) {
 	_ = resp
 }
 
-func TestGetProductInfoPrices(t *testing.T) {
+func TestImportProductsPrices(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.GetProductInfoPrices(ctx, &V5GetProductInfoPricesV5Request{})
+	resp, err := svc.ImportProductsPrices(ctx, &ImportProductsPricesRequest{})
 	if err != nil {
-		t.Fatalf("GetProductInfoPrices() error: %v", err)
+		t.Fatalf("ImportProductsPrices() error: %v", err)
 	}
 	_ = resp
 }
@@ -107,9 +94,22 @@ func TestGetProductInfoStocks(t *testing.T) {
 	_ = resp
 }
 
-func TestActionTimerUpdate(t *testing.T) {
+func TestProductsStocksV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.ActionTimerUpdate(ctx, &V1ProductActionTimerUpdateRequest{})
-	_ = err
+	resp, err := svc.ProductsStocksV2(ctx, &V2ProductsStocksRequest{})
+	if err != nil {
+		t.Fatalf("ProductsStocksV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestGetProductInfoDiscounted(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetProductInfoDiscounted(ctx, &V1GetProductInfoDiscountedRequest{})
+	if err != nil {
+		t.Fatalf("GetProductInfoDiscounted() error: %v", err)
+	}
+	_ = resp
 }

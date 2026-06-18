@@ -17,12 +17,32 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
+func TestItemsInfo(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ItemsInfo(ctx, &V1GetStrategyItemInfoRequest{})
+	if err != nil {
+		t.Fatalf("ItemsInfo() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestIds(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	resp, err := svc.Ids(ctx, &V1ItemIDsRequest{})
 	if err != nil {
 		t.Fatalf("Ids() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.List(ctx, &V1GetStrategyListRequest{})
+	if err != nil {
+		t.Fatalf("List() error: %v", err)
 	}
 	_ = resp
 }
@@ -47,12 +67,12 @@ func TestInfo(t *testing.T) {
 	_ = resp
 }
 
-func TestCompetitors(t *testing.T) {
+func TestItemsDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Competitors(ctx, &V1GetCompetitorsRequest{})
+	resp, err := svc.ItemsDelete(ctx, &V1ItemIDsRequest{})
 	if err != nil {
-		t.Fatalf("Competitors() error: %v", err)
+		t.Fatalf("ItemsDelete() error: %v", err)
 	}
 	_ = resp
 }
@@ -67,26 +87,6 @@ func TestItemsList(t *testing.T) {
 	_ = resp
 }
 
-func TestList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.List(ctx, &V1GetStrategyListRequest{})
-	if err != nil {
-		t.Fatalf("List() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestItemsDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ItemsDelete(ctx, &V1ItemIDsRequest{})
-	if err != nil {
-		t.Fatalf("ItemsDelete() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestItemsAdd(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -97,12 +97,12 @@ func TestItemsAdd(t *testing.T) {
 	_ = resp
 }
 
-func TestItemsInfo(t *testing.T) {
+func TestCompetitors(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ItemsInfo(ctx, &V1GetStrategyItemInfoRequest{})
+	resp, err := svc.Competitors(ctx, &V1GetCompetitorsRequest{})
 	if err != nil {
-		t.Fatalf("ItemsInfo() error: %v", err)
+		t.Fatalf("Competitors() error: %v", err)
 	}
 	_ = resp
 }

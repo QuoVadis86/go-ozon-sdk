@@ -1,191 +1,12 @@
 package review
 
-// OrderStatus values
-type OrderStatus string
-
-const (
-	OrderStatusDelivered OrderStatus = "DELIVERED" // 已送达
-	OrderStatusCancelled OrderStatus = "CANCELLED" // 已取消
-)
-
 // Status values
 type Status string
 
 const (
-	StatusUnprocessed Status = "UNPROCESSED" // 未处理
 	StatusProcessed   Status = "PROCESSED"   // 已处理
+	StatusUnprocessed Status = "UNPROCESSED" // 未处理
 )
-
-type ListResponseReview struct {
-	PhotosAmount        int32       `json:"photos_amount"`         // 评价中的图片数量。
-	Status              Status      `json:"status"`                // 评价状态： - `UNPROCESSED` — 未处理， - `PROCESSED` — 已处理。
-	Text                string      `json:"text"`                  // 评价文字。
-	VideosAmount        int32       `json:"videos_amount"`         // 评价的视频数量。
-	CommentsAmount      int32       `json:"comments_amount"`       // 评价的评论数量。
-	ID                  string      `json:"id"`                    // 评价标识符。
-	PublishedAt         string      `json:"published_at"`          // 评价的发布时间。
-	Rating              int32       `json:"rating"`                // 评价的评分。
-	SKU                 int64       `json:"sku"`                   // Ozon系统中的商品识别符——SKU。
-	IsRatingParticipant bool        `json:"is_rating_participant"` // `true`：如果评价被计入评级计算。
-	OrderStatus         OrderStatus `json:"order_status"`          // 买家留下评价的订单状态： - `DELIVERED`— 已送达， - `CANCELLED` — 已取消。
-}
-
-type V1QuestionChangeStatusRequest struct {
-	QuestionIds []string `json:"question_ids"` // 问题标识符。
-	Status      Status   `json:"status"`       // 问题状态： - `NEW`——新的， - `VIEWED`——已查看， - `PROCESSED`——已处理。
-}
-
-// 买家留下评价的订单状态： - `ALL`——全部； - `DELIVERED`——已送达； - `CANCELLED`——已取消。
-type V2ReviewListV2RequestFiltersOrderStatus string
-
-const (
-	V2ReviewListV2RequestFiltersOrderStatusALL       V2ReviewListV2RequestFiltersOrderStatus = "ALL"
-	V2ReviewListV2RequestFiltersOrderStatusDelivered V2ReviewListV2RequestFiltersOrderStatus = "DELIVERED"
-	V2ReviewListV2RequestFiltersOrderStatusCancelled V2ReviewListV2RequestFiltersOrderStatus = "CANCELLED"
-)
-
-// 排序方向： - `ASC`——升序； - `DESC`——降序。
-type V2ReviewListV2RequestSortDir string
-
-const (
-	V2ReviewListV2RequestSortDirASC  V2ReviewListV2RequestSortDir = "ASC"
-	V2ReviewListV2RequestSortDirDesc V2ReviewListV2RequestSortDir = "DESC"
-)
-
-type V1QuestionCountResponse struct {
-	All         int64 `json:"all"`         // 问题总数。
-	New         int64 `json:"new"`         // 新问题数量。
-	Processed   int64 `json:"processed"`   // 已处理问题数量。
-	Unprocessed int64 `json:"unprocessed"` // 未处理问题数量。
-	Viewed      int64 `json:"viewed"`      // 已查看问题数量。
-}
-
-type V1QuestionTopSkuResponse struct {
-	SKU []string `json:"sku"` // Ozon 系统中的商品标识符（SKU）列表。
-}
-
-type V1ReviewListResponse struct {
-	LastID  string               `json:"last_id"`  // 页面中最后一个评价的标识符。
-	Reviews []ListResponseReview `json:"reviews"`  // 评价信息。
-	HasNext bool                 `json:"has_next"` // `true`：回复中未返回所有评价。
-}
-
-// 回答发布状态： - `PUBLISHED`——已发布； - `AWAITING_MODERATION`——等待审核； - `MODERATION_FAILED`——未通过审核； - `DUPLICATE`——重复。
-type QuestionV1QuestionAnswerListResponseAnswerStatusPublication string
-
-const (
-	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationPublished          QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "PUBLISHED"
-	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationAwaitingModeration QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "AWAITING_MODERATION"
-	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationModerationFailed   QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "MODERATION_FAILED"
-	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationDuplicate          QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "DUPLICATE"
-)
-
-type V1QuestionAnswerListResponseAnswers struct {
-	SKU               int64                                                       `json:"sku"` // Ozon 系统中的商品标识符——SKU。
-	StatusPublication QuestionV1QuestionAnswerListResponseAnswerStatusPublication `json:"status_publication"`
-	Text              string                                                      `json:"text"`         // 回答文本。
-	AuthorName        string                                                      `json:"author_name"`  // 回答作者。
-	ID                string                                                      `json:"id"`           // 回答标识符。
-	PublishedAt       any                                                         `json:"published_at"` // 回答发布时间。
-	QuestionID        string                                                      `json:"question_id"`  // 问题标识符。
-}
-
-// 评价状态： - `ALL`——全部； - `NEW`——新的； - `VIEWED`——已查看； - `PROCESSED`——已处理。
-type V2ReviewListV2RequestFiltersStatus string
-
-const (
-	V2ReviewListV2RequestFiltersStatusALL       V2ReviewListV2RequestFiltersStatus = "ALL"
-	V2ReviewListV2RequestFiltersStatusNEW       V2ReviewListV2RequestFiltersStatus = "NEW"
-	V2ReviewListV2RequestFiltersStatusViewed    V2ReviewListV2RequestFiltersStatus = "VIEWED"
-	V2ReviewListV2RequestFiltersStatusProcessed V2ReviewListV2RequestFiltersStatus = "PROCESSED"
-)
-
-// 用于搜索评价的筛选条件。
-type V2ReviewListV2RequestFilters struct {
-	Status        V2ReviewListV2RequestFiltersStatus      `json:"status"`
-	OrderStatus   V2ReviewListV2RequestFiltersOrderStatus `json:"order_status"`
-	PublishedFrom string                                  `json:"published_from"` // 时间段开始日期。将返回在此日期之后创建的评价。
-	PublishedTo   string                                  `json:"published_to"`   // 时间段结束日期。将返回在此日期之前创建的评价。
-	Skus          []string                                `json:"skus"`           // 商品在Ozon系统中的标识符——SKU。
-}
-
-type InfoResponsePhoto struct {
-	Height int32  `json:"height"` // 高度。
-	URL    string `json:"url"`    // 图片链接。
-	Width  int32  `json:"width"`  // 宽度。
-}
-
-type InfoResponseVideo struct {
-	Height               int64  `json:"height"`                  // 高度。
-	PreviewURL           string `json:"preview_url"`             // 预览视频链接。
-	ShortVideoPreviewURL string `json:"short_video_preview_url"` // 短视频链接。
-	URL                  string `json:"url"`                     // 视频链接。
-	Width                int64  `json:"width"`                   // 宽度。
-}
-
-type V1ReviewInfoResponse struct {
-	Rating              int32               `json:"rating"`                // 评价评分。
-	Status              Status              `json:"status"`                // 评价状态： - `UNPROCESSED` — 未处理， - `PROCESSED` — 已处理。
-	VideosAmount        int32               `json:"videos_amount"`         // 评价中的视频数量。
-	OrderStatus         OrderStatus         `json:"order_status"`          // 买家留下评价的订单状态： - `DELIVERED`— 已送达， - `CANCELLED` — 已取消。
-	Photos              []InfoResponsePhoto `json:"photos"`                // 图片信息。
-	PhotosAmount        int32               `json:"photos_amount"`         // 评价中的图片数量。
-	Text                string              `json:"text"`                  // 评价文字。
-	ID                  string              `json:"id"`                    // 评价标识符。
-	Videos              []InfoResponseVideo `json:"videos"`                // 视频信息。
-	CommentsAmount      int32               `json:"comments_amount"`       // 评价的回复数量。
-	PublishedAt         string              `json:"published_at"`          // 评价的发布日期。
-	SKU                 int64               `json:"sku"`                   // Ozon系统中的商品识别符——SKU。
-	DislikesAmount      int32               `json:"dislikes_amount"`       // 评价的踩数量。
-	IsRatingParticipant bool                `json:"is_rating_participant"` // `true`：评论是由官方人员留下的；`false`：评论是由买家留下的。
-	LikesAmount         int32               `json:"likes_amount"`          // 评价的点赞数量。
-}
-
-type V1QuestionListResponseQuestions struct {
-	AnswersCount int64  `json:"answers_count"` // 问题的回答数量。
-	AuthorName   string `json:"author_name"`   // 问题作者姓名。
-	ID           string `json:"id"`            // 问题标识符。
-	PublishedAt  any    `json:"published_at"`  // 问题发布日期。
-	QuestionLink string `json:"question_link"` // 问题链接。
-	SKU          int64  `json:"sku"`           // Ozon 系统中的商品标识符——SKU。
-	Status       any    `json:"status"`        // 问题状态： - `NEW`——新的， - `ALL`——全部问题， - `VIEWED`——已查看， - `PROCESSED`——已处理， - `UNPROCESSED`——未处理。
-	ProductURL   string `json:"product_url"`   // 商品链接。
-	Text         string `json:"text"`          // 问题文本。
-}
-
-type V1QuestionTopSkuRequest struct {
-	Limit int64 `json:"limit"` // 响应结果数量。
-}
-
-type V1QuestionInfoRequest struct {
-	QuestionID string `json:"question_id"` // 问题标识符。
-}
-
-type V1QuestionInfoResponse struct {
-	AnswersCount int64  `json:"answers_count"` // 问题的回答数量。
-	AuthorName   string `json:"author_name"`   // 问题作者。
-	ID           string `json:"id"`            // 问题标识符。
-	ProductURL   string `json:"product_url"`   // 商品链接。
-	QuestionLink string `json:"question_link"` // 问题链接。
-	Status       any    `json:"status"`        // 问题状态： - `NEW`——新的， - `ALL`——全部问题， - `VIEWED`——已查看， - `PROCESSED`——已处理， - `UNPROCESSED`——未处理。
-	Text         string `json:"text"`          // 问题文本。
-	PublishedAt  any    `json:"published_at"`  // 问题发布日期。
-	SKU          int64  `json:"sku"`           // Ozon 系统中的商品标识符——SKU。
-}
-
-type V1CommentDeleteRequest struct {
-	CommentID string `json:"comment_id"` // 评论标识符。
-}
-
-type V1ReviewInfoRequest struct {
-	ReviewID string `json:"review_id"` // 评价标识符。
-}
-
-type V1QuestionAnswerListRequest struct {
-	SKU        int64  `json:"sku"`         // Ozon 系统中的商品标识符——SKU。
-	LastID     any    `json:"last_id"`     // 页面上最后一个值的标识符。 如果是首次请求，请将该字段留空。 后续请求中，请传入上一次请求返回的 `last_id`。
-	QuestionID string `json:"question_id"` // 问题标识符。
-}
 
 type V1ReviewChangeStatusRequest struct {
 	ReviewIds []string `json:"review_ids"` // 包含评价标识符的数组（数量在1到100之间）。
@@ -201,63 +22,58 @@ const (
 	V2ReviewListV2ResponseReviewStatusProcessed V2ReviewListV2ResponseReviewStatus = "PROCESSED"
 )
 
-// SortDir values
-type SortDir string
+// 买家留下评价的订单状态： - `DELIVERED`——已送达； - `CANCELLED`——已取消。
+type V2ReviewListV2ResponseReviewOrderStatus string
 
 const (
-	SortDirASC  SortDir = "ASC"  // 按升序
-	SortDirDesc SortDir = "DESC" // 按降序
+	V2ReviewListV2ResponseReviewOrderStatusDelivered V2ReviewListV2ResponseReviewOrderStatus = "DELIVERED"
+	V2ReviewListV2ResponseReviewOrderStatusCancelled V2ReviewListV2ResponseReviewOrderStatus = "CANCELLED"
 )
 
-type V1ReviewListRequest struct {
-	SortDir SortDir `json:"sort_dir"` // 排序方向： - `ASC` — 按升序。 - `DESC` — 按降序。
-	Status  Status  `json:"status"`   // 评价状态： - `ALL` — 全部， - `UNPROCESSED` — 未处理的， - `PROCESSED` — 已处理的。
-	LastID  string  `json:"last_id"`  // 页面中最后一个评价的标识符。
-	Limit   int32   `json:"limit"`    // 限制回复中的值数量。最少 — 20；最多 — 100。
+type V2ReviewListV2ResponseReview struct {
+	CommentsAmount      int32                                   `json:"comments_amount"`       // 评价的评论数量。
+	ID                  string                                  `json:"id"`                    // 评价标识符。
+	IsRatingParticipant bool                                    `json:"is_rating_participant"` // `true`表示评价参与评分计算。
+	Rating              int32                                   `json:"rating"`                // 评价评分。
+	Status              V2ReviewListV2ResponseReviewStatus      `json:"status"`
+	Text                string                                  `json:"text"` // 评价文字。
+	OrderStatus         V2ReviewListV2ResponseReviewOrderStatus `json:"order_status"`
+	PhotosAmount        int32                                   `json:"photos_amount"` // 评价中的图片数量。
+	PublishedAt         string                                  `json:"published_at"`  // 评价发布日期。
+	SKU                 int64                                   `json:"sku"`           // 商品在Ozon系统中的标识符——SKU。
+	VideosAmount        int32                                   `json:"videos_amount"` // 评价中的视频数量。
 }
 
-type V2ReviewListV2Request struct {
-	Filters V2ReviewListV2RequestFilters `json:"filters"`
-	LastID  string                       `json:"last_id"` // 响应中最后一条评价的标识符。
-	Limit   int32                        `json:"limit"`   // 响应中的评价数量。
-	SortDir V2ReviewListV2RequestSortDir `json:"sort_dir"`
+type V2ReviewListV2Response struct {
+	HasNext bool                           `json:"has_next"` // `true`，表示响应中未返回全部评价。
+	LastID  string                         `json:"last_id"`  // 页面中最后一个评价的标识符。
+	Reviews []V2ReviewListV2ResponseReview `json:"reviews"`  // 评价列表。
 }
 
-type V1CommentCreateRequest struct {
-	Text                  string `json:"text"`                     // 评论内容。
-	MarkReviewAsProcessed bool   `json:"mark_review_as_processed"` // 更新评论状态： - `true` — 状态将变更为 `Processed`（已处理）； - `false` — 状态不变。
-	ParentCommentID       string `json:"parent_comment_id"`        // 父级评论的标识符（您要回复的评论）。
-	ReviewID              string `json:"review_id"`                // 评价标识符。
+type V1ReviewInfoRequest struct {
+	ReviewID string `json:"review_id"` // 评价标识符。
 }
 
-type V1CommentCreateResponse struct {
-	CommentID string `json:"comment_id"` // 评论标识符。
+// 筛选器。
+type V1QuestionListRequestFilter struct {
+	DateFrom string `json:"date_from"` // 时间段开始。
+	DateTo   string `json:"date_to"`   // 时间段结束。
+	Status   Status `json:"status"`    // 问题状态： - `NEW`——新的， - `ALL`——全部问题， - `VIEWED`——已查看， - `PROCESSED`——已处理， - `UNPROCESSED`——未处理。
 }
 
-type V1QuestionAnswerDeleteRequest struct {
-	AnswerID string `json:"answer_id"` // 回答标识符。
-	SKU      int64  `json:"sku"`       // Ozon 系统中的商品标识符——SKU。
-}
+// 排序方向： - `DESC`——降序； - `ASC`——升序。
+type QuestionV1GetQuestionListRequestSortDir string
 
-type V1QuestionAnswerCreateRequest struct {
-	Text       string `json:"text"`        // 回答文本，长度为 2 至 3000 个字符。
-	QuestionID string `json:"question_id"` // 问题标识符。
-	SKU        int64  `json:"sku"`         // Ozon 系统中的商品标识符——SKU。
-}
+const (
+	QuestionV1GetQuestionListRequestSortDirDesc QuestionV1GetQuestionListRequestSortDir = "DESC"
+	QuestionV1GetQuestionListRequestSortDirASC  QuestionV1GetQuestionListRequestSortDir = "ASC"
+)
 
-type V1QuestionAnswerCreateResponse struct {
-	AnswerID string `json:"answer_id"` // 问题回答标识符。
-}
-
-type V1QuestionListResponse struct {
-	Questions []V1QuestionListResponseQuestions `json:"questions"` // 问题。
-	LastID    string                            `json:"last_id"`   // 页面上最后一个值的标识符。 要获取下一个批次的数据，请在下一个请求的 `last_id` 参数中传递上次获取的值。
-	HasNext   bool                              `json:"has_next"`  // 如果响应中未返回所有问题，则为`true`。
-}
-
-type V1QuestionAnswerListResponse struct {
-	Answers []V1QuestionAnswerListResponseAnswers `json:"answers"` // 回答。
-	LastID  string                                `json:"last_id"` // 页面上最后一个值的标识符。 要获取下一个批次的数据，请在下一个请求的 `last_id` 参数中传递上次获取的值。
+type V1QuestionListRequest struct {
+	Filter  V1QuestionListRequestFilter             `json:"filter"`
+	LastID  string                                  `json:"last_id"` // 页面上最后一个值的ID。运行第一个查询时，将此字段留空。 要检索以下数值，请从上一个查询的响应中指定`last_id`。
+	Limit   int64                                   `json:"limit"`   // 响应中返回的值数量。
+	SortDir QuestionV1GetQuestionListRequestSortDir `json:"sort_dir"`
 }
 
 // 排序方向： - `ASC` — 按升序。 - `DESC` — 按降序。
@@ -275,57 +91,199 @@ type V1CommentListRequest struct {
 	SortDir  V1CommentSort `json:"sort_dir"`
 }
 
+// 评价状态： - `ALL`——全部； - `NEW`——新的； - `VIEWED`——已查看； - `PROCESSED`——已处理。
+type V2ReviewListV2RequestFiltersStatus string
+
+const (
+	V2ReviewListV2RequestFiltersStatusALL       V2ReviewListV2RequestFiltersStatus = "ALL"
+	V2ReviewListV2RequestFiltersStatusNEW       V2ReviewListV2RequestFiltersStatus = "NEW"
+	V2ReviewListV2RequestFiltersStatusViewed    V2ReviewListV2RequestFiltersStatus = "VIEWED"
+	V2ReviewListV2RequestFiltersStatusProcessed V2ReviewListV2RequestFiltersStatus = "PROCESSED"
+)
+
+type V1QuestionListResponseQuestions struct {
+	AnswersCount int64  `json:"answers_count"` // 问题的回答数量。
+	AuthorName   string `json:"author_name"`   // 问题作者姓名。
+	ProductURL   string `json:"product_url"`   // 商品链接。
+	PublishedAt  string `json:"published_at"`  // 问题发布日期。
+	SKU          int64  `json:"sku"`           // Ozon 系统中的商品标识符——SKU。
+	Text         string `json:"text"`          // 问题文本。
+	ID           string `json:"id"`            // 问题标识符。
+	QuestionLink string `json:"question_link"` // 问题链接。
+	Status       Status `json:"status"`        // 问题状态： - `NEW`——新的， - `ALL`——全部问题， - `VIEWED`——已查看， - `PROCESSED`——已处理， - `UNPROCESSED`——未处理。
+}
+
+type V1QuestionListResponse struct {
+	Questions []V1QuestionListResponseQuestions `json:"questions"` // 问题。
+	LastID    string                            `json:"last_id"`   // 页面上最后一个值的标识符。 要获取下一个批次的数据，请在下一个请求的 `last_id` 参数中传递上次获取的值。
+	HasNext   bool                              `json:"has_next"`  // 如果响应中未返回所有问题，则为`true`。
+}
+
+// 回答发布状态： - `PUBLISHED`——已发布； - `AWAITING_MODERATION`——等待审核； - `MODERATION_FAILED`——未通过审核； - `DUPLICATE`——重复。
+type QuestionV1QuestionAnswerListResponseAnswerStatusPublication string
+
+const (
+	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationPublished          QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "PUBLISHED"
+	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationAwaitingModeration QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "AWAITING_MODERATION"
+	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationModerationFailed   QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "MODERATION_FAILED"
+	QuestionV1QuestionAnswerListResponseAnswerStatusPublicationDuplicate          QuestionV1QuestionAnswerListResponseAnswerStatusPublication = "DUPLICATE"
+)
+
+type V1QuestionAnswerListResponseAnswers struct {
+	PublishedAt       string                                                      `json:"published_at"` // 回答发布时间。
+	QuestionID        string                                                      `json:"question_id"`  // 问题标识符。
+	SKU               int64                                                       `json:"sku"`          // Ozon 系统中的商品标识符——SKU。
+	StatusPublication QuestionV1QuestionAnswerListResponseAnswerStatusPublication `json:"status_publication"`
+	Text              string                                                      `json:"text"`        // 回答文本。
+	AuthorName        string                                                      `json:"author_name"` // 回答作者。
+	ID                string                                                      `json:"id"`          // 回答标识符。
+}
+
+type V1QuestionAnswerListResponse struct {
+	Answers []V1QuestionAnswerListResponseAnswers `json:"answers"` // 回答。
+	LastID  string                                `json:"last_id"` // 页面上最后一个值的标识符。 要获取下一个批次的数据，请在下一个请求的 `last_id` 参数中传递上次获取的值。
+}
+
+type V1QuestionInfoRequest struct {
+	QuestionID string `json:"question_id"` // 问题标识符。
+}
+
+type V1QuestionInfoResponse struct {
+	Status       Status `json:"status"`        // 问题状态： - `NEW`——新的， - `ALL`——全部问题， - `VIEWED`——已查看， - `PROCESSED`——已处理， - `UNPROCESSED`——未处理。
+	Text         string `json:"text"`          // 问题文本。
+	AnswersCount int64  `json:"answers_count"` // 问题的回答数量。
+	AuthorName   string `json:"author_name"`   // 问题作者。
+	ID           string `json:"id"`            // 问题标识符。
+	ProductURL   string `json:"product_url"`   // 商品链接。
+	QuestionLink string `json:"question_link"` // 问题链接。
+	SKU          int64  `json:"sku"`           // Ozon 系统中的商品标识符——SKU。
+	PublishedAt  string `json:"published_at"`  // 问题发布日期。
+}
+
+type V1QuestionChangeStatusRequest struct {
+	Status      Status   `json:"status"`       // 问题状态： - `NEW`——新的， - `VIEWED`——已查看， - `PROCESSED`——已处理。
+	QuestionIds []string `json:"question_ids"` // 问题标识符。
+}
+
+// 买家留下评价的订单状态： - `ALL`——全部； - `DELIVERED`——已送达； - `CANCELLED`——已取消。
+type V2ReviewListV2RequestFiltersOrderStatus string
+
+const (
+	V2ReviewListV2RequestFiltersOrderStatusALL       V2ReviewListV2RequestFiltersOrderStatus = "ALL"
+	V2ReviewListV2RequestFiltersOrderStatusDelivered V2ReviewListV2RequestFiltersOrderStatus = "DELIVERED"
+	V2ReviewListV2RequestFiltersOrderStatusCancelled V2ReviewListV2RequestFiltersOrderStatus = "CANCELLED"
+)
+
+// 用于搜索评价的筛选条件。
+type V2ReviewListV2RequestFilters struct {
+	OrderStatus   V2ReviewListV2RequestFiltersOrderStatus `json:"order_status"`
+	PublishedFrom string                                  `json:"published_from"` // 时间段开始日期。将返回在此日期之后创建的评价。
+	PublishedTo   string                                  `json:"published_to"`   // 时间段结束日期。将返回在此日期之前创建的评价。
+	Skus          []string                                `json:"skus"`           // 商品在Ozon系统中的标识符——SKU。
+	Status        V2ReviewListV2RequestFiltersStatus      `json:"status"`
+}
+
+// 排序方向： - `ASC`——升序； - `DESC`——降序。
+type V2ReviewListV2RequestSortDir string
+
+const (
+	V2ReviewListV2RequestSortDirASC  V2ReviewListV2RequestSortDir = "ASC"
+	V2ReviewListV2RequestSortDirDesc V2ReviewListV2RequestSortDir = "DESC"
+)
+
+type V2ReviewListV2Request struct {
+	Filters V2ReviewListV2RequestFilters `json:"filters"`
+	LastID  string                       `json:"last_id"` // 响应中最后一条评价的标识符。
+	Limit   int32                        `json:"limit"`   // 响应中的评价数量。
+	SortDir V2ReviewListV2RequestSortDir `json:"sort_dir"`
+}
+
+type InfoResponseVideo struct {
+	PreviewURL           string `json:"preview_url"`             // 预览视频链接。
+	ShortVideoPreviewURL string `json:"short_video_preview_url"` // 短视频链接。
+	URL                  string `json:"url"`                     // 视频链接。
+	Width                int64  `json:"width"`                   // 宽度。
+	Height               int64  `json:"height"`                  // 高度。
+}
+
+type InfoResponsePhoto struct {
+	Height int32  `json:"height"` // 高度。
+	URL    string `json:"url"`    // 图片链接。
+	Width  int32  `json:"width"`  // 宽度。
+}
+
+// OrderStatus values
+type OrderStatus string
+
+const (
+	OrderStatusDelivered OrderStatus = "DELIVERED" // 已送达
+	OrderStatusCancelled OrderStatus = "CANCELLED" // 已取消
+)
+
+type V1ReviewInfoResponse struct {
+	DislikesAmount      int32               `json:"dislikes_amount"`       // 评价的踩数量。
+	OrderStatus         OrderStatus         `json:"order_status"`          // 买家留下评价的订单状态： - `DELIVERED`— 已送达， - `CANCELLED` — 已取消。
+	Rating              int32               `json:"rating"`                // 评价评分。
+	Status              Status              `json:"status"`                // 评价状态： - `UNPROCESSED` — 未处理， - `PROCESSED` — 已处理。
+	ID                  string              `json:"id"`                    // 评价标识符。
+	PublishedAt         string              `json:"published_at"`          // 评价的发布日期。
+	VideosAmount        int32               `json:"videos_amount"`         // 评价中的视频数量。
+	IsRatingParticipant bool                `json:"is_rating_participant"` // `true`：评论是由官方人员留下的；`false`：评论是由买家留下的。
+	LikesAmount         int32               `json:"likes_amount"`          // 评价的点赞数量。
+	Text                string              `json:"text"`                  // 评价文字。
+	CommentsAmount      int32               `json:"comments_amount"`       // 评价的回复数量。
+	Photos              []InfoResponsePhoto `json:"photos"`                // 图片信息。
+	PhotosAmount        int32               `json:"photos_amount"`         // 评价中的图片数量。
+	SKU                 int64               `json:"sku"`                   // Ozon系统中的商品识别符——SKU。
+	Videos              []InfoResponseVideo `json:"videos"`                // 视频信息。
+}
+
+// SortDir values
+type SortDir string
+
+const (
+	SortDirASC  SortDir = "ASC"  // 按升序
+	SortDirDesc SortDir = "DESC" // 按降序
+)
+
+type V1ReviewListRequest struct {
+	LastID  string  `json:"last_id"`  // 页面中最后一个评价的标识符。
+	Limit   int32   `json:"limit"`    // 限制回复中的值数量。最少 — 20；最多 — 100。
+	SortDir SortDir `json:"sort_dir"` // 排序方向： - `ASC` — 按升序。 - `DESC` — 按降序。
+	Status  Status  `json:"status"`   // 评价状态： - `ALL` — 全部， - `UNPROCESSED` — 未处理的， - `PROCESSED` — 已处理的。
+}
+
+type ListResponseReview struct {
+	CommentsAmount      int32       `json:"comments_amount"`       // 评价的评论数量。
+	ID                  string      `json:"id"`                    // 评价标识符。
+	SKU                 int64       `json:"sku"`                   // Ozon系统中的商品识别符——SKU。
+	Text                string      `json:"text"`                  // 评价文字。
+	VideosAmount        int32       `json:"videos_amount"`         // 评价的视频数量。
+	IsRatingParticipant bool        `json:"is_rating_participant"` // `true`：如果评价被计入评级计算。
+	OrderStatus         OrderStatus `json:"order_status"`          // 买家留下评价的订单状态： - `DELIVERED`— 已送达， - `CANCELLED` — 已取消。
+	PhotosAmount        int32       `json:"photos_amount"`         // 评价中的图片数量。
+	PublishedAt         string      `json:"published_at"`          // 评价的发布时间。
+	Rating              int32       `json:"rating"`                // 评价的评分。
+	Status              Status      `json:"status"`                // 评价状态： - `UNPROCESSED` — 未处理， - `PROCESSED` — 已处理。
+}
+
+type V1ReviewListResponse struct {
+	HasNext bool                 `json:"has_next"` // `true`：回复中未返回所有评价。
+	LastID  string               `json:"last_id"`  // 页面中最后一个评价的标识符。
+	Reviews []ListResponseReview `json:"reviews"`  // 评价信息。
+}
+
+type V1CommentCreateResponse struct {
+	CommentID string `json:"comment_id"` // 评论标识符。
+}
+
 type CommentListResponseComment struct {
-	ParentCommentID string `json:"parent_comment_id"` // 父级评论的标识符（需要对此评论进行回复）。
-	PublishedAt     string `json:"published_at"`      // 评论发布日期。
-	Text            string `json:"text"`              // 评论内容。
 	ID              string `json:"id"`                // 评论标识符。
 	IsOfficial      bool   `json:"is_official"`       // `true`：评论是由官方人员留下的；`false`：评论是由买家留下的。
 	IsOwner         bool   `json:"is_owner"`          // `true`：评论是由卖家留下的；`false`：评论是由买家留下的。
-}
-
-// 买家留下评价的订单状态： - `DELIVERED`——已送达； - `CANCELLED`——已取消。
-type V2ReviewListV2ResponseReviewOrderStatus string
-
-const (
-	V2ReviewListV2ResponseReviewOrderStatusDelivered V2ReviewListV2ResponseReviewOrderStatus = "DELIVERED"
-	V2ReviewListV2ResponseReviewOrderStatusCancelled V2ReviewListV2ResponseReviewOrderStatus = "CANCELLED"
-)
-
-type V2ReviewListV2ResponseReview struct {
-	PublishedAt         string                                  `json:"published_at"`          // 评价发布日期。
-	Rating              int32                                   `json:"rating"`                // 评价评分。
-	SKU                 int64                                   `json:"sku"`                   // 商品在Ozon系统中的标识符——SKU。
-	Text                string                                  `json:"text"`                  // 评价文字。
-	VideosAmount        int32                                   `json:"videos_amount"`         // 评价中的视频数量。
-	ID                  string                                  `json:"id"`                    // 评价标识符。
-	IsRatingParticipant bool                                    `json:"is_rating_participant"` // `true`表示评价参与评分计算。
-	OrderStatus         V2ReviewListV2ResponseReviewOrderStatus `json:"order_status"`
-	Status              V2ReviewListV2ResponseReviewStatus      `json:"status"`
-	CommentsAmount      int32                                   `json:"comments_amount"` // 评价的评论数量。
-	PhotosAmount        int32                                   `json:"photos_amount"`   // 评价中的图片数量。
-}
-
-// 排序方向： - `DESC`——降序； - `ASC`——升序。
-type QuestionV1GetQuestionListRequestSortDir string
-
-const (
-	QuestionV1GetQuestionListRequestSortDirDesc QuestionV1GetQuestionListRequestSortDir = "DESC"
-	QuestionV1GetQuestionListRequestSortDirASC  QuestionV1GetQuestionListRequestSortDir = "ASC"
-)
-
-// 筛选器。
-type V1QuestionListRequestFilter struct {
-	Status   Status `json:"status"`    // 问题状态： - `NEW`——新的， - `ALL`——全部问题， - `VIEWED`——已查看， - `PROCESSED`——已处理， - `UNPROCESSED`——未处理。
-	DateFrom string `json:"date_from"` // 时间段开始。
-	DateTo   string `json:"date_to"`   // 时间段结束。
-}
-
-type V1QuestionListRequest struct {
-	Filter  V1QuestionListRequestFilter             `json:"filter"`
-	LastID  string                                  `json:"last_id"` // 页面上最后一个值的ID。运行第一个查询时，将此字段留空。 要检索以下数值，请从上一个查询的响应中指定`last_id`。
-	Limit   int64                                   `json:"limit"`   // 响应中返回的值数量。
-	SortDir QuestionV1GetQuestionListRequestSortDir `json:"sort_dir"`
+	ParentCommentID string `json:"parent_comment_id"` // 父级评论的标识符（需要对此评论进行回复）。
+	PublishedAt     string `json:"published_at"`      // 评论发布日期。
+	Text            string `json:"text"`              // 评论内容。
 }
 
 type V1CommentListResponse struct {
@@ -333,14 +291,56 @@ type V1CommentListResponse struct {
 	Offset   int32                        `json:"offset"`   // 搜索结果中的元素数量。
 }
 
-type V2ReviewListV2Response struct {
-	Reviews []V2ReviewListV2ResponseReview `json:"reviews"`  // 评价列表。
-	HasNext bool                           `json:"has_next"` // `true`，表示响应中未返回全部评价。
-	LastID  string                         `json:"last_id"`  // 页面中最后一个评价的标识符。
+type V1QuestionAnswerDeleteRequest struct {
+	AnswerID string `json:"answer_id"` // 回答标识符。
+	SKU      int64  `json:"sku"`       // Ozon 系统中的商品标识符——SKU。
+}
+
+type V1QuestionTopSkuResponse struct {
+	SKU []string `json:"sku"` // Ozon 系统中的商品标识符（SKU）列表。
+}
+
+type V1CommentCreateRequest struct {
+	Text                  string `json:"text"`                     // 评论内容。
+	MarkReviewAsProcessed bool   `json:"mark_review_as_processed"` // 更新评论状态： - `true` — 状态将变更为 `Processed`（已处理）； - `false` — 状态不变。
+	ParentCommentID       string `json:"parent_comment_id"`        // 父级评论的标识符（您要回复的评论）。
+	ReviewID              string `json:"review_id"`                // 评价标识符。
+}
+
+type V1CommentDeleteRequest struct {
+	CommentID string `json:"comment_id"` // 评论标识符。
+}
+
+type V1QuestionTopSkuRequest struct {
+	Limit int64 `json:"limit"` // 响应结果数量。
+}
+
+type V1QuestionAnswerCreateRequest struct {
+	QuestionID string `json:"question_id"` // 问题标识符。
+	SKU        int64  `json:"sku"`         // Ozon 系统中的商品标识符——SKU。
+	Text       string `json:"text"`        // 回答文本，长度为 2 至 3000 个字符。
+}
+
+type V1QuestionAnswerListRequest struct {
+	LastID     any    `json:"last_id"`     // 页面上最后一个值的标识符。 如果是首次请求，请将该字段留空。 后续请求中，请传入上一次请求返回的 `last_id`。
+	QuestionID string `json:"question_id"` // 问题标识符。
+	SKU        int64  `json:"sku"`         // Ozon 系统中的商品标识符——SKU。
 }
 
 type V1ReviewCountResponse struct {
+	Processed   int32 `json:"processed"`   // 已处理评价的数量。
 	Total       int32 `json:"total"`       // 评价的总数量。
 	Unprocessed int32 `json:"unprocessed"` // 未处理评价的数量。
-	Processed   int32 `json:"processed"`   // 已处理评价的数量。
+}
+
+type V1QuestionCountResponse struct {
+	All         int64 `json:"all"`         // 问题总数。
+	New         int64 `json:"new"`         // 新问题数量。
+	Processed   int64 `json:"processed"`   // 已处理问题数量。
+	Unprocessed int64 `json:"unprocessed"` // 未处理问题数量。
+	Viewed      int64 `json:"viewed"`      // 已查看问题数量。
+}
+
+type V1QuestionAnswerCreateResponse struct {
+	AnswerID string `json:"answer_id"` // 问题回答标识符。
 }

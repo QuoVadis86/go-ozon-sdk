@@ -7,30 +7,6 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 更新库存商品的数量
-// Note: 每30秒内只能为一组商品-仓库更新一次库存，否则在回复中的result.errors参数中将出现TOO_MANY_REQUESTS错误。
-// Note: 每30秒内只能为一组商品-仓库更新一次库存，否则在回复中的result.errors参数中将出现TOO_MANY_REQUESTS错误
-// Note: 从一个卖家账户最多每分钟可以发送80 个请求
-func (s *Service) ProductsStocksV2(ctx context.Context, req *V2ProductsStocksRequest) (*V2ProductsStocksResponse, error) {
-	var resp V2ProductsStocksResponse
-	err := s.Client.Post(ctx, "/v2/products/stocks", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 更新价格
-// Note: 每个商品的价格每小时不能更新超过10次
-func (s *Service) ImportProductsPrices(ctx context.Context, req *ImportProductsPricesRequest) (*ImportProductsPricesResponse, error) {
-	var resp ImportProductsPricesResponse
-	err := s.Client.Post(ctx, "/v1/product/import/prices", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 为打折商品设置折扣
 func (s *Service) ProductUpdateDiscount(ctx context.Context, req *V1ProductUpdateDiscountRequest) (*V1ProductUpdateDiscountResponse, error) {
 	var resp V1ProductUpdateDiscountResponse
@@ -41,10 +17,19 @@ func (s *Service) ProductUpdateDiscount(ctx context.Context, req *V1ProductUpdat
 	return &resp, nil
 }
 
-// 通过减价商品的SKU查找减价商品和主商品的信息
-func (s *Service) GetProductInfoDiscounted(ctx context.Context, req *V1GetProductInfoDiscountedRequest) (*V1GetProductInfoDiscountedResponse, error) {
-	var resp V1GetProductInfoDiscountedResponse
-	err := s.Client.Post(ctx, "/v1/product/info/discounted", req, &resp)
+// 最低价格时效性计时器更新
+func (s *Service) ActionTimerUpdate(ctx context.Context, req *V1ProductActionTimerUpdateRequest) error {
+	err := s.Client.Post(ctx, "/v1/product/action/timer/update", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 获取商品价格信息
+func (s *Service) GetProductInfoPrices(ctx context.Context, req *V5GetProductInfoPricesV5Request) (*V5GetProductInfoPricesV5Response, error) {
+	var resp V5GetProductInfoPricesV5Response
+	err := s.Client.Post(ctx, "/v5/product/info/prices", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -81,10 +66,11 @@ func (s *Service) ProductStocksByWarehouseFbs(ctx context.Context, req *Sv1GetPr
 	return &resp, nil
 }
 
-// 获取商品价格信息
-func (s *Service) GetProductInfoPrices(ctx context.Context, req *V5GetProductInfoPricesV5Request) (*V5GetProductInfoPricesV5Response, error) {
-	var resp V5GetProductInfoPricesV5Response
-	err := s.Client.Post(ctx, "/v5/product/info/prices", req, &resp)
+// 更新价格
+// Note: 每个商品的价格每小时不能更新超过10次
+func (s *Service) ImportProductsPrices(ctx context.Context, req *ImportProductsPricesRequest) (*ImportProductsPricesResponse, error) {
+	var resp ImportProductsPricesResponse
+	err := s.Client.Post(ctx, "/v1/product/import/prices", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -101,11 +87,25 @@ func (s *Service) GetProductInfoStocks(ctx context.Context, req *V4GetProductInf
 	return &resp, nil
 }
 
-// 最低价格时效性计时器更新
-func (s *Service) ActionTimerUpdate(ctx context.Context, req *V1ProductActionTimerUpdateRequest) error {
-	err := s.Client.Post(ctx, "/v1/product/action/timer/update", req, nil)
+// 更新库存商品的数量
+// Note: 每30秒内只能为一组商品-仓库更新一次库存，否则在回复中的result.errors参数中将出现TOO_MANY_REQUESTS错误。
+// Note: 每30秒内只能为一组商品-仓库更新一次库存，否则在回复中的result.errors参数中将出现TOO_MANY_REQUESTS错误
+// Note: 从一个卖家账户最多每分钟可以发送80 个请求
+func (s *Service) ProductsStocksV2(ctx context.Context, req *V2ProductsStocksRequest) (*V2ProductsStocksResponse, error) {
+	var resp V2ProductsStocksResponse
+	err := s.Client.Post(ctx, "/v2/products/stocks", req, &resp)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &resp, nil
+}
+
+// 通过减价商品的SKU查找减价商品和主商品的信息
+func (s *Service) GetProductInfoDiscounted(ctx context.Context, req *V1GetProductInfoDiscountedRequest) (*V1GetProductInfoDiscountedResponse, error) {
+	var resp V1GetProductInfoDiscountedResponse
+	err := s.Client.Post(ctx, "/v1/product/info/discounted", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
 }

@@ -18,16 +18,6 @@ func (s *Service) AnalyticsGetData(ctx context.Context, req *AnalyticsAnalyticsG
 	return &resp, nil
 }
 
-// 获取商品价格的详细信息
-func (s *Service) ProductPricesDetails(ctx context.Context, req *V1ProductPricesDetailsRequest) (*V1ProductPricesDetailsResponse, error) {
-	var resp V1ProductPricesDetailsResponse
-	err := s.Client.Post(ctx, "/v1/product/prices/details", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 有关特定商品查询的信息
 func (s *Service) AnalyticsProductQueriesDetails(ctx context.Context, req *V1AnalyticsProductQueriesDetailsRequest) (*V1AnalyticsProductQueriesDetailsResponse, error) {
 	var resp V1AnalyticsProductQueriesDetailsResponse
@@ -72,6 +62,16 @@ func (s *Service) AnalyticsProductQueries(ctx context.Context, req *V1AnalyticsP
 func (s *Service) SearchQueriesText(ctx context.Context, req *V1SearchQueriesTextRequest) (*V1SearchQueriesTextResponse, error) {
 	var resp V1SearchQueriesTextResponse
 	err := s.Client.Post(ctx, "/v1/search-queries/text", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品价格的详细信息
+func (s *Service) ProductPricesDetails(ctx context.Context, req *V1ProductPricesDetailsRequest) (*V1ProductPricesDetailsResponse, error) {
+	var resp V1ProductPricesDetailsResponse
+	err := s.Client.Post(ctx, "/v1/product/prices/details", req, &resp)
 	if err != nil {
 		return nil, err
 	}

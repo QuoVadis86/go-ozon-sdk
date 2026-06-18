@@ -27,16 +27,6 @@ func TestAnalyticsGetData(t *testing.T) {
 	_ = resp
 }
 
-func TestProductPricesDetails(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ProductPricesDetails(ctx, &V1ProductPricesDetailsRequest{})
-	if err != nil {
-		t.Fatalf("ProductPricesDetails() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestAnalyticsProductQueriesDetails(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -83,6 +73,16 @@ func TestSearchQueriesText(t *testing.T) {
 	resp, err := svc.SearchQueriesText(ctx, &V1SearchQueriesTextRequest{})
 	if err != nil {
 		t.Fatalf("SearchQueriesText() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestProductPricesDetails(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ProductPricesDetails(ctx, &V1ProductPricesDetailsRequest{})
+	if err != nil {
+		t.Fatalf("ProductPricesDetails() error: %v", err)
 	}
 	_ = resp
 }

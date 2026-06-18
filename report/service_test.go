@@ -17,42 +17,12 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
-func TestCreateCompanyPostingsReport(t *testing.T) {
+func TestReportList(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.CreateCompanyPostingsReport(ctx, &CreateCompanyPostingsReportRequest{})
+	resp, err := svc.ReportList(ctx, &ReportListRequest{})
 	if err != nil {
-		t.Fatalf("CreateCompanyPostingsReport() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestCreateStockByWarehouseReport(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.CreateStockByWarehouseReport(ctx, &V1CreateStockByWarehouseReportRequest{})
-	if err != nil {
-		t.Fatalf("CreateStockByWarehouseReport() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestCreateCompanyMarkedProductsSalesReport(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.CreateCompanyMarkedProductsSalesReport(ctx, &V1ReportMarkedProductsSalesCreateRequest{})
-	if err != nil {
-		t.Fatalf("CreateCompanyMarkedProductsSalesReport() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestFinanceCashFlowStatementList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.FinanceCashFlowStatementList(ctx, &V3FinanceCashFlowStatementListRequest{})
-	if err != nil {
-		t.Fatalf("FinanceCashFlowStatementList() error: %v", err)
+		t.Fatalf("ReportList() error: %v", err)
 	}
 	_ = resp
 }
@@ -67,6 +37,36 @@ func TestReportInfo(t *testing.T) {
 	_ = resp
 }
 
+func TestFinanceCashFlowStatementList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.FinanceCashFlowStatementList(ctx, &V3FinanceCashFlowStatementListRequest{})
+	if err != nil {
+		t.Fatalf("FinanceCashFlowStatementList() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCreateCompanyPostingsReport(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CreateCompanyPostingsReport(ctx, &CreateCompanyPostingsReportRequest{})
+	if err != nil {
+		t.Fatalf("CreateCompanyPostingsReport() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCreateCompanyMarkedProductsSalesReport(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CreateCompanyMarkedProductsSalesReport(ctx, &V1ReportMarkedProductsSalesCreateRequest{})
+	if err != nil {
+		t.Fatalf("CreateCompanyMarkedProductsSalesReport() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestCreateCompanyProductsReport(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -77,12 +77,12 @@ func TestCreateCompanyProductsReport(t *testing.T) {
 	_ = resp
 }
 
-func TestReportList(t *testing.T) {
+func TestCreateStockByWarehouseReport(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ReportList(ctx, &ReportListRequest{})
+	resp, err := svc.CreateStockByWarehouseReport(ctx, &V1CreateStockByWarehouseReportRequest{})
 	if err != nil {
-		t.Fatalf("ReportList() error: %v", err)
+		t.Fatalf("CreateStockByWarehouseReport() error: %v", err)
 	}
 	_ = resp
 }

@@ -56,27 +56,27 @@ func main() {
 
 | 服务 | 端点数 | 说明 |
 |---------|-----------|------|
-| Seller | 3 | 账户信息、角色、API 密钥 |
-| Category | 4 | 类目树、属性、属性值 |
-| Product | 20 | 创建、更新、列出、归档商品 |
-| Prices | 10 | 价格、库存、折扣 |
-| Barcode | 2 | 生成和绑定条形码 |
-| Warehouse | 18 | 仓库管理、配送方式 |
-| FBS | 33 | FBS 订单、发货、标签、配送 |
-| FBO | 47 | FBO 订单、供应请求、FBP 草稿 |
-| Finance | 6 | 财务报表、交易 |
-| Promo | 30 | 促销活动、卖家活动、定价策略 |
-| Pricing | 12 | 定价策略、竞争对手 |
-| Report | 8 | 报告生成与管理 |
-| Review | 16 | 评价、问答 |
-| Chat | 6 | 客户聊天 |
-| Notification | - | 推送通知配置 |
-| Returns | 12 | 退货管理（FBO、FBS、rFBS） |
-| Pass | 8 | 通行证 |
-| Rating | 2 | 卖家评级 |
-| Delivery | 2 | 配送方式、配送区域 |
-| Beta | 17 | 测试方法、分析、可见性 |
-| Premium | 7 | 高级分析、聊天、财务 |
+| [Seller](./seller/service.go) | 3 | 账户信息、角色、API 密钥 |
+| [Category](./category/service.go) | 4 | 类目树、属性、属性值 |
+| [Product](./product/service.go) | 20 | 创建、更新、列出、归档商品 |
+| [Prices](./prices/service.go) | 10 | 价格、库存、折扣 |
+| [Barcode](./barcode/service.go) | 2 | 生成和绑定条形码 |
+| [Warehouse](./warehouse/service.go) | 18 | 仓库管理、配送方式 |
+| [FBS](./fbs/service.go) | 33 | FBS 订单、发货、标签、配送 |
+| [FBO](./fbo/service.go) | 47 | FBO 订单、供应请求、FBP 草稿 |
+| [Finance](./finance/service.go) | 6 | 财务报表、交易 |
+| [Promo](./promo/service.go) | 30 | 促销活动、卖家活动、定价策略 |
+| [Pricing](./pricing/service.go) | 12 | 定价策略、竞争对手 |
+| [Report](./report/service.go) | 8 | 报告生成与管理 |
+| [Review](./review/service.go) | 16 | 评价、问答 |
+| [Chat](./chat/service.go) | 6 | 客户聊天 |
+| [Notification](./notification/service.go) | - | 推送通知配置 |
+| [Returns](./returns/service.go) | 12 | 退货管理（FBO、FBS、rFBS） |
+| [Pass](./pass/service.go) | 8 | 通行证 |
+| [Rating](./rating/service.go) | 2 | 卖家评级 |
+| [Delivery](./delivery/service.go) | 2 | 配送方式、配送区域 |
+| [Beta](./beta/service.go) | 17 | 测试方法、分析、可见性 |
+| [Premium](./premium/service.go) | 7 | 高级分析、聊天、财务 |
 
 ## 示例
 
