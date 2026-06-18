@@ -4,6 +4,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/QuoVadis86/go-ozon-sdk.svg)](https://pkg.go.dev/github.com/QuoVadis86/go-ozon-sdk)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+[📖 中文文档](README_CN.md)
+
 A Go client library for the [Ozon Seller API](https://docs.ozon.ru/api/seller/).  
 Covers **263 API endpoints** across **22 service modules** with **1180 generated types**.
 

@@ -4,6 +4,8 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/QuoVadis86/go-ozon-sdk.svg)](https://pkg.go.dev/github.com/QuoVadis86/go-ozon-sdk)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+[English Documentation](README.md)
+
 Ozon Seller API 的 Go 语言客户端库。  
 覆盖 **263 个 API 端点**，**22 个服务模块**，**1180 个生成类型**。
 
