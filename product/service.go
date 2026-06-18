@@ -1,8 +1,11 @@
 package product
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 获取商品特征描述
 func (s *Service) GetProductAttributesV4(ctx context.Context, req *Productv4GetProductAttributesV4Request) (*Productv4GetProductAttributesV4Response, error) {

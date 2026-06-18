@@ -1,8 +1,11 @@
 package barcode
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 创建商品条形码
 // Note: 每次请求最多可为 100 个商品生成条形码

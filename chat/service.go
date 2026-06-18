@@ -1,8 +1,11 @@
 package chat
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 聊天清单
 func (s *Service) ChatListV3(ctx context.Context, req *V3ChatList) (*V3ChatListResponse, error) {

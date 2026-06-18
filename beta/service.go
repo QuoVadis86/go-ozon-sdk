@@ -1,8 +1,11 @@
 package beta
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 检查并保存份数数据
 // Note: 请使用 [/v6/fbs/posting/product/exemplar/create-or-get](#operation/PostingAPI_FbsPostingProductExemplarCreateOrGetV6) 方式

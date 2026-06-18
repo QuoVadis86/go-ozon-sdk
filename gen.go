@@ -33,7 +33,7 @@ var (
 		"FinanceAPI": "finance", "ReportAPI": "report",
 		"Promos": "promo", "PromosBeta": "promo", "SellerActions": "promo",
 		"PricingStrategyAPI": "pricing",
-		"ReviewAPI": "review", "Questions&Answers": "review",
+		"ReviewAPI":          "review", "Questions&Answers": "review",
 		"ChatAPI": "chat", "Notification": "notification",
 		"ReturnsAPI": "returns", "RFBSReturnsAPI": "returns",
 		"ReturnAPI": "returns", "CancellationAPI": "returns",
@@ -47,11 +47,19 @@ func toCamel(s string) string {
 	parts := camelRe.Split(s, -1)
 	var r string
 	for _, p := range parts {
-		if p == "" { continue }
+		if p == "" {
+			continue
+		}
 		l := strings.ToLower(p)
-		if v, ok := abrMap[l]; ok { r += v } else { r += strings.ToUpper(p[:1]) + p[1:] }
+		if v, ok := abrMap[l]; ok {
+			r += v
+		} else {
+			r += strings.ToUpper(p[:1]) + p[1:]
+		}
 	}
-	if r == "" { return "X" }
+	if r == "" {
+		return "X"
+	}
 	return r
 }
 
@@ -60,29 +68,39 @@ func toGoName(s string) string {
 	parts := strings.Split(s, "_")
 	var r string
 	for _, p := range parts {
-		if p == "" { continue }
+		if p == "" {
+			continue
+		}
 		l := strings.ToLower(p)
-		if v, ok := abrMap[l]; ok { r += v } else { r += strings.ToUpper(p[:1]) + p[1:] }
+		if v, ok := abrMap[l]; ok {
+			r += v
+		} else {
+			r += strings.ToUpper(p[:1]) + p[1:]
+		}
 	}
-	if r != "" && r[0] >= '0' && r[0] <= '9' { r = "X" + r }
+	if r != "" && r[0] >= '0' && r[0] <= '9' {
+		r = "X" + r
+	}
 	return r
 }
 
 type Schema struct {
-	Type        string                   `json:"type"`
-	Properties  map[string]interface{}   `json:"properties"`
-	Items       *Schema                  `json:"items"`
-	Enum        []interface{}            `json:"enum"`
-	Description string                   `json:"description"`
-	Title       string                   `json:"title"`
-	Ref         string                   `json:"$ref"`
-	Format      string                   `json:"format"`
-	Nullable    bool                     `json:"nullable"`
+	Type        string                 `json:"type"`
+	Properties  map[string]interface{} `json:"properties"`
+	Items       *Schema                `json:"items"`
+	Enum        []interface{}          `json:"enum"`
+	Description string                 `json:"description"`
+	Title       string                 `json:"title"`
+	Ref         string                 `json:"$ref"`
+	Format      string                 `json:"format"`
+	Nullable    bool                   `json:"nullable"`
 }
 
 type ReqBody struct {
 	Content map[string]struct {
-		Schema struct{ Ref string `json:"$ref"` } `json:"schema"`
+		Schema struct {
+			Ref string `json:"$ref"`
+		} `json:"schema"`
 	} `json:"content"`
 }
 
@@ -91,13 +109,17 @@ func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas
 	ref, _ := p["$ref"].(string)
 	if ref != "" {
 		rname := strings.TrimPrefix(ref, "#/components/schemas/")
-		if t, ok := cache[rname]; ok { return t }
+		if t, ok := cache[rname]; ok {
+			return t
+		}
 		return "any"
 	}
 
 	typ, _ := p["type"].(string)
 	fmt := ""
-	if f, ok := p["format"].(string); ok { fmt = f }
+	if f, ok := p["format"].(string); ok {
+		fmt = f
+	}
 
 	// Check for array via items field (even without explicit type: array)
 	if _, hasItems := p["items"]; hasItems {
@@ -114,7 +136,9 @@ func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas
 	case "string":
 		return "string"
 	case "integer":
-		if fmt == "int32" { return "int32" }
+		if fmt == "int32" {
+			return "int32"
+		}
 		return "int64"
 	case "number":
 		return "float64"
@@ -130,7 +154,9 @@ func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas
 func resolveFieldTypeFromSchema(s *Schema, cache map[string]string, schemas map[string]Schema) string {
 	if s.Ref != "" {
 		rname := strings.TrimPrefix(s.Ref, "#/components/schemas/")
-		if t, ok := cache[rname]; ok { return t }
+		if t, ok := cache[rname]; ok {
+			return t
+		}
 		return "any"
 	}
 	if s.Type == "array" || s.Items != nil {
@@ -138,20 +164,29 @@ func resolveFieldTypeFromSchema(s *Schema, cache map[string]string, schemas map[
 		return "[]" + sub
 	}
 	switch s.Type {
-	case "string": return "string"
+	case "string":
+		return "string"
 	case "integer":
-		if s.Format == "int32" { return "int32" }
+		if s.Format == "int32" {
+			return "int32"
+		}
 		return "int64"
-	case "number": return "float64"
-	case "boolean": return "bool"
-	case "object": return "map[string]any"
-	default: return "any"
+	case "number":
+		return "float64"
+	case "boolean":
+		return "bool"
+	case "object":
+		return "map[string]any"
+	default:
+		return "any"
 	}
 }
 
 func containsAny(s string, list []string) bool {
 	for _, item := range list {
-		if s == item { return true }
+		if s == item {
+			return true
+		}
 	}
 	return false
 }
@@ -200,23 +235,33 @@ func extractEnumValues(desc string) []string {
 
 // extractEnumValuesWithDesc returns values and their descriptions.
 func extractEnumValuesWithDesc(desc string) ([]string, []string) {
-	if desc == "" { return nil, nil }
+	if desc == "" {
+		return nil, nil
+	}
 	matches := descRe.FindAllStringSubmatch(desc, -1)
-	if len(matches) < 2 { return nil, nil }
+	if len(matches) < 2 {
+		return nil, nil
+	}
 	boolSet := map[string]bool{"true": true, "false": true, "0": true, "1": true, "yes": true, "no": true}
 	seen := map[string]bool{}
 	var vals []string
 	var valDescs []string
 	for _, m := range matches {
 		v := strings.TrimSpace(m[1])
-		if v == "" || boolSet[strings.ToLower(v)] { continue }
-		if seen[v] { continue }
+		if v == "" || boolSet[strings.ToLower(v)] {
+			continue
+		}
+		if seen[v] {
+			continue
+		}
 		seen[v] = true
 		vals = append(vals, v)
 		d := strings.TrimSpace(m[2])
 		valDescs = append(valDescs, d)
 	}
-	if len(vals) < 2 { return nil, nil }
+	if len(vals) < 2 {
+		return nil, nil
+	}
 	return vals, valDescs
 }
 
@@ -291,7 +336,9 @@ func valueToCamel(value string) string {
 	parts := strings.Split(clean, "_")
 	var cased []string
 	for _, p := range parts {
-		if p == "" { continue }
+		if p == "" {
+			continue
+		}
 		allUpper := strings.ToUpper(p) == p
 		if len(p) <= 3 && allUpper {
 			// Short all-caps like FBS, ID -> keep uppercase
@@ -317,7 +364,10 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		*out = append(*out, fmt.Sprintf("// %s", sanitizeComment(s.Description)))
 	}
 	if s.Properties == nil || len(s.Properties) == 0 {
-		if allGeneratedTypes[name] { *out = append(*out, ""); return }
+		if allGeneratedTypes[name] {
+			*out = append(*out, "")
+			return
+		}
 		allGeneratedTypes[name] = true
 		switch s.Type {
 		case "array":
@@ -326,31 +376,42 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 				itemType = resolveFieldTypeFromSchema(s.Items, cache, schemas)
 			}
 			*out = append(*out, fmt.Sprintf("type %s []%s", name, itemType))
-		case "string": *out = append(*out, fmt.Sprintf("type %s string", name))
-		case "integer": *out = append(*out, fmt.Sprintf("type %s int64", name))
-		case "number": *out = append(*out, fmt.Sprintf("type %s float64", name))
-		case "boolean": *out = append(*out, fmt.Sprintf("type %s bool", name))
-		default: *out = append(*out, fmt.Sprintf("type %s any", name))
+		case "string":
+			*out = append(*out, fmt.Sprintf("type %s string", name))
+		case "integer":
+			*out = append(*out, fmt.Sprintf("type %s int64", name))
+		case "number":
+			*out = append(*out, fmt.Sprintf("type %s float64", name))
+		case "boolean":
+			*out = append(*out, fmt.Sprintf("type %s bool", name))
+		default:
+			*out = append(*out, fmt.Sprintf("type %s any", name))
 		}
 		*out = append(*out, "")
 		return
 	}
 
-	if s.Properties == nil { return }
+	if s.Properties == nil {
+		return
+	}
 
 	// First pass: collect inline enum definitions and generate type+const blocks
 	type enumDef struct {
-		typeName     string
-		values       []string
-		valueDescs   []string
+		typeName   string
+		values     []string
+		valueDescs []string
 	}
 	var enums []enumDef
 	for pn, pv := range s.Properties {
 		pvMap, _ := pv.(map[string]interface{})
-		if pvMap == nil { continue }
+		if pvMap == nil {
+			continue
+		}
 		desc, _ := pvMap["description"].(string)
 		vals, valDescs := extractEnumValuesWithDesc(desc)
-		if vals == nil { continue }
+		if vals == nil {
+			continue
+		}
 		typeName := shortEnumTypeName(name, pn, enumNameUsed)
 		enums = append(enums, enumDef{
 			typeName:   typeName,
@@ -361,7 +422,9 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 
 	// Generate enum types and constants before the struct
 	for _, e := range enums {
-		if allGeneratedTypes[e.typeName] { continue }
+		if allGeneratedTypes[e.typeName] {
+			continue
+		}
 		allGeneratedTypes[e.typeName] = true
 		*out = append(*out, fmt.Sprintf("// %s values", e.typeName))
 		*out = append(*out, fmt.Sprintf("type %s string", e.typeName))
@@ -371,7 +434,9 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			constName := e.typeName + valueToCamel(v)
 			if usedNames[constName] {
 				suffix := 1
-				for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] { suffix++ }
+				for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] {
+					suffix++
+				}
 				constName = fmt.Sprintf("%s_%d", constName, suffix)
 			}
 			usedNames[constName] = true
@@ -385,12 +450,17 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		*out = append(*out, "")
 	}
 
-	if allGeneratedTypes[name] { *out = append(*out, ""); return }
+	if allGeneratedTypes[name] {
+		*out = append(*out, "")
+		return
+	}
 	allGeneratedTypes[name] = true
 	*out = append(*out, fmt.Sprintf("type %s struct {", name))
 	for pn, pv := range s.Properties {
 		pvMap, _ := pv.(map[string]interface{})
-		if pvMap == nil { continue }
+		if pvMap == nil {
+			continue
+		}
 		desc, _ := pvMap["description"].(string)
 		fn := toGoName(pn)
 		ft := resolveFieldType(pvMap, cache, schemas)
@@ -398,7 +468,9 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			ft = shortEnumTypeName(name, pn, enumNameUsed)
 		}
 		jtag := pn
-		if pn == "type" { jtag = "type_" }
+		if pn == "type" {
+			jtag = "type_"
+		}
 		line := fmt.Sprintf("\t%s %s `json:\"%s\"`", fn, ft, jtag)
 		if desc != "" {
 			comment := sanitizeComment(desc)
@@ -413,25 +485,35 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 
 func main() {
 	data, err := os.ReadFile("origin/swagger.json")
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	var raw map[string]json.RawMessage
 	json.Unmarshal(data, &raw)
 	var paths map[string]map[string]json.RawMessage
 	json.Unmarshal(raw["paths"], &paths)
-	var comps struct{ Schemas map[string]json.RawMessage `json:"schemas"` }
+	var comps struct {
+		Schemas map[string]json.RawMessage `json:"schemas"`
+	}
 	json.Unmarshal(raw["components"], &comps)
 
 	schemas := map[string]Schema{}
 	for n, raw := range comps.Schemas {
-		var s Schema; json.Unmarshal(raw, &s); schemas[n] = s
+		var s Schema
+		json.Unmarshal(raw, &s)
+		schemas[n] = s
 	}
 	cache := map[string]string{}
-	for n := range comps.Schemas { cache[n] = toCamel(n) }
+	for n := range comps.Schemas {
+		cache[n] = toCamel(n)
+	}
 
 	depOf := map[string]map[string]bool{}
 	for sname, s := range schemas {
 		depOf[sname] = map[string]bool{}
-		if s.Properties == nil { continue }
+		if s.Properties == nil {
+			continue
+		}
 		for _, pv := range s.Properties {
 			pr, _ := json.Marshal(pv)
 			var p struct {
@@ -443,20 +525,24 @@ func main() {
 			json.Unmarshal(pr, &p)
 			if p.Ref != "" {
 				rn := strings.TrimPrefix(p.Ref, "#/components/schemas/")
-				if rn != sname { depOf[sname][rn] = true }
+				if rn != sname {
+					depOf[sname][rn] = true
+				}
 			}
 			if p.Items != nil && p.Items.Ref != "" {
 				rn := strings.TrimPrefix(p.Items.Ref, "#/components/schemas/")
-				if rn != sname { depOf[sname][rn] = true }
+				if rn != sname {
+					depOf[sname][rn] = true
+				}
 			}
 		}
 	}
 
 	type Method struct {
 		Dir, Name, HTTPM, Path, ReqT, RespT, Summary string
-		Deprecated  bool
-		ReplaceWith string
-		Notes       []string
+		Deprecated                                   bool
+		ReplaceWith                                  string
+		Notes                                        []string
 	}
 	dirMethods := map[string][]Method{}
 	dirDirectTypes := map[string]map[string]bool{}
@@ -465,21 +551,28 @@ func main() {
 	for path, items := range paths {
 		for httpM, raw := range items {
 			var item struct {
-				Summary     string                    `json:"summary"`
-				Description string                    `json:"description"`
-				OperationID string                    `json:"operationId"`
-				Tags        []string                  `json:"tags"`
-				Deprecated  bool                      `json:"deprecated"`
+				Summary     string                     `json:"summary"`
+				Description string                     `json:"description"`
+				OperationID string                     `json:"operationId"`
+				Tags        []string                   `json:"tags"`
+				Deprecated  bool                       `json:"deprecated"`
 				RequestBody *json.RawMessage           `json:"requestBody"`
 				Responses   map[string]json.RawMessage `json:"responses"`
 			}
 			json.Unmarshal(raw, &item)
 			dir := ""
 			for _, t := range item.Tags {
-				if d, ok := tagDir[t]; ok { dir = d; break }
+				if d, ok := tagDir[t]; ok {
+					dir = d
+					break
+				}
 			}
-			if dir == "" { continue }
-			if dirDirectTypes[dir] == nil { dirDirectTypes[dir] = map[string]bool{} }
+			if dir == "" {
+				continue
+			}
+			if dirDirectTypes[dir] == nil {
+				dirDirectTypes[dir] = map[string]bool{}
+			}
 
 			reqT := ""
 			if item.RequestBody != nil {
@@ -504,13 +597,19 @@ func main() {
 
 			name := item.OperationID
 			parts := strings.Split(name, "_")
-			if len(parts) > 1 { name = toGoName(strings.Join(parts[1:], "_"))
-			} else { name = toGoName(name) }
+			if len(parts) > 1 {
+				name = toGoName(strings.Join(parts[1:], "_"))
+			} else {
+				name = toGoName(name)
+			}
 
 			k := dir + ":" + name
 			if _, exists := methodNames[k]; exists {
 				for _, p := range strings.Split(strings.Trim(path, "/"), "/") {
-					if !strings.ContainsAny(p, "{}") { name += toGoName(p); break }
+					if !strings.ContainsAny(p, "{}") {
+						name += toGoName(p)
+						break
+					}
 				}
 				if _, exists := methodNames[dir+":"+name]; exists {
 					name += "V" + strings.ReplaceAll(path, "/", "_")
@@ -541,10 +640,14 @@ func main() {
 			stripRE := regexp.MustCompile(`<[^>]+>`)
 			for _, kw := range noteKeywords {
 				idx := strings.Index(desc, kw)
-				if idx < 0 { continue }
+				if idx < 0 {
+					continue
+				}
 				start := idx
 				end := idx + 130
-				if end > len(desc) { end = len(desc) }
+				if end > len(desc) {
+					end = len(desc)
+				}
 				note := desc[start:end]
 				if nl := strings.IndexAny(note, ".\n。"); nl > 20 {
 					note = note[:nl+1]
@@ -576,11 +679,17 @@ func main() {
 		visited := map[string]bool{}
 		var visit func(string)
 		visit = func(sname string) {
-			if visited[sname] { return }
+			if visited[sname] {
+				return
+			}
 			visited[sname] = true
-			for dep := range depOf[sname] { visit(dep) }
+			for dep := range depOf[sname] {
+				visit(dep)
+			}
 		}
-		for s := range direct { visit(s) }
+		for s := range direct {
+			visit(s)
+		}
 		dirAllTypes[dir] = visited
 	}
 
@@ -599,17 +708,26 @@ func main() {
 
 		var writeType func(string)
 		writeType = func(sname string) {
-			if dirGenned[sname] || dirInProg[sname] { return }
+			if dirGenned[sname] || dirInProg[sname] {
+				return
+			}
 			dirInProg[sname] = true
 			s, ok := schemas[sname]
-			if !ok { dirInProg[sname] = false; return }
+			if !ok {
+				dirInProg[sname] = false
+				return
+			}
 			gn := cache[sname]
 			if prev, exists := dirGoNames[gn]; exists && prev != sname {
-				dirInProg[sname] = false; dirGenned[sname] = true; return
+				dirInProg[sname] = false
+				dirGenned[sname] = true
+				return
 			}
 			dirGoNames[gn] = sname
 			for dep := range depOf[sname] {
-				if dep != sname { writeType(dep) }
+				if dep != sname {
+					writeType(dep)
+				}
 			}
 			dirInProg[sname] = false
 			dirGenned[sname] = true
@@ -651,24 +769,44 @@ func main() {
 			fn += ") "
 			if m.RespT != "" {
 				fn += fmt.Sprintf("(*%s, error)", m.RespT)
-			} else { fn += "error" }
+			} else {
+				fn += "error"
+			}
 			ml = append(ml, fn+" {")
 			if m.RespT != "" {
 				ml = append(ml, fmt.Sprintf("\tvar resp %s", m.RespT))
 			}
 			meth := "Post"
-			if m.HTTPM == "GET" { meth = "Get" }
+			if m.HTTPM == "GET" {
+				meth = "Get"
+			}
 			call := fmt.Sprintf("\terr := s.Client.%s(ctx, %q", meth, m.Path)
 			if m.ReqT != "" {
-				if m.RespT != "" { call += ", req, &resp)" } else { call += ", req, nil)" }
+				if m.RespT != "" {
+					call += ", req, &resp)"
+				} else {
+					call += ", req, nil)"
+				}
 			} else {
-				if m.RespT != "" { call += ", nil, &resp)" } else { call += ", nil, nil)" }
+				if m.RespT != "" {
+					call += ", nil, &resp)"
+				} else {
+					call += ", nil, nil)"
+				}
 			}
 			ml = append(ml, call)
 			ml = append(ml, "\tif err != nil {")
-			if m.RespT != "" { ml = append(ml, "\t\treturn nil, err") } else { ml = append(ml, "\t\treturn err") }
+			if m.RespT != "" {
+				ml = append(ml, "\t\treturn nil, err")
+			} else {
+				ml = append(ml, "\t\treturn err")
+			}
 			ml = append(ml, "\t}")
-			if m.RespT != "" { ml = append(ml, "\treturn &resp, nil") } else { ml = append(ml, "\treturn nil") }
+			if m.RespT != "" {
+				ml = append(ml, "\treturn &resp, nil")
+			} else {
+				ml = append(ml, "\treturn nil")
+			}
 			ml = append(ml, "}", "")
 		}
 		os.WriteFile(dp+"/service.go", []byte(strings.Join(ml, "\n")), 0644)

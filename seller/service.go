@@ -1,8 +1,11 @@
 package seller
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 卖家个人中心信息
 func (s *Service) SellerInfo(ctx context.Context) (*V1SellerInfoResponse, error) {

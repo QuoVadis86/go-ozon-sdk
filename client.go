@@ -10,7 +10,6 @@ import (
 	"github.com/QuoVadis86/go-ozon-sdk/fbs"
 	"github.com/QuoVadis86/go-ozon-sdk/finance"
 	"github.com/QuoVadis86/go-ozon-sdk/pass"
-	"github.com/QuoVadis86/go-ozon-sdk/transport"
 	"github.com/QuoVadis86/go-ozon-sdk/premium"
 	"github.com/QuoVadis86/go-ozon-sdk/prices"
 	"github.com/QuoVadis86/go-ozon-sdk/pricing"
@@ -21,6 +20,7 @@ import (
 	"github.com/QuoVadis86/go-ozon-sdk/returns"
 	"github.com/QuoVadis86/go-ozon-sdk/review"
 	"github.com/QuoVadis86/go-ozon-sdk/seller"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
 	"github.com/QuoVadis86/go-ozon-sdk/warehouse"
 )
 

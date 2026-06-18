@@ -1,8 +1,11 @@
 package premium
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 有关特定商品查询的信息
 func (s *Service) AnalyticsProductQueriesDetails(ctx context.Context, req *V1AnalyticsProductQueriesDetailsRequest) (*V1AnalyticsProductQueriesDetailsResponse, error) {

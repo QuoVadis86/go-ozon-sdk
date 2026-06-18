@@ -1,8 +1,11 @@
 package returns
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // FBO和FBS退货信息
 func (s *Service) ReturnsList(ctx context.Context, req *V1GetReturnsListRequest) (*V1GetReturnsListResponse, error) {

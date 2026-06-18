@@ -1,8 +1,11 @@
 package delivery
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 创建一个快递的设施
 func (s *Service) CreatePolygon(ctx context.Context, req *Polygonv1PolygonCreateRequest) (*Polygonv1PolygonCreateResponse, error) {

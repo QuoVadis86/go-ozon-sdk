@@ -1,8 +1,11 @@
 package pass
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 删除退货通行证
 func (s *Service) ReturnPassDelete(ctx context.Context, req *ArrivalpassArrivalPassDeleteRequest) error {

@@ -1,8 +1,11 @@
 package promo
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 更新“基于订单总额的折扣”机制的促销活动
 func (s *Service) SellerActionsUpdateDiscountWithCondition(ctx context.Context, req *V1SellerActionsUpdateDiscountWithConditionRequest) error {

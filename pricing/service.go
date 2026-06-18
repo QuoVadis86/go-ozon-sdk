@@ -1,8 +1,11 @@
 package pricing
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 更新策略
 func (s *Service) Update(ctx context.Context, req *V1UpdatePricingStrategyRequest) (*V1Empty, error) {

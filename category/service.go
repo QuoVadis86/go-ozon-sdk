@@ -1,8 +1,11 @@
 package category
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 类别特征列表
 func (s *Service) GetAttributes(ctx context.Context, req *V1GetAttributesRequest) (*V1GetAttributesResponse, error) {

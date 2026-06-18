@@ -1,8 +1,11 @@
 package rating
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 影响错误指数的货件列表：FBS 和 rFBS
 func (s *Service) ListFBSRatingIndexPostingsV1(ctx context.Context, req *V1ListFBSRatingIndexPostingsV1Request) (*V1ListFBSRatingIndexPostingsV1Response, error) {

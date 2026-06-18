@@ -1,8 +1,11 @@
 package warehouse
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 获取用于更新drop-off发运仓库的时间段列表
 func (s *Service) WarehouseFbsUpdateDropOffTimeslotList(ctx context.Context, req *V1WarehouseFbsUpdateDropOffTimeslotListRequest) (*V1WarehouseFbsUpdateDropOffTimeslotListResponse, error) {

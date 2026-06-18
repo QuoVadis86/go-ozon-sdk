@@ -1,8 +1,11 @@
 package prices
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 最低价格时效性计时器更新
 func (s *Service) ActionTimerUpdate(ctx context.Context, req *V1ProductActionTimerUpdateRequest) error {

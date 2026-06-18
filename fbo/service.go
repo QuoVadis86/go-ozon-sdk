@@ -1,8 +1,11 @@
 package fbo
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 获取标签生成任务状态
 func (s *Service) FbpGetLabel(ctx context.Context, req *V1FbpGetLabelRequest) (*V1FbpGetLabelResponse, error) {

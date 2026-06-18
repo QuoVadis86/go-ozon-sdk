@@ -1,8 +1,11 @@
 package fbs
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+)
 
-type Service struct { Client *transport.Client }
+type Service struct{ Client *transport.Client }
 
 // 发运组成商品更改
 func (s *Service) SetPostings(ctx context.Context, req *V1SetPostingsRequest) (*V1SetPostingsResponse, error) {
