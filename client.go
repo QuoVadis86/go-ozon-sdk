@@ -9,8 +9,8 @@ import (
 	"github.com/QuoVadis86/go-ozon-sdk/fbo"
 	"github.com/QuoVadis86/go-ozon-sdk/fbs"
 	"github.com/QuoVadis86/go-ozon-sdk/finance"
-	"github.com/QuoVadis86/go-ozon-sdk/internal"
 	"github.com/QuoVadis86/go-ozon-sdk/pass"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
 	"github.com/QuoVadis86/go-ozon-sdk/premium"
 	"github.com/QuoVadis86/go-ozon-sdk/prices"
 	"github.com/QuoVadis86/go-ozon-sdk/pricing"
@@ -24,7 +24,7 @@ import (
 	"github.com/QuoVadis86/go-ozon-sdk/warehouse"
 )
 
-type ClientOptions = internal.Options
+type ClientOptions = transport.Options
 
 type Client struct {
 	Barcode   *barcode.Service
@@ -50,7 +50,7 @@ type Client struct {
 }
 
 func NewClient(clientID, apiKey string, opts *ClientOptions) *Client {
-	ic := internal.NewClient(clientID, apiKey, opts)
+	ic := transport.New(clientID, apiKey, opts)
 	return &Client{
 		Barcode:   &barcode.Service{Client: ic},
 		Beta:      &beta.Service{Client: ic},

@@ -1,8 +1,8 @@
 package barcode
 
-import ("context"; "github.com/QuoVadis86/go-ozon-sdk/internal"; "github.com/QuoVadis86/go-ozon-sdk/types")
+import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport"; "github.com/QuoVadis86/go-ozon-sdk/types")
 
-type Service struct { Client *internal.Client }
+type Service struct { Client *transport.Client }
 
 func (s *Service) AddBarcode(ctx context.Context, req *types.V1AddBarcodeRequest) (*types.V1AddBarcodeResponse, error) {
 	var resp types.V1AddBarcodeResponse

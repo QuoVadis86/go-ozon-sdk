@@ -228,8 +228,8 @@ func main() {
 
 		var ml []string
 		ml = append(ml, fmt.Sprintf("package %s", dir), "")
-		ml = append(ml, `import ("context"; "github.com/QuoVadis86/go-ozon-sdk/internal"; "github.com/QuoVadis86/go-ozon-sdk/types")`, "")
-		ml = append(ml, "type Service struct { Client *internal.Client }", "")
+		ml = append(ml, `import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport"; "github.com/QuoVadis86/go-ozon-sdk/types")`, "")
+		ml = append(ml, "type Service struct { Client *transport.Client }", "")
 		for _, m := range methods {
 			pkg := "types."
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)

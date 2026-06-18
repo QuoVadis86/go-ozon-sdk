@@ -1,4 +1,4 @@
-package internal
+package transport
 
 import (
 	"bytes"
@@ -37,19 +37,14 @@ type Options struct {
 	HTTPClient *http.Client
 }
 
-func NewClient(clientID, apiKey string, opts *Options) *Client {
+func New(clientID, apiKey string, opts *Options) *Client {
 	baseURL := DefaultBaseURL
 	timeout := DefaultTimeout
 	if opts != nil {
-		if opts.BaseURL != "" {
-			baseURL = opts.BaseURL
-		}
-		if opts.Timeout > 0 {
-			timeout = opts.Timeout
-		}
+		if opts.BaseURL != "" { baseURL = opts.BaseURL }
+		if opts.Timeout > 0 { timeout = opts.Timeout }
 	}
-
-	httpClient := &http.Client{
+	hc := &http.Client{
 		Timeout: timeout,
 		Transport: &http.Transport{
 			MaxIdleConns:        DefaultMaxIdleConns,
@@ -57,21 +52,13 @@ func NewClient(clientID, apiKey string, opts *Options) *Client {
 			IdleConnTimeout:     DefaultIdleConnTimeout,
 		},
 	}
-	if opts != nil && opts.HTTPClient != nil {
-		httpClient = opts.HTTPClient
-	}
-
-	return &Client{
-		httpClient: httpClient,
-		baseURL:    baseURL,
-		clientID:   clientID,
-		apiKey:     apiKey,
-	}
+	if opts != nil && opts.HTTPClient != nil { hc = opts.HTTPClient }
+	return &Client{httpClient: hc, baseURL: baseURL, clientID: clientID, apiKey: apiKey}
 }
 
 type APIError struct {
-	StatusCode int `json:"-"`
-	Code       int `json:"code"`
+	StatusCode int    `json:"-"`
+	Code       int    `json:"code"`
 	Message    string `json:"message"`
 	Details    []struct {
 		TypeURL string `json:"typeUrl"`
@@ -98,48 +85,30 @@ func (c *Client) doRequest(ctx context.Context, method, path string, reqBody, re
 	var bodyReader io.Reader
 	if reqBody != nil {
 		data, err := json.Marshal(reqBody)
-		if err != nil {
-			return fmt.Errorf("ozon: marshal request: %w", err)
-		}
+		if err != nil { return fmt.Errorf("ozon: marshal request: %w", err) }
 		bodyReader = bytes.NewReader(data)
 	}
-
 	u, err := url.JoinPath(c.baseURL, path)
-	if err != nil {
-		return fmt.Errorf("ozon: build url: %w", err)
-	}
-
+	if err != nil { return fmt.Errorf("ozon: build url: %w", err) }
 	req, err := http.NewRequestWithContext(ctx, method, u, bodyReader)
-	if err != nil {
-		return fmt.Errorf("ozon: create request: %w", err)
-	}
-
+	if err != nil { return fmt.Errorf("ozon: create request: %w", err) }
 	req.Header.Set("Content-Type", HeaderContentType)
 	req.Header.Set(HeaderClientID, c.clientID)
 	req.Header.Set(HeaderAPIKey, c.apiKey)
-
 	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("ozon: do request: %w", err)
-	}
+	if err != nil { return fmt.Errorf("ozon: do request: %w", err) }
 	defer resp.Body.Close()
-
 	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("ozon: read response: %w", err)
-	}
-
+	if err != nil { return fmt.Errorf("ozon: read response: %w", err) }
 	if resp.StatusCode >= 400 {
 		apiErr := &APIError{StatusCode: resp.StatusCode}
 		json.Unmarshal(body, apiErr)
 		return apiErr
 	}
-
 	if respBody != nil && len(body) > 0 {
 		if err := json.Unmarshal(body, respBody); err != nil {
 			return fmt.Errorf("ozon: unmarshal response: %w", err)
 		}
 	}
-
 	return nil
 }
