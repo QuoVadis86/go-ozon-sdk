@@ -4,10 +4,10 @@ import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport")
 
 type Service struct { Client *transport.Client }
 
-// 聊天清单
-func (s *Service) ChatListV3(ctx context.Context, req *V3ChatList) (*V3ChatListResponse, error) {
-	var resp V3ChatListResponse
-	err := s.Client.Post(ctx, "/v3/chat/list", req, &resp)
+// 发送文件
+func (s *Service) ChatSendFile(ctx context.Context, req *ChatChatSendFileRequest) (*ChatChatSendFileResponse, error) {
+	var resp ChatChatSendFileResponse
+	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -34,10 +34,10 @@ func (s *Service) ChatSendMessage(ctx context.Context, req *ChatChatSendMessageR
 	return &resp, nil
 }
 
-// 发送文件
-func (s *Service) ChatSendFile(ctx context.Context, req *ChatChatSendFileRequest) (*ChatChatSendFileResponse, error) {
-	var resp ChatChatSendFileResponse
-	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
+// 聊天清单
+func (s *Service) ChatListV3(ctx context.Context, req *V3ChatList) (*V3ChatListResponse, error) {
+	var resp V3ChatListResponse
+	err := s.Client.Post(ctx, "/v3/chat/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}

@@ -1,19 +1,23 @@
 package pricing
 
-type AddStrategyItemsResponseError struct {
-	ProductID int64 `json:"product_id"` // Ozon系统中商品的标识符 — `product_id`。
-	Code string `json:"code"` // 错误代码。
-	Error string `json:"error"` // 错误文本。
+type GetCompetitorsResponseCompetitorInfo struct {
+	Name string `json:"name"` // 竞争对手名称。
+	ID int64 `json:"id"` // 竞争对手ID。
+}
+
+type V1GetCompetitorsResponse struct {
+	Competitor []GetCompetitorsResponseCompetitorInfo `json:"competitor"` // 竞争对手列表。
+	Total int32 `json:"total"` // 竞争对手总数。
 }
 
 // 方法操作结果。
-type V1AddStrategyItemsResponseResult struct {
-	Errors []AddStrategyItemsResponseError `json:"errors"` // 有错误的商品。
-	FailedProductCount int32 `json:"failed_product_count"` // 有错误的商品数量。
+type V1CreatePricingStrategyResponseResult struct {
+	StrategyID string `json:"strategy_id"` // 策略ID。
 }
 
-type V1AddStrategyItemsResponse struct {
-	Result V1AddStrategyItemsResponseResult `json:"result"`
+type V1AddStrategyItemsRequest struct {
+	ProductID []string `json:"product_id"` // 商品ID列表。 最大数量为 50。
+	StrategyID string `json:"strategy_id"` // 策略ID。
 }
 
 type GetStrategyIDsByItemIDsResponseProductInfo struct {
@@ -21,13 +25,121 @@ type GetStrategyIDsByItemIDsResponseProductInfo struct {
 	StrategyID string `json:"strategy_id"` // 添加商品的策略ID。
 }
 
+// 策略最后变化的类型:
+type GetStrategyListResponseStrategyUpdateTypeEnum string
+const (
+	GetStrategyListResponseStrategyUpdateTypeEnum_StrategyEnabled GetStrategyListResponseStrategyUpdateTypeEnum = "strategyEnabled"
+	GetStrategyListResponseStrategyUpdateTypeEnum_StrategyDisabled GetStrategyListResponseStrategyUpdateTypeEnum = "strategyDisabled"
+	GetStrategyListResponseStrategyUpdateTypeEnum_StrategyChanged GetStrategyListResponseStrategyUpdateTypeEnum = "strategyChanged"
+	GetStrategyListResponseStrategyUpdateTypeEnum_StrategyCreated GetStrategyListResponseStrategyUpdateTypeEnum = "strategyCreated"
+	GetStrategyListResponseStrategyUpdateTypeEnum_StrategyItemsListChanged GetStrategyListResponseStrategyUpdateTypeEnum = "strategyItemsListChanged"
+)
+
+// 策略类型：
+type GetStrategyListResponseStrategyTypeEnum string
+const (
+	GetStrategyListResponseStrategyTypeEnum_MINEXTPRICE GetStrategyListResponseStrategyTypeEnum = "MIN_EXT_PRICE"
+	GetStrategyListResponseStrategyTypeEnum_COMPPRICE GetStrategyListResponseStrategyTypeEnum = "COMP_PRICE"
+)
+
+type GetStrategyListResponseStrategy struct {
+	ID string `json:"id"` // 策略ID。
+	Name string `json:"name"` // 策略名称。
+	Type GetStrategyListResponseStrategyTypeEnum `json:"type_"` // 策略类型： - `MIN_EXT_PRICE` —— 系统性， - `COMP_PRICE` —— 用户性。
+	UpdateType GetStrategyListResponseStrategyUpdateTypeEnum `json:"update_type"` // 策略最后变化的类型: - `strategyEnabled` — 恢复， - `strategyDisabled` — 停止， - `strategyChanged` — 更新， - `strategyCreated` — 创建， - `s...
+	UpdatedAt string `json:"updated_at"` // 最后一次修改的日期。
+	ProductsCount int64 `json:"products_count"` // 策略中的商品数量。
+	CompetitorsCount int64 `json:"competitors_count"` // 选择的竞争对手数量。
+	Enabled bool `json:"enabled"` // 策略状态： - `true` —— 开启， - `false` —— 关闭。
+}
+
+// 方法操作结果。
+type V1GetStrategyItemInfoResponseResult struct {
+	StrategyCompetitorID int64 `json:"strategy_competitor_id"` // 竞争对手ID。
+	StrategyCompetitorProductURL string `json:"strategy_competitor_product_url"` // 竞争对手商品链接。
+	StrategyID string `json:"strategy_id"` // 策略ID。
+	IsEnabled bool `json:"is_enabled"` // `true`, 如果商品参与定价策略。
+	StrategyProductPrice int32 `json:"strategy_product_price"` // 定价策略。
+	PriceDownloadedAt string `json:"price_downloaded_at"` // 定价策略设定日期。
+}
+
+type V1GetStrategyItemInfoResponse struct {
+	Result V1GetStrategyItemInfoResponseResult `json:"result"`
+}
+
+type V1StrategyRequest struct {
+	StrategyID string `json:"strategy_id"` // 策略ID。
+}
+
+type V1UpdateStatusStrategyRequest struct {
+	Enabled bool `json:"enabled"` // 策略状态： - `true` —— 打开， - `false` —— 关闭。
+	StrategyID string `json:"strategy_id"` // 策略ID。
+}
+
+type V1ItemIDsRequest struct {
+	ProductID []string `json:"product_id"` // 商品ID列表。最大数量 —— 50。
+}
+
+// 竞争对手之间的最低价格将乘以的系数
+type V1CompetitorCoefficientEnum string
+const (
+	V1CompetitorCoefficientEnum_V05 V1CompetitorCoefficientEnum = "0.5"
+	V1CompetitorCoefficientEnum_V12 V1CompetitorCoefficientEnum = "1.2"
+)
+
+type V1Competitor struct {
+	Coefficient float64 `json:"coefficient"` // 竞争对手之间的最低价格将乘以的系数。有效范围是`0.5`到`1.2`。
+	CompetitorID int64 `json:"competitor_id"` // 竞争对手ID。
+}
+
+type V1UpdatePricingStrategyRequest struct {
+	Competitors []V1Competitor `json:"competitors"` // 竞争对手列表。
+	StrategyID string `json:"strategy_id"` // 策略ID。
+	StrategyName string `json:"strategy_name"` // 策略名称。
+}
+
+type V1Empty any
+
 // 方法操作结果。
 type V1GetStrategyIDsByItemIDsResponseResult struct {
 	ProductsInfo []GetStrategyIDsByItemIDsResponseProductInfo `json:"products_info"` // 商品信息。
 }
 
-type V1GetStrategyIDsByItemIDsResponse struct {
-	Result V1GetStrategyIDsByItemIDsResponseResult `json:"result"`
+// 方法操作结果。
+// 策略类型：
+type V1GetStrategyResponseResultTypeEnum string
+const (
+	V1GetStrategyResponseResultTypeEnum_MINEXTPRICE V1GetStrategyResponseResultTypeEnum = "MIN_EXT_PRICE"
+	V1GetStrategyResponseResultTypeEnum_COMPPRICE V1GetStrategyResponseResultTypeEnum = "COMP_PRICE"
+)
+
+// 上次策略更改的类型：
+type V1GetStrategyResponseResultUpdateTypeEnum string
+const (
+	V1GetStrategyResponseResultUpdateTypeEnum_StrategyEnabled V1GetStrategyResponseResultUpdateTypeEnum = "strategyEnabled"
+	V1GetStrategyResponseResultUpdateTypeEnum_StrategyDisabled V1GetStrategyResponseResultUpdateTypeEnum = "strategyDisabled"
+	V1GetStrategyResponseResultUpdateTypeEnum_StrategyChanged V1GetStrategyResponseResultUpdateTypeEnum = "strategyChanged"
+	V1GetStrategyResponseResultUpdateTypeEnum_StrategyCreated V1GetStrategyResponseResultUpdateTypeEnum = "strategyCreated"
+	V1GetStrategyResponseResultUpdateTypeEnum_StrategyItemsListChanged V1GetStrategyResponseResultUpdateTypeEnum = "strategyItemsListChanged"
+)
+
+type V1GetStrategyResponseResult struct {
+	Competitors []V1Competitor `json:"competitors"` // 竞争对手列表。
+	Enabled bool `json:"enabled"` // 策略状态： - `true` —— 打开， - `false` —— 关闭。
+	Name string `json:"name"` // 策略名称。
+	Type V1GetStrategyResponseResultTypeEnum `json:"type_"` // 策略类型： - `MIN_EXT_PRICE` —— 系统策略， - `COMP_PRICE` —— 用户策略。
+	UpdateType V1GetStrategyResponseResultUpdateTypeEnum `json:"update_type"` // 上次策略更改的类型： - `strategyEnabled` —— 恢复， - `strategyDisabled` —— 停止， - `strategyChanged` —— 更新， - `strategyCreated` —— 创建， ...
+}
+
+type AddStrategyItemsResponseError struct {
+	Code string `json:"code"` // 错误代码。
+	Error string `json:"error"` // 错误文本。
+	ProductID int64 `json:"product_id"` // Ozon系统中商品的标识符 — `product_id`。
+}
+
+type V1GetStrategyListResponse struct {
+	Strategies []GetStrategyListResponseStrategy `json:"strategies"` // 策略列表。
+	Total int32 `json:"total"` // 策略总数。
 }
 
 // 商品列表。
@@ -40,9 +152,8 @@ type V1DeleteStrategyItemsResponseResult struct {
 	FailedProductCount int32 `json:"failed_product_count"` // 有错误的商品数量。
 }
 
-// 方法操作结果。
-type V1CreatePricingStrategyResponseResult struct {
-	StrategyID string `json:"strategy_id"` // 策略ID。
+type V1DeleteStrategyItemsResponse struct {
+	Result V1DeleteStrategyItemsResponseResult `json:"result"`
 }
 
 type V1CreatePricingStrategyResponse struct {
@@ -54,108 +165,38 @@ type V1GetStrategyListRequest struct {
 	Limit int64 `json:"limit"` // 每页的最大策略数。有效值是从`1`到`50`。
 }
 
-type GetCompetitorsResponseCompetitorInfo struct {
-	Name string `json:"name"` // 竞争对手名称。
-	ID int64 `json:"id"` // 竞争对手ID。
-}
-
-type V1GetCompetitorsResponse struct {
-	Competitor []GetCompetitorsResponseCompetitorInfo `json:"competitor"` // 竞争对手列表。
-	Total int32 `json:"total"` // 竞争对手总数。
-}
-
-type V1StrategyRequest struct {
-	StrategyID string `json:"strategy_id"` // 策略ID。
-}
-
-type V1DeleteStrategyItemsResponse struct {
-	Result V1DeleteStrategyItemsResponseResult `json:"result"`
-}
-
-type GetStrategyListResponseStrategy struct {
-	Type string `json:"type_"` // 策略类型： - `MIN_EXT_PRICE` —— 系统性， - `COMP_PRICE` —— 用户性。
-	UpdateType string `json:"update_type"` // 策略最后变化的类型: - `strategyEnabled` — 恢复， - `strategyDisabled` — 停止， - `strategyChanged` — 更新， - `strategyCreated` — 创建， - `s...
-	UpdatedAt string `json:"updated_at"` // 最后一次修改的日期。
-	ProductsCount int64 `json:"products_count"` // 策略中的商品数量。
-	CompetitorsCount int64 `json:"competitors_count"` // 选择的竞争对手数量。
-	Enabled bool `json:"enabled"` // 策略状态： - `true` —— 开启， - `false` —— 关闭。
-	ID string `json:"id"` // 策略ID。
-	Name string `json:"name"` // 策略名称。
-}
-
-type V1GetStrategyListResponse struct {
-	Strategies []GetStrategyListResponseStrategy `json:"strategies"` // 策略列表。
-	Total int32 `json:"total"` // 策略总数。
-}
-
-type V1Competitor struct {
-	Coefficient float64 `json:"coefficient"` // 竞争对手之间的最低价格将乘以的系数。有效范围是`0.5`到`1.2`。
-	CompetitorID int64 `json:"competitor_id"` // 竞争对手ID。
-}
-
 // 方法操作结果。
-type V1GetStrategyResponseResult struct {
-	Competitors []V1Competitor `json:"competitors"` // 竞争对手列表。
-	Enabled bool `json:"enabled"` // 策略状态： - `true` —— 打开， - `false` —— 关闭。
-	Name string `json:"name"` // 策略名称。
-	Type string `json:"type_"` // 策略类型： - `MIN_EXT_PRICE` —— 系统策略， - `COMP_PRICE` —— 用户策略。
-	UpdateType string `json:"update_type"` // 上次策略更改的类型： - `strategyEnabled` —— 恢复， - `strategyDisabled` —— 停止， - `strategyChanged` —— 更新， - `strategyCreated` —— 创建， ...
+type V1AddStrategyItemsResponseResult struct {
+	Errors []AddStrategyItemsResponseError `json:"errors"` // 有错误的商品。
+	FailedProductCount int32 `json:"failed_product_count"` // 有错误的商品数量。
 }
 
-type V1GetStrategyResponse struct {
-	Result V1GetStrategyResponseResult `json:"result"`
-}
-
-type V1UpdatePricingStrategyRequest struct {
-	Competitors []V1Competitor `json:"competitors"` // 竞争对手列表。
-	StrategyID string `json:"strategy_id"` // 策略ID。
-	StrategyName string `json:"strategy_name"` // 策略名称。
-}
-
-type V1GetStrategyItemsResponse struct {
-	Result V1GetStrategyItemsResponseResult `json:"result"`
+type V1AddStrategyItemsResponse struct {
+	Result V1AddStrategyItemsResponseResult `json:"result"`
 }
 
 type V1GetStrategyItemInfoRequest struct {
 	ProductID int64 `json:"product_id"` // Ozon系统中商品的标识符 — `product_id`。
 }
 
-// 方法操作结果。
-type V1GetStrategyItemInfoResponseResult struct {
-	IsEnabled bool `json:"is_enabled"` // `true`, 如果商品参与定价策略。
-	StrategyProductPrice int32 `json:"strategy_product_price"` // 定价策略。
-	PriceDownloadedAt string `json:"price_downloaded_at"` // 定价策略设定日期。
-	StrategyCompetitorID int64 `json:"strategy_competitor_id"` // 竞争对手ID。
-	StrategyCompetitorProductURL string `json:"strategy_competitor_product_url"` // 竞争对手商品链接。
-	StrategyID string `json:"strategy_id"` // 策略ID。
-}
-
-type V1GetStrategyItemInfoResponse struct {
-	Result V1GetStrategyItemInfoResponseResult `json:"result"`
-}
-
-type V1UpdateStatusStrategyRequest struct {
-	Enabled bool `json:"enabled"` // 策略状态： - `true` —— 打开， - `false` —— 关闭。
-	StrategyID string `json:"strategy_id"` // 策略ID。
-}
-
 type V1GetCompetitorsRequest struct {
-	Limit int64 `json:"limit"` // 每页的最大竞争对手数。有效值是从`1`到`50`。
 	Page int64 `json:"page"` // 需要下载竞争对手的列表页面。 最小值为`1`。
+	Limit int64 `json:"limit"` // 每页的最大竞争对手数。有效值是从`1`到`50`。
 }
 
-type V1ItemIDsRequest struct {
-	ProductID []string `json:"product_id"` // 商品ID列表。最大数量 —— 50。
+type V1GetStrategyResponse struct {
+	Result V1GetStrategyResponseResult `json:"result"`
+}
+
+type V1GetStrategyIDsByItemIDsResponse struct {
+	Result V1GetStrategyIDsByItemIDsResponseResult `json:"result"`
+}
+
+type V1GetStrategyItemsResponse struct {
+	Result V1GetStrategyItemsResponseResult `json:"result"`
 }
 
 type V1CreatePricingStrategyRequest struct {
 	Competitors []V1Competitor `json:"competitors"` // 竞争对手名单。
 	StrategyName string `json:"strategy_name"` // 策略名称。
-}
-
-type V1Empty any
-
-type V1AddStrategyItemsRequest struct {
-	ProductID []string `json:"product_id"` // 商品ID列表。 最大数量为 50。
-	StrategyID string `json:"strategy_id"` // 策略ID。
 }

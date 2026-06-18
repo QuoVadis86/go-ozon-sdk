@@ -186,11 +186,69 @@ func sanitizeComment(s string) string {
 	return strings.TrimSpace(truncateRunes(s, 120))
 }
 
+var enumRe = regexp.MustCompile("`([^`]+)`")
+
+// extractEnumValues parses field description for inline enum values like:
+// - `value` — description
+// Returns deduplicated non-boolean string values.
+func extractEnumValues(desc string) []string {
+	if desc == "" { return nil }
+	matches := enumRe.FindAllStringSubmatch(desc, -1)
+	if len(matches) < 2 { return nil } // Need at least 2 to be an enum
+	boolSet := map[string]bool{"true": true, "false": true, "0": true, "1": true, "yes": true, "no": true}
+	seen := map[string]bool{}
+	var vals []string
+	for _, m := range matches {
+		v := strings.TrimSpace(m[1])
+		if v == "" || boolSet[strings.ToLower(v)] { continue }
+		if seen[v] { continue }
+		seen[v] = true
+		vals = append(vals, v)
+	}
+	if len(vals) < 2 { return nil }
+	return vals
+}
+
+// enumTypeName creates a Go type name for an enum derived from a struct and field name.
+func enumTypeName(structName, fieldName string) string {
+	return toGoName(structName + "_" + fieldName) + "Enum"
+}
+
+// enumConstName creates a Go constant name for an enum value.
+func enumConstName(enumType, value string) string {
+	clean := strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' {
+			return r
+		}
+		return '_'
+	}, value)
+	clean = strings.Trim(clean, "_")
+	if clean == "" || (clean[0] >= '0' && clean[0] <= '9') {
+		clean = "V" + clean
+	}
+	parts := strings.Split(clean, "_")
+	var cased []string
+	for _, p := range parts {
+		if p == "" { continue }
+		cased = append(cased, strings.ToUpper(p[:1])+p[1:])
+	}
+	s := enumType + "_" + strings.Join(cased, "")
+	s = strings.ReplaceAll(s, "__", "_")
+	return s
+}
+
+var (
+	enumTypeGenerated map[string]bool
+	allGeneratedTypes map[string]bool
+)
+
 func appendType(out *[]string, name string, s Schema, cache map[string]string, schemas map[string]Schema) {
 	if s.Description != "" {
 		*out = append(*out, fmt.Sprintf("// %s", sanitizeComment(s.Description)))
 	}
 	if s.Properties == nil || len(s.Properties) == 0 {
+		if allGeneratedTypes[name] { *out = append(*out, ""); return }
+		allGeneratedTypes[name] = true
 		switch s.Type {
 		case "array":
 			itemType := "any"
@@ -207,6 +265,62 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		*out = append(*out, "")
 		return
 	}
+
+	if s.Properties == nil { return }
+
+	// First pass: collect inline enum definitions and generate type+const blocks
+	type enumDef struct {
+		typeName string
+		values   []string
+		desc     string
+	}
+	var enums []enumDef
+	for pn, pv := range s.Properties {
+		pvMap, _ := pv.(map[string]interface{})
+		if pvMap == nil { continue }
+		desc, _ := pvMap["description"].(string)
+		vals := extractEnumValues(desc)
+		if vals == nil { continue }
+		enums = append(enums, enumDef{
+			typeName: enumTypeName(name, pn),
+			values:   vals,
+			desc:     desc,
+		})
+	}
+
+	// Generate enum types and constants before the struct
+	for _, e := range enums {
+		if allGeneratedTypes[e.typeName] { continue }
+		allGeneratedTypes[e.typeName] = true
+		// Add description as doc comment
+		firstLine := strings.SplitN(e.desc, "\n", 2)[0]
+		firstLine = strings.SplitN(firstLine, "。", 2)[0]
+		firstLine = sanitizeComment(firstLine)
+		if firstLine != "" {
+			*out = append(*out, fmt.Sprintf("// %s", firstLine))
+		}
+		*out = append(*out, fmt.Sprintf("type %s string", e.typeName))
+		*out = append(*out, fmt.Sprintf("const ("))
+		usedNames := map[string]bool{}
+		for _, v := range e.values {
+			constName := enumConstName(e.typeName, v)
+			if usedNames[constName] {
+				// Add suffix to make unique
+				suffix := 1
+				for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] {
+					suffix++
+				}
+				constName = fmt.Sprintf("%s_%d", constName, suffix)
+			}
+			usedNames[constName] = true
+			*out = append(*out, fmt.Sprintf("\t%s %s = %q", constName, e.typeName, v))
+		}
+		*out = append(*out, ")")
+		*out = append(*out, "")
+	}
+
+	if allGeneratedTypes[name] { *out = append(*out, ""); return }
+	allGeneratedTypes[name] = true
 	*out = append(*out, fmt.Sprintf("type %s struct {", name))
 	for pn, pv := range s.Properties {
 		pvMap, _ := pv.(map[string]interface{})
@@ -214,6 +328,10 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		desc, _ := pvMap["description"].(string)
 		fn := toGoName(pn)
 		ft := resolveFieldType(pvMap, cache, schemas)
+		// Replace string type with enum type when inline enum values exist
+		if ft == "string" && extractEnumValues(desc) != nil {
+			ft = enumTypeName(name, pn)
+		}
 		jtag := pn
 		if pn == "type" { jtag = "type_" }
 		line := fmt.Sprintf("\t%s %s `json:\"%s\"`", fn, ft, jtag)
@@ -410,6 +528,8 @@ func main() {
 		dirGenned := map[string]bool{}
 		dirInProg := map[string]bool{}
 		dirGoNames := map[string]string{}
+		enumTypeGenerated = map[string]bool{}
+		allGeneratedTypes = map[string]bool{}
 
 		var writeType func(string)
 		writeType = func(sname string) {
