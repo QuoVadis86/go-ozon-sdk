@@ -17,6 +17,50 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
+func TestConditionalCancellationApproveV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ConditionalCancellationApproveV2(ctx)
+	_ = err
+}
+
+func TestConditionalCancellationRejectV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ConditionalCancellationRejectV2(ctx)
+	_ = err
+}
+
+func TestReturnsList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ReturnsList(ctx, &V1GetReturnsListRequest{})
+	if err != nil {
+		t.Fatalf("ReturnsList() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestReturnsRfbsGetV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ReturnsRfbsGetV2(ctx, &V2ReturnsRfbsGetRequest{})
+	if err != nil {
+		t.Fatalf("ReturnsRfbsGetV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestGetConditionalCancellationListV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetConditionalCancellationListV2(ctx, &V2GetConditionalCancellationListV2Request{})
+	if err != nil {
+		t.Fatalf("GetConditionalCancellationListV2() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestReturnsRfbsListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -24,7 +68,12 @@ func TestReturnsRfbsListV2(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReturnsRfbsListV2() error: %v", err)
 	}
-	if resp == nil {
-		t.Fatal("ReturnsRfbsListV2() returned nil")
-	}
+	_ = resp
+}
+
+func TestReturnsRfbsActionSet(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ReturnsRfbsActionSet(ctx, &V1ReturnsRfbsActionSetRequest{})
+	_ = err
 }

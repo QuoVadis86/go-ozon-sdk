@@ -5,6 +5,57 @@ type RolesByTokenResponseRoles struct {
 	Methods []string `json:"methods"` // 角色可用的方式。
 }
 
+// 评级状态。
+type V1RatingStatus struct {
+	Warning bool `json:"warning"` // 指示是否已发出关于可能超过封禁阈值的警告。
+	Danger  bool `json:"danger"`  // 指示是否已超过封禁评级阈值。
+	Premium bool `json:"premium"` // 指示是否已达到参与高级计划的阈值。
+}
+
+type OzonLogisticsInfoResponseAvailableSchemasEnum string
+
+// 上一次的评级值。
+type ValuePast struct {
+	Formatted string         `json:"formatted"` // 格式化后的评级值。
+	Status    V1RatingStatus `json:"status"`
+	Value     float64        `json:"value"`     // 系统中的评级值。
+	DateFrom  string         `json:"date_from"` // 评级统计开始日期。
+	DateTo    string         `json:"date_to"`   // 评级统计结束日期。
+}
+
+// 评级状态： - `UNKNOWN`——未指定； - `OK`——良好； - `WARNING`——指标需关注； - `CRITICAL`——严重。
+type StatusEnum string
+
+// 值的类型： - `UNKNOWN`——未指定； - `INDEX`——指数； - `PERCENT`——百分比； - `TIME`——时间； - `RATIO`——系数； - `REVIEW_SCORE`——评分； - `COUNT`——数...
+type InfoResponseRatingTypeEnum string
+
+// 评级值。
+type ValueCurrent struct {
+	DateFrom  string         `json:"date_from"` // 评级统计开始日期。
+	DateTo    string         `json:"date_to"`   // 评级统计结束日期。
+	Formatted string         `json:"formatted"` // 格式化后的评级值。
+	Status    V1RatingStatus `json:"status"`
+	Value     float64        `json:"value"` // 系统中的评级值。
+}
+
+type InfoResponseRating struct {
+	CurrentValue ValueCurrent               `json:"current_value"`
+	Name         string                     `json:"name"` // 评级名称。
+	PastValue    ValuePast                  `json:"past_value"`
+	Rating       string                     `json:"rating"` // 系统中的评级名称。
+	Status       StatusEnum                 `json:"status"`
+	ValueType    InfoResponseRatingTypeEnum `json:"value_type"`
+}
+
+// 订阅类型： - `UNKNOWN`——未指定； - `UNSPECIFIED`——无需订阅； - `PREMIUM`——Premium； - `PREMIUM_LITE`——Premium Lite； - `PREMIUM_PLUS`——P...
+type InfoResponseSubscriptionTypeEnum string
+
+// 订阅。
+type InfoResponseSubscription struct {
+	IsPremium bool                             `json:"is_premium"` // `true`，前提是有订阅。
+	Type      InfoResponseSubscriptionTypeEnum `json:"type_"`
+}
+
 // 税收制度： - `UNKNOWN`——未知； - `UNSPECIFIED`——未指定； - `OSNO`——普通税制（OSNO）； - `USN`——简化税制（USN）； - `NPD`——职业收入税（NPD）； - `AUSN`——自动...
 type CompanyTaxSystemEnum string
 
@@ -33,47 +84,11 @@ type InfoResponseCompany struct {
 	Name          string               `json:"name"`       // Ozon上的公司名称。
 }
 
-// 评级状态。
-type V1RatingStatus struct {
-	Danger  bool `json:"danger"`  // 指示是否已超过封禁评级阈值。
-	Premium bool `json:"premium"` // 指示是否已达到参与高级计划的阈值。
-	Warning bool `json:"warning"` // 指示是否已发出关于可能超过封禁阈值的警告。
+type V1SellerInfoResponse struct {
+	Company      InfoResponseCompany      `json:"company"`
+	Ratings      []InfoResponseRating     `json:"ratings"` // 评级列表。
+	Subscription InfoResponseSubscription `json:"subscription"`
 }
-
-// 上一次的评级值。
-type ValuePast struct {
-	Formatted string         `json:"formatted"` // 格式化后的评级值。
-	Status    V1RatingStatus `json:"status"`
-	Value     float64        `json:"value"`     // 系统中的评级值。
-	DateFrom  string         `json:"date_from"` // 评级统计开始日期。
-	DateTo    string         `json:"date_to"`   // 评级统计结束日期。
-}
-
-// 评级状态： - `UNKNOWN`——未指定； - `OK`——良好； - `WARNING`——指标需关注； - `CRITICAL`——严重。
-type StatusEnum string
-
-// 值的类型： - `UNKNOWN`——未指定； - `INDEX`——指数； - `PERCENT`——百分比； - `TIME`——时间； - `RATIO`——系数； - `REVIEW_SCORE`——评分； - `COUNT`——数...
-type InfoResponseRatingTypeEnum string
-
-// 评级值。
-type ValueCurrent struct {
-	DateFrom  string         `json:"date_from"` // 评级统计开始日期。
-	DateTo    string         `json:"date_to"`   // 评级统计结束日期。
-	Formatted string         `json:"formatted"` // 格式化后的评级值。
-	Status    V1RatingStatus `json:"status"`
-	Value     float64        `json:"value"` // 系统中的评级值。
-}
-
-type InfoResponseRating struct {
-	ValueType    InfoResponseRatingTypeEnum `json:"value_type"`
-	CurrentValue ValueCurrent               `json:"current_value"`
-	Name         string                     `json:"name"` // 评级名称。
-	PastValue    ValuePast                  `json:"past_value"`
-	Rating       string                     `json:"rating"` // 系统中的评级名称。
-	Status       StatusEnum                 `json:"status"`
-}
-
-type OzonLogisticsInfoResponseAvailableSchemasEnum string
 
 // AvailableSchemas values
 type AvailableSchemas string
@@ -89,22 +104,7 @@ type V1SellerOzonLogisticsInfoResponse struct {
 	OzonLogisticsEnabled bool                                            `json:"ozon_logistics_enabled"` // `true`，表示Ozon配送已开通。
 }
 
-// 订阅类型： - `UNKNOWN`——未指定； - `UNSPECIFIED`——无需订阅； - `PREMIUM`——Premium； - `PREMIUM_LITE`——Premium Lite； - `PREMIUM_PLUS`——P...
-type InfoResponseSubscriptionTypeEnum string
-
 type V1RolesByTokenResponse struct {
 	ExpiresAt string                      `json:"expires_at"` // 密钥到期日期。
 	Roles     []RolesByTokenResponseRoles `json:"roles"`      // 可用角色和方式信息。
-}
-
-// 订阅。
-type InfoResponseSubscription struct {
-	IsPremium bool                             `json:"is_premium"` // `true`，前提是有订阅。
-	Type      InfoResponseSubscriptionTypeEnum `json:"type_"`
-}
-
-type V1SellerInfoResponse struct {
-	Company      InfoResponseCompany      `json:"company"`
-	Ratings      []InfoResponseRating     `json:"ratings"` // 评级列表。
-	Subscription InfoResponseSubscription `json:"subscription"`
 }

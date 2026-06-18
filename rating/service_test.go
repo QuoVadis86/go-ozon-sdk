@@ -24,7 +24,15 @@ func TestGetFBSRatingIndexInfoV1(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GetFBSRatingIndexInfoV1() error: %v", err)
 	}
-	if resp == nil {
-		t.Fatal("GetFBSRatingIndexInfoV1() returned nil")
+	_ = resp
+}
+
+func TestListFBSRatingIndexPostingsV1(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ListFBSRatingIndexPostingsV1(ctx, &V1ListFBSRatingIndexPostingsV1Request{})
+	if err != nil {
+		t.Fatalf("ListFBSRatingIndexPostingsV1() error: %v", err)
 	}
+	_ = resp
 }

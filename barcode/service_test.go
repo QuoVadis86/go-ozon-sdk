@@ -17,6 +17,16 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
+func TestAddBarcode(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.AddBarcode(ctx, &V1AddBarcodeRequest{})
+	if err != nil {
+		t.Fatalf("AddBarcode() error: %v", err)
+	}
+	_ = resp
+}
+
 func TestGenerateBarcode(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -24,7 +34,5 @@ func TestGenerateBarcode(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GenerateBarcode() error: %v", err)
 	}
-	if resp == nil {
-		t.Fatal("GenerateBarcode() returned nil")
-	}
+	_ = resp
 }

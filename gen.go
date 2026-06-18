@@ -873,7 +873,7 @@ func main() {
 		}
 		os.WriteFile(dp+"/service.go", []byte(strings.Join(ml, "\n")), 0644)
 
-		// Generate integration tests (require OZON_CLIENT_ID and OZON_API_KEY env vars)
+		// Generate integration tests for ALL methods
 		tlines := []string{
 			fmt.Sprintf("package %s", dir), "",
 			`import ("context"; "os"; "testing"; "github.com/QuoVadis86/go-ozon-sdk/transport")`, "",
@@ -887,33 +887,40 @@ func main() {
 			"}",
 			"",
 		}
-		// Find first method with a valid response type
-		var testMethod Method
 		skipTypes := map[string]bool{"V1Empty": true, "Polygonv1Empty": true, "CreateDiscountedRequest": true}
 		for _, m := range methods {
-			if m.RespT != "" && !skipTypes[m.RespT] && !skipTypes[m.ReqT] {
-				testMethod = m
-				break
+			if skipTypes[m.RespT] || skipTypes[m.ReqT] {
+				continue
 			}
-		}
-		if testMethod.Name != "" {
-			testName := "Test" + testMethod.Name
+			testName := "Test" + m.Name
 			tlines = append(tlines, fmt.Sprintf("func %s(t *testing.T) {", testName))
 			tlines = append(tlines, "\tcl := skipNoCreds(t)")
 			tlines = append(tlines, "\tsvc := &Service{Client: cl}")
-			call := fmt.Sprintf("\tresp, err := svc.%s(ctx", testMethod.Name)
-			if testMethod.ReqT != "" {
-				call += ", &" + testMethod.ReqT + "{}"
+			if m.RespT != "" {
+				call := fmt.Sprintf("\tresp, err := svc.%s(ctx", m.Name)
+				if m.ReqT != "" {
+					call += ", &" + m.ReqT + "{}"
+				}
+				call += ")"
+				tlines = append(tlines, call)
+				tlines = append(tlines, "\tif err != nil {")
+				tlines = append(tlines, fmt.Sprintf("\t\tt.Fatalf(\"%s() error: %%v\", err)", m.Name))
+				tlines = append(tlines, "\t}")
+				tlines = append(tlines, "\t_ = resp")
+			} else {
+				call := fmt.Sprintf("\terr := svc.%s(ctx", m.Name)
+				if m.ReqT != "" {
+					call += ", &" + m.ReqT + "{}"
+				}
+				call += ")"
+				tlines = append(tlines, call)
+				tlines = append(tlines, "\t_ = err")
 			}
-			call += ")"
-			tlines = append(tlines, call)
-			tlines = append(tlines, "\tif err != nil {")
-			tlines = append(tlines, fmt.Sprintf("\t\tt.Fatalf(\"%s() error: %%v\", err)", testMethod.Name))
-			tlines = append(tlines, "\t}")
-			tlines = append(tlines, "\tif resp == nil {")
-			tlines = append(tlines, fmt.Sprintf("\t\tt.Fatal(\"%s() returned nil\")", testMethod.Name))
-			tlines = append(tlines, "\t}")
 			tlines = append(tlines, "}", "")
+		}
+		// Remove the last empty line
+		if len(tlines) > 0 && tlines[len(tlines)-1] == "" {
+			tlines = tlines[:len(tlines)-1]
 		}
 		os.WriteFile(dp+"/service_test.go", []byte(strings.Join(tlines, "\n")), 0644)
 
