@@ -71,7 +71,6 @@ type Schema struct {
 	Type       string                 `json:"type"`
 	Properties map[string]interface{} `json:"properties"`
 }
-
 type ReqBody struct {
 	Content map[string]struct {
 		Schema struct{ Ref string `json:"$ref"` } `json:"schema"`
@@ -130,8 +129,24 @@ func main() {
 	cache := map[string]string{}
 	for n := range comps.Schemas { cache[n] = toCamel(n) }
 
+	depOf := map[string]map[string]bool{}
+	for sname, s := range schemas {
+		depOf[sname] = map[string]bool{}
+		if s.Properties == nil { continue }
+		for _, pv := range s.Properties {
+			pr, _ := json.Marshal(pv)
+			var p struct{ Ref string }
+			json.Unmarshal(pr, &p)
+			if p.Ref != "" {
+				rn := strings.TrimPrefix(p.Ref, "#/components/schemas/")
+				if rn != sname { depOf[sname][rn] = true }
+			}
+		}
+	}
+
 	type Method struct{ Dir, Name, HTTPM, Path, ReqT, RespT string }
 	dirMethods := map[string][]Method{}
+	dirDirectTypes := map[string]map[string]bool{}
 	methodNames := map[string]bool{}
 
 	for path, items := range paths {
@@ -148,13 +163,16 @@ func main() {
 				if d, ok := tagDir[t]; ok { dir = d; break }
 			}
 			if dir == "" { continue }
+			if dirDirectTypes[dir] == nil { dirDirectTypes[dir] = map[string]bool{} }
 
 			reqT := ""
 			if item.RequestBody != nil {
 				var rb ReqBody
 				json.Unmarshal(*item.RequestBody, &rb)
 				if c, ok := rb.Content["application/json"]; ok && c.Schema.Ref != "" {
-					reqT = cache[strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")]
+					sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
+					reqT = cache[sname]
+					dirDirectTypes[dir][sname] = true
 				}
 			}
 			respT := ""
@@ -162,7 +180,9 @@ func main() {
 				var rb ReqBody
 				json.Unmarshal(r, &rb)
 				if c, ok := rb.Content["application/json"]; ok && c.Schema.Ref != "" {
-					respT = cache[strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")]
+					sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
+					respT = cache[sname]
+					dirDirectTypes[dir][sname] = true
 				}
 			}
 
@@ -185,14 +205,40 @@ func main() {
 		}
 	}
 
-	// 1. Generate types/types.go
+	dirAllTypes := map[string]map[string]bool{}
+	for dir, direct := range dirDirectTypes {
+		visited := map[string]bool{}
+		var visit func(string)
+		visit = func(sname string) {
+			if visited[sname] { return }
+			visited[sname] = true
+			for dep := range depOf[sname] { visit(dep) }
+		}
+		for s := range direct { visit(s) }
+		dirAllTypes[dir] = visited
+	}
+
+	typeDirCount := map[string]int{}
+	for _, types := range dirAllTypes {
+		for t := range types { typeDirCount[t]++ }
+	}
+
+	sharedTypes := map[string]bool{}
+	for t, c := range typeDirCount {
+		if c > 1 { sharedTypes[t] = true }
+	}
+
+	forcedShared := map[string]bool{"rpcStatus": true, "googlerpcStatus": true, "protobufAny": true}
+	for t := range forcedShared { sharedTypes[t] = true }
+
 	os.MkdirAll("types", 0755)
-	genned, inProg := map[string]bool{}, map[string]bool{}
+	genned := map[string]bool{}
+	inProg := map[string]bool{}
 	nameUsed := map[string]string{}
 	tlines := []string{"package types", ""}
 
-	var genType func(string)
-	genType = func(sname string) {
+	var genType func(string, *[]string)
+	genType = func(sname string, out *[]string) {
 		if genned[sname] || inProg[sname] { return }
 		inProg[sname] = true
 		s, ok := schemas[sname]
@@ -202,42 +248,93 @@ func main() {
 			inProg[sname] = false; genned[sname] = true; return
 		}
 		nameUsed[gn] = sname
-		if s.Properties != nil {
-			for _, pv := range s.Properties {
-				pr, _ := json.Marshal(pv)
-				var p struct{ Ref string }
-				json.Unmarshal(pr, &p)
-				if p.Ref != "" {
-					rn := strings.TrimPrefix(p.Ref, "#/components/schemas/")
-					if rn != sname { genType(rn) }
-				}
-			}
+		for dep := range depOf[sname] {
+			if dep != sname { genType(dep, out) }
 		}
 		inProg[sname] = false
 		genned[sname] = true
-		appendType(&tlines, gn, s, cache)
+		appendType(out, gn, s, cache)
 	}
-	for sname := range schemas { genType(sname) }
-	os.WriteFile("types/types.go", []byte(strings.Join(tlines, "\n")), 0644)
-	fmt.Printf("types/types.go: %d types\n", len(genned))
 
-	// 2. Generate per-service service.go at module root
+	for sname := range sharedTypes { genType(sname, &tlines) }
+	os.WriteFile("types/types.go", []byte(strings.Join(tlines, "\n")), 0644)
+	fmt.Printf("types/types.go: %d shared types\n", len(genned))
+
 	for dir, methods := range dirMethods {
 		dp := filepath.Join(dir)
 		os.MkdirAll(dp, 0755)
 
+		dlines := []string{fmt.Sprintf("package %s", dir), ""}
+		typeCount := 0
+		for t := range dirAllTypes[dir] {
+			if sharedTypes[t] || genned[t] { continue }
+			if _, ok := schemas[t]; !ok { continue }
+			var writeWithDeps func(string)
+			writeWithDeps = func(sname string) {
+				if genned[sname] || sharedTypes[sname] { return }
+				s2, ok2 := schemas[sname]
+				if !ok2 { return }
+				for dep := range depOf[sname] {
+					if !sharedTypes[dep] && !genned[dep] { writeWithDeps(dep) }
+				}
+				appendType(&dlines, cache[sname], s2, cache)
+				genned[sname] = true
+			}
+			writeWithDeps(t)
+			typeCount++
+		}
+
+		if typeCount > 0 {
+			os.WriteFile(dp+"/types.go", []byte(strings.Join(dlines, "\n")), 0644)
+		}
+
+		needsTypes := false
+		for _, m := range methods {
+			for _, t := range []string{m.ReqT, m.RespT} {
+				if t == "" { continue }
+				for sname := range sharedTypes {
+					if cache[sname] == t { needsTypes = true; break }
+				}
+			}
+		}
+
 		var ml []string
 		ml = append(ml, fmt.Sprintf("package %s", dir), "")
-		ml = append(ml, `import ("context"; "github.com/QuoVadis86/go-ozon-sdk/transport"; "github.com/QuoVadis86/go-ozon-sdk/types")`, "")
+		imports := `"context"; "github.com/QuoVadis86/go-ozon-sdk/transport"`
+		if needsTypes { imports += `; "github.com/QuoVadis86/go-ozon-sdk/types"` }
+		ml = append(ml, fmt.Sprintf("import (%s)", imports), "")
 		ml = append(ml, "type Service struct { Client *transport.Client }", "")
 		for _, m := range methods {
-			pkg := "types."
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)
-			if m.ReqT != "" { fn += fmt.Sprintf(", req *%s%s", pkg, m.ReqT) }
+			pkg := ""
+			if m.ReqT != "" {
+				isShared := false
+				for sname := range sharedTypes {
+					if cache[sname] == m.ReqT { isShared = true; break }
+				}
+				if isShared { pkg = "types." }
+				fn += fmt.Sprintf(", req *%s%s", pkg, m.ReqT)
+			}
 			fn += ") "
-			if m.RespT != "" { fn += fmt.Sprintf("(*%s%s, error)", pkg, m.RespT) } else { fn += "error" }
+			if m.RespT != "" {
+				isShared := false
+				for sname := range sharedTypes {
+					if cache[sname] == m.RespT { isShared = true; break }
+				}
+				pkg2 := ""
+				if isShared { pkg2 = "types." }
+				fn += fmt.Sprintf("(*%s%s, error)", pkg2, m.RespT)
+			} else { fn += "error" }
 			ml = append(ml, fn+" {")
-			if m.RespT != "" { ml = append(ml, fmt.Sprintf("\tvar resp %s%s", pkg, m.RespT)) }
+			if m.RespT != "" {
+				isShared := false
+				for sname := range sharedTypes {
+					if cache[sname] == m.RespT { isShared = true; break }
+				}
+				pkg2 := ""
+				if isShared { pkg2 = "types." }
+				ml = append(ml, fmt.Sprintf("\tvar resp %s%s", pkg2, m.RespT))
+			}
 			meth := "Post"
 			if m.HTTPM == "GET" { meth = "Get" }
 			call := fmt.Sprintf("\terr := s.Client.%s(ctx, %q", meth, m.Path)
@@ -254,6 +351,18 @@ func main() {
 			ml = append(ml, "}", "")
 		}
 		os.WriteFile(dp+"/service.go", []byte(strings.Join(ml, "\n")), 0644)
-		fmt.Printf("%s: %d methods\n", dir, len(methods))
+
+		// Generate test stub
+		tlines := []string{
+			fmt.Sprintf("package %s", dir), "",
+			`import "testing"`, "",
+			"func TestService_New(t *testing.T) {",
+			"\tsvc := &Service{Client: nil}",
+			"\t_ = svc",
+			"}",
+			"",
+		}
+		os.WriteFile(dp+"/service_test.go", []byte(strings.Join(tlines, "\n")), 0644)
+		fmt.Printf("%s: %d methods, %d types\n", dir, len(methods), typeCount)
 	}
 }
