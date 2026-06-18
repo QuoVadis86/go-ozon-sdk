@@ -25,10 +25,10 @@ type V1GenerateBarcodeRequest struct {
 }
 
 type V1GenerateBarcodeResult struct {
+	ProductID int64  `json:"product_id"` // 未能成功生成条形码的商品标识符。
 	Code      string `json:"code"`       // 错误代码。
 	Error     string `json:"error"`      // 错误描述。
 	Barcode   string `json:"barcode"`    // 生成条形码时出错的条形码。
-	ProductID int64  `json:"product_id"` // 未能成功生成条形码的商品标识符。
 }
 
 type V1GenerateBarcodeResponse struct {

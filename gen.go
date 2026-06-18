@@ -128,6 +128,10 @@ func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas
 		return "[]any"
 	case "string":
 		return "string"
+	case "enum":
+		return "string"
+	case "timestamp":
+		return "string"
 	case "integer":
 		if fmt == "int32" {
 			return "int32"
@@ -158,6 +162,10 @@ func resolveFieldTypeFromSchema(s *Schema, cache map[string]string, schemas map[
 	}
 	switch s.Type {
 	case "string":
+		return "string"
+	case "enum":
+		return "string"
+	case "timestamp":
 		return "string"
 	case "integer":
 		if s.Format == "int32" {
@@ -423,6 +431,26 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 					}
 					usedNames[constName] = true
 					*out = append(*out, fmt.Sprintf("\t%s %s = %q", constName, name, val))
+				}
+				*out = append(*out, ")")
+			} else if vals, valDescs := extractEnumValuesWithDesc(s.Description); len(vals) >= 2 {
+				*out = append(*out, "const (")
+				usedNames := map[string]bool{}
+				for i, v := range vals {
+					constName := name + valueToCamel(v)
+					if usedNames[constName] {
+						suffix := 1
+						for usedNames[fmt.Sprintf("%s_%d", constName, suffix)] {
+							suffix++
+						}
+						constName = fmt.Sprintf("%s_%d", constName, suffix)
+					}
+					usedNames[constName] = true
+					line := fmt.Sprintf("\t%s %s = %q", constName, name, v)
+					if i < len(valDescs) && valDescs[i] != "" {
+						line += fmt.Sprintf(" // %s", sanitizeComment(valDescs[i]))
+					}
+					*out = append(*out, line)
 				}
 				*out = append(*out, ")")
 			}

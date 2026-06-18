@@ -7,6 +7,16 @@ import (
 
 type Service struct{ Client *transport.Client }
 
+// 发送文件
+func (s *Service) ChatSendFile(ctx context.Context, req *ChatSendFileRequest) (*ChatSendFileResponse, error) {
+	var resp ChatSendFileResponse
+	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 创建新聊天
 func (s *Service) ChatStart(ctx context.Context, req *ChatStartRequest) (*ChatStartResponse, error) {
 	var resp ChatStartResponse
@@ -27,26 +37,6 @@ func (s *Service) ChatListV3(ctx context.Context, req *V3Chat) (*V3ChatListRespo
 	return &resp, nil
 }
 
-// 聊天历史记录
-func (s *Service) ChatHistoryV3(ctx context.Context, req *V3ChatHistoryRequest) (*V3ChatHistoryResponse, error) {
-	var resp V3ChatHistoryResponse
-	err := s.Client.Post(ctx, "/v3/chat/history", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 发送文件
-func (s *Service) ChatSendFile(ctx context.Context, req *ChatSendFileRequest) (*ChatSendFileResponse, error) {
-	var resp ChatSendFileResponse
-	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 发送信息
 func (s *Service) ChatSendMessage(ctx context.Context, req *ChatSendMessageRequest) (*ChatSendMessageResponse, error) {
 	var resp ChatSendMessageResponse
@@ -61,6 +51,16 @@ func (s *Service) ChatSendMessage(ctx context.Context, req *ChatSendMessageReque
 func (s *Service) ChatReadV2(ctx context.Context, req *Read) (*V2ChatReadResponse, error) {
 	var resp V2ChatReadResponse
 	err := s.Client.Post(ctx, "/v2/chat/read", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 聊天历史记录
+func (s *Service) ChatHistoryV3(ctx context.Context, req *V3ChatHistoryRequest) (*V3ChatHistoryResponse, error) {
+	var resp V3ChatHistoryResponse
+	err := s.Client.Post(ctx, "/v3/chat/history", req, &resp)
 	if err != nil {
 		return nil, err
 	}

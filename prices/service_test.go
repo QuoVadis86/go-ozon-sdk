@@ -27,12 +27,12 @@ func TestProductsStocksV2(t *testing.T) {
 	_ = resp
 }
 
-func TestImportProductsPrices(t *testing.T) {
+func TestActionTimerStatus(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ImportProductsPrices(ctx, &ImportProductsPricesRequest{})
+	resp, err := svc.ActionTimerStatus(ctx, &V1ProductActionTimerStatusRequest{})
 	if err != nil {
-		t.Fatalf("ImportProductsPrices() error: %v", err)
+		t.Fatalf("ActionTimerStatus() error: %v", err)
 	}
 	_ = resp
 }
@@ -47,42 +47,22 @@ func TestProductUpdateDiscount(t *testing.T) {
 	_ = resp
 }
 
-func TestGetProductInfoDiscounted(t *testing.T) {
+func TestGetProductInfoStocks(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.GetProductInfoDiscounted(ctx, &V1GetProductInfoDiscountedRequest{})
+	resp, err := svc.GetProductInfoStocks(ctx, &V4GetProductInfoStocksRequest{})
 	if err != nil {
-		t.Fatalf("GetProductInfoDiscounted() error: %v", err)
+		t.Fatalf("GetProductInfoStocks() error: %v", err)
 	}
 	_ = resp
 }
 
-func TestActionTimerStatus(t *testing.T) {
+func TestImportProductsPrices(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ActionTimerStatus(ctx, &V1ProductActionTimerStatusRequest{})
+	resp, err := svc.ImportProductsPrices(ctx, &ImportProductsPricesRequest{})
 	if err != nil {
-		t.Fatalf("ActionTimerStatus() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestGetProductInfoStocksByWarehouseFbsV2(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.GetProductInfoStocksByWarehouseFbsV2(ctx, &V2GetProductInfoStocksByWarehouseFbsRequestV2{})
-	if err != nil {
-		t.Fatalf("GetProductInfoStocksByWarehouseFbsV2() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestProductStocksByWarehouseFbs(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ProductStocksByWarehouseFbs(ctx, &Sv1GetProductInfoStocksByWarehouseFbsRequest{})
-	if err != nil {
-		t.Fatalf("ProductStocksByWarehouseFbs() error: %v", err)
+		t.Fatalf("ImportProductsPrices() error: %v", err)
 	}
 	_ = resp
 }
@@ -97,12 +77,32 @@ func TestGetProductInfoPrices(t *testing.T) {
 	_ = resp
 }
 
-func TestGetProductInfoStocks(t *testing.T) {
+func TestProductStocksByWarehouseFbs(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.GetProductInfoStocks(ctx, &V4GetProductInfoStocksRequest{})
+	resp, err := svc.ProductStocksByWarehouseFbs(ctx, &Sv1GetProductInfoStocksByWarehouseFbsRequest{})
 	if err != nil {
-		t.Fatalf("GetProductInfoStocks() error: %v", err)
+		t.Fatalf("ProductStocksByWarehouseFbs() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestGetProductInfoStocksByWarehouseFbsV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetProductInfoStocksByWarehouseFbsV2(ctx, &V2GetProductInfoStocksByWarehouseFbsRequestV2{})
+	if err != nil {
+		t.Fatalf("GetProductInfoStocksByWarehouseFbsV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestGetProductInfoDiscounted(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.GetProductInfoDiscounted(ctx, &V1GetProductInfoDiscountedRequest{})
+	if err != nil {
+		t.Fatalf("GetProductInfoDiscounted() error: %v", err)
 	}
 	_ = resp
 }

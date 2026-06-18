@@ -27,27 +27,17 @@ func TestCarriagePassCreate(t *testing.T) {
 	_ = resp
 }
 
-func TestReturnPassCreate(t *testing.T) {
+func TestCarriagePassDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.ReturnPassCreate(ctx, &ArrivalpassArrivalPassCreateRequest{})
-	if err != nil {
-		t.Fatalf("ReturnPassCreate() error: %v", err)
-	}
-	_ = resp
+	err := svc.CarriagePassDelete(ctx, &SellerAPIArrivalPassDeleteRequest{})
+	_ = err
 }
 
 func TestReturnPassDelete(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
 	err := svc.ReturnPassDelete(ctx, &ArrivalpassArrivalPassDeleteRequest{})
-	_ = err
-}
-
-func TestCarriagePassUpdate(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.CarriagePassUpdate(ctx, &SellerAPIArrivalPassUpdateRequest{})
 	_ = err
 }
 
@@ -61,6 +51,30 @@ func TestPassList(t *testing.T) {
 	_ = resp
 }
 
+func TestCarriagePassUpdate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.CarriagePassUpdate(ctx, &SellerAPIArrivalPassUpdateRequest{})
+	_ = err
+}
+
+func TestReturnPassCreate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ReturnPassCreate(ctx, &ArrivalpassArrivalPassCreateRequest{})
+	if err != nil {
+		t.Fatalf("ReturnPassCreate() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestReturnPassUpdate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
+	_ = err
+}
+
 func TestReturnsCompanyFBSInfo(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -69,18 +83,4 @@ func TestReturnsCompanyFBSInfo(t *testing.T) {
 		t.Fatalf("ReturnsCompanyFBSInfo() error: %v", err)
 	}
 	_ = resp
-}
-
-func TestCarriagePassDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.CarriagePassDelete(ctx, &SellerAPIArrivalPassDeleteRequest{})
-	_ = err
-}
-
-func TestReturnPassUpdate(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.ReturnPassUpdate(ctx, &ArrivalpassArrivalPassUpdateRequest{})
-	_ = err
 }
