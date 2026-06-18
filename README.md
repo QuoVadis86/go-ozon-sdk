@@ -34,7 +34,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/QuoVadis86/go-ozon-sdk/ozon"
+    ozon "github.com/QuoVadis86/go-ozon-sdk"
 )
 
 func main() {
@@ -47,8 +47,8 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    fmt.Printf("Company: %s\n", info.Company.Name)
-    fmt.Printf("Premium: %v\n", info.Subscription.IsPremium)
+    fmt.Printf("Company: %v\n", info.Company)
+    fmt.Printf("Premium: %v\n", info.Subscription)
 }
 ```
 
@@ -56,36 +56,38 @@ func main() {
 
 | Service | Endpoints | Description |
 |---------|-----------|-------------|
-| Seller | 3 | Account info, roles, API key info |
-| Category | 4 | Category tree, attributes, values |
-| Product | 20 | Create, update, list, archive products |
-| Prices | 10 | Prices, stocks, discounts |
-| Barcode | 2 | Generate and bind barcodes |
-| Warehouse | 18 | Warehouse management, delivery methods |
-| FBS | 33 | FBS orders, shipments, marks, delivery |
-| FBO | 47 | FBO orders, supply requests, FBP drafts |
-| Finance | 6 | Financial reports, transactions |
-| Promo | 30 | Promotions, seller actions, pricing strategies |
-| Pricing | 12 | Pricing strategies, competitors |
-| Report | 8 | Report generation and management |
-| Review | 16 | Reviews, questions and answers |
-| Chat | 6 | Customer chats |
-| Notification | - | Push notification configuration |
-| Returns | 12 | Returns management (FBO, FBS, rFBS) |
-| Pass | 8 | Access passes |
-| Rating | 2 | Seller rating |
-| Delivery | 2 | Delivery methods, polygons |
-| Beta | 17 | Beta methods, analytics, visibility |
-| Premium | 7 | Premium analytics, chat, finance |
+| [Seller](./seller/) | 3 | Account info, roles, API key info |
+| [Category](./category/) | 4 | Category tree, attributes, values |
+| [Product](./product/) | 20 | Create, update, list, archive products |
+| [Prices](./prices/) | 10 | Prices, stocks, discounts |
+| [Barcode](./barcode/) | 2 | Generate and bind barcodes |
+| [Warehouse](./warehouse/) | 18 | Warehouse management, delivery methods |
+| [FBS](./fbs/) | 33 | FBS orders, shipments, marks, delivery |
+| [FBO](./fbo/) | 47 | FBO orders, supply requests, FBP drafts |
+| [Finance](./finance/) | 6 | Financial reports, transactions |
+| [Promo](./promo/) | 30 | Promotions, seller actions, pricing strategies |
+| [Pricing](./pricing/) | 12 | Pricing strategies, competitors |
+| [Report](./report/) | 8 | Report generation and management |
+| [Review](./review/) | 16 | Reviews, questions and answers |
+| [Chat](./chat/) | 6 | Customer chats |
+| [Notification](./notification/) | - | Push notification configuration |
+| [Returns](./returns/) | 12 | Returns management (FBO, FBS, rFBS) |
+| [Pass](./pass/) | 8 | Access passes |
+| [Rating](./rating/) | 2 | Seller rating |
+| [Delivery](./delivery/) | 2 | Delivery methods, polygons |
+| [Beta](./beta/) | 17 | Beta methods, analytics, visibility |
+| [Premium](./premium/) | 7 | Premium analytics, chat, finance |
 
 ## Examples
 
 ### Manage Products
 
 ```go
+import "github.com/QuoVadis86/go-ozon-sdk/product"
+
 // Create or update products
-resp, err := client.Product.ImportProductsV3(ctx, &ozon.V3ImportProductsRequest{
-    Items: []ozon.V3ImportProductsRequestItem{
+resp, err := client.Product.ImportProductsV3(ctx, &product.V3ImportProductsRequest{
+    Items: []product.V3ImportProductsRequestItem{
         {
             OfferID: "my-sku-001",
             Name:    "Product Name",
@@ -100,10 +102,12 @@ resp, err := client.Product.ImportProductsV3(ctx, &ozon.V3ImportProductsRequest{
 ### Manage FBS Orders
 
 ```go
+import "github.com/QuoVadis86/go-ozon-sdk/fbs"
+
 // List FBS postings
-postings, err := client.FBS.ListFBSV4(ctx, &ozon.V4FbsPostingListRequest{
+postings, err := client.FBS.ListFBSV4(ctx, &fbs.V4FbsPostingListRequest{
     Limit: 100,
-    Filter: ozon.V4FbsPostingListRequestFilter{
+    Filter: fbs.V4FbsPostingListRequestFilter{
         Status: "awaiting_deliver",
     },
 })
@@ -112,9 +116,11 @@ postings, err := client.FBS.ListFBSV4(ctx, &ozon.V4FbsPostingListRequest{
 ### Update Prices and Stocks
 
 ```go
+import "github.com/QuoVadis86/go-ozon-sdk/prices"
+
 // Update stocks
-stocksResp, err := client.Prices.ProductsStocksV2(ctx, &ozon.V2ProductsStocksRequest{
-    Stocks: []ozon.V2ProductsStocksRequestStock{
+stocksResp, err := client.Prices.ProductsStocksV2(ctx, &prices.V2ProductsStocksRequest{
+    Stocks: []prices.V2ProductsStocksRequestStock{
         {
             Stock:   50,
             OfferID: "my-sku-001",
@@ -129,6 +135,8 @@ stocksResp, err := client.Prices.ProductsStocksV2(ctx, &ozon.V2ProductsStocksReq
 All API errors return `*ozon.APIError` with status code and error details:
 
 ```go
+import ozon "github.com/QuoVadis86/go-ozon-sdk"
+
 resp, err := client.Product.ImportProductsV3(ctx, req)
 if err != nil {
     var apiErr *ozon.APIError
