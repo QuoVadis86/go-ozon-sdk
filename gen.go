@@ -595,22 +595,40 @@ func main() {
 
 			reqT := ""
 			if item.RequestBody != nil {
-				var rb ReqBody
+				var rb struct {
+					Content map[string]struct {
+						Schema struct {
+							Ref string `json:"$ref"`
+						} `json:"schema"`
+					} `json:"content"`
+				}
 				json.Unmarshal(*item.RequestBody, &rb)
-				if c, ok := rb.Content["application/json"]; ok && c.Schema.Ref != "" {
-					sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
-					reqT = cache[sname]
-					dirDirectTypes[dir][sname] = true
+				for _, c := range rb.Content {
+					if c.Schema.Ref != "" {
+						sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
+						reqT = cache[sname]
+						dirDirectTypes[dir][sname] = true
+						break
+					}
 				}
 			}
 			respT := ""
 			if r, ok := item.Responses["200"]; ok {
-				var rb ReqBody
+				var rb struct {
+					Content map[string]struct {
+						Schema struct {
+							Ref string `json:"$ref"`
+						} `json:"schema"`
+					} `json:"content"`
+				}
 				json.Unmarshal(r, &rb)
-				if c, ok := rb.Content["application/json"]; ok && c.Schema.Ref != "" {
-					sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
-					respT = cache[sname]
-					dirDirectTypes[dir][sname] = true
+				for _, c := range rb.Content {
+					if c.Schema.Ref != "" {
+						sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
+						respT = cache[sname]
+						dirDirectTypes[dir][sname] = true
+						break
+					}
 				}
 			}
 
