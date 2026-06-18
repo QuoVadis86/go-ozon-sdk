@@ -1,8 +1,37 @@
 package premium
 
-import "testing"
+import (
+	"context"
+	"github.com/QuoVadis86/go-ozon-sdk/transport"
+	"testing"
+)
 
-func TestService_New(t *testing.T) {
-	svc := &Service{Client: nil}
-	_ = svc
+var ctx = context.Background()
+
+func TestGetRealizationByDayReportV1(t *testing.T) {
+	handler := transport.MockHandler(200, GetRealizationReportByDayResponse{})
+	cl, srv := transport.NewTestClient(handler)
+	defer srv.Close()
+	svc := &Service{Client: cl}
+	resp, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
+	if err != nil {
+		t.Fatalf("GetRealizationByDayReportV1() error: %v", err)
+	}
+	if resp == nil {
+		t.Fatal("GetRealizationByDayReportV1() returned nil")
+	}
+}
+
+func TestAPIError(t *testing.T) {
+	handler := transport.MockHandler(400, map[string]interface{}{
+		"code":    400,
+		"message": "test error",
+	})
+	cl, srv := transport.NewTestClient(handler)
+	defer srv.Close()
+	svc := &Service{Client: cl}
+	_, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
 }
