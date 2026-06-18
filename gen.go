@@ -437,7 +437,19 @@ var (
 	enumTypeGenerated map[string]bool
 	allGeneratedTypes map[string]bool
 	enumNameUsed      map[string]string
+	needsEnumImport   bool
 )
+
+// sharedEnumTypes maps per-package inline enum type names to the shared enum package type.
+// When a generated field references one of these types, gen.go uses the shared type directly
+// instead of generating a local type+const block.
+var sharedEnumTypes = map[string]string{
+	"CurrencyCode":  "enum.CurrencyCode",
+	"Currency":      "enum.CurrencyCode", // seller package uses "Currency"
+	"Vat":           "enum.Vat",
+	"WeightUnit":    "enum.WeightUnit",
+	"DimensionUnit": "enum.DimensionUnit",
+}
 
 func appendType(out *[]string, name string, s Schema, cache map[string]string, schemas map[string]Schema) {
 	if s.Description != "" {
@@ -457,6 +469,13 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			}
 			*out = append(*out, fmt.Sprintf("type %s []%s", name, itemType))
 		case "string":
+			if _, ok := sharedEnumTypes[name]; ok {
+				needsEnumImport = true
+				allGeneratedTypes[name] = true
+				*out = append(*out, fmt.Sprintf("// %s is provided by the enum package.", name))
+				*out = append(*out, "")
+				return
+			}
 			*out = append(*out, fmt.Sprintf("type %s string", name))
 			if len(s.Enum) > 0 {
 				*out = append(*out, "const (")
@@ -527,6 +546,10 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			continue
 		}
 		typeName := shortEnumTypeName(name, pn, enumNameUsed)
+		if _, ok := sharedEnumTypes[typeName]; ok {
+			needsEnumImport = true
+			continue
+		}
 		enums = append(enums, enumDef{
 			typeName:   typeName,
 			values:     vals,
@@ -579,7 +602,16 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		fn := toGoName(pn)
 		ft := resolveFieldType(pvMap, cache, schemas)
 		if ft == "string" && extractEnumValues(desc) != nil {
-			ft = shortEnumTypeName(name, pn, enumNameUsed)
+			typeName := shortEnumTypeName(name, pn, enumNameUsed)
+			if shared, ok := sharedEnumTypes[typeName]; ok {
+				ft = shared
+				needsEnumImport = true
+			} else {
+				ft = typeName
+			}
+		} else if shared, ok := sharedEnumTypes[ft]; ok {
+			ft = shared
+			needsEnumImport = true
 		}
 		jtag := pn
 		if pn == "type" {
@@ -902,6 +934,7 @@ func main() {
 		enumTypeGenerated = map[string]bool{}
 		allGeneratedTypes = map[string]bool{}
 		enumNameUsed = map[string]string{}
+		needsEnumImport = false
 
 		var writeType func(string)
 		writeType = func(sname string) {
@@ -938,6 +971,11 @@ func main() {
 			writeType(t)
 		}
 
+		if needsEnumImport {
+			// dlines[0] = "package X", dlines[1] = ""
+			importLine := `import "github.com/QuoVadis86/go-ozon-sdk/enum"`
+			dlines = append(dlines[:1], append([]string{importLine, ""}, dlines[1:]...)...)
+		}
 		os.WriteFile(dp+"/types.go", []byte(strings.Join(dlines, "\n")), 0644)
 
 		var ml []string

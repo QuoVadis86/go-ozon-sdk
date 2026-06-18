@@ -7,40 +7,11 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 每日商品销售报告
-func (s *Service) GetRealizationByDayReportV1(ctx context.Context, req *V1GetRealizationReportByDayRequest) (*GetRealizationReportByDayResponse, error) {
-	var resp GetRealizationReportByDayResponse
-	err := s.Client.Post(ctx, "/v1/finance/realization/by-day", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品搜索查询信息
-func (s *Service) AnalyticsProductQueries(ctx context.Context, req *V1AnalyticsProductQueriesRequest) (*V1AnalyticsProductQueriesResponse, error) {
-	var resp V1AnalyticsProductQueriesResponse
-	err := s.Client.Post(ctx, "/v1/analytics/product-queries", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品价格的详细信息
-func (s *Service) ProductPricesDetails(ctx context.Context, req *V1ProductPricesDetailsRequest) (*V1ProductPricesDetailsResponse, error) {
-	var resp V1ProductPricesDetailsResponse
-	err := s.Client.Post(ctx, "/v1/product/prices/details", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取按文本筛选的搜索查询列表
-func (s *Service) SearchQueriesText(ctx context.Context, req *V1SearchQueriesTextRequest) (*V1SearchQueriesTextResponse, error) {
-	var resp V1SearchQueriesTextResponse
-	err := s.Client.Post(ctx, "/v1/search-queries/text", req, &resp)
+// 分析数据
+// Note: 从一个卖家账号每分钟可以发送1次请求
+func (s *Service) AnalyticsGetData(ctx context.Context, req *AnalyticsAnalyticsGetDataRequest) (*AnalyticsAnalyticsGetDataResponse, error) {
+	var resp AnalyticsAnalyticsGetDataResponse
+	err := s.Client.Post(ctx, "/v1/analytics/data", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -67,11 +38,40 @@ func (s *Service) SearchQueriesTop(ctx context.Context, req *V1SearchQueriesTopR
 	return &resp, nil
 }
 
-// 分析数据
-// Note: 从一个卖家账号每分钟可以发送1次请求
-func (s *Service) AnalyticsGetData(ctx context.Context, req *AnalyticsAnalyticsGetDataRequest) (*AnalyticsAnalyticsGetDataResponse, error) {
-	var resp AnalyticsAnalyticsGetDataResponse
-	err := s.Client.Post(ctx, "/v1/analytics/data", req, &resp)
+// 每日商品销售报告
+func (s *Service) GetRealizationByDayReportV1(ctx context.Context, req *V1GetRealizationReportByDayRequest) (*GetRealizationReportByDayResponse, error) {
+	var resp GetRealizationReportByDayResponse
+	err := s.Client.Post(ctx, "/v1/finance/realization/by-day", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品搜索查询信息
+func (s *Service) AnalyticsProductQueries(ctx context.Context, req *V1AnalyticsProductQueriesRequest) (*V1AnalyticsProductQueriesResponse, error) {
+	var resp V1AnalyticsProductQueriesResponse
+	err := s.Client.Post(ctx, "/v1/analytics/product-queries", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取按文本筛选的搜索查询列表
+func (s *Service) SearchQueriesText(ctx context.Context, req *V1SearchQueriesTextRequest) (*V1SearchQueriesTextResponse, error) {
+	var resp V1SearchQueriesTextResponse
+	err := s.Client.Post(ctx, "/v1/search-queries/text", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品价格的详细信息
+func (s *Service) ProductPricesDetails(ctx context.Context, req *V1ProductPricesDetailsRequest) (*V1ProductPricesDetailsResponse, error) {
+	var resp V1ProductPricesDetailsResponse
+	err := s.Client.Post(ctx, "/v1/product/prices/details", req, &resp)
 	if err != nil {
 		return nil, err
 	}

@@ -27,46 +27,6 @@ func TestItemsInfo(t *testing.T) {
 	_ = resp
 }
 
-func TestInfo(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.Info(ctx, &V1StrategyRequest{})
-	if err != nil {
-		t.Fatalf("Info() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestItemsList(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ItemsList(ctx, &V1StrategyRequest{})
-	if err != nil {
-		t.Fatalf("ItemsList() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestCreate(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.Create(ctx, &V1CreatePricingStrategyRequest{})
-	if err != nil {
-		t.Fatalf("Create() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestItemsDelete(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.ItemsDelete(ctx, &V1ItemIDsRequest{})
-	if err != nil {
-		t.Fatalf("ItemsDelete() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestIds(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -87,12 +47,42 @@ func TestList(t *testing.T) {
 	_ = resp
 }
 
-func TestCompetitors(t *testing.T) {
+func TestCreate(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.Competitors(ctx, &V1GetCompetitorsRequest{})
+	resp, err := svc.Create(ctx, &V1CreatePricingStrategyRequest{})
 	if err != nil {
-		t.Fatalf("Competitors() error: %v", err)
+		t.Fatalf("Create() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestInfo(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.Info(ctx, &V1StrategyRequest{})
+	if err != nil {
+		t.Fatalf("Info() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestItemsDelete(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ItemsDelete(ctx, &V1ItemIDsRequest{})
+	if err != nil {
+		t.Fatalf("ItemsDelete() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestItemsList(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ItemsList(ctx, &V1StrategyRequest{})
+	if err != nil {
+		t.Fatalf("ItemsList() error: %v", err)
 	}
 	_ = resp
 }
@@ -103,6 +93,16 @@ func TestItemsAdd(t *testing.T) {
 	resp, err := svc.ItemsAdd(ctx, &V1AddStrategyItemsRequest{})
 	if err != nil {
 		t.Fatalf("ItemsAdd() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCompetitors(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.Competitors(ctx, &V1GetCompetitorsRequest{})
+	if err != nil {
+		t.Fatalf("Competitors() error: %v", err)
 	}
 	_ = resp
 }

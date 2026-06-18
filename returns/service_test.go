@@ -17,6 +17,13 @@ func skipNoCreds(t *testing.T) *transport.Client {
 	return transport.New(os.Getenv("OZON_CLIENT_ID"), os.Getenv("OZON_API_KEY"), nil)
 }
 
+func TestConditionalCancellationRejectV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ConditionalCancellationRejectV2(ctx)
+	_ = err
+}
+
 func TestReturnsRfbsListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -47,20 +54,6 @@ func TestReturnsList(t *testing.T) {
 	_ = resp
 }
 
-func TestConditionalCancellationApproveV2(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.ConditionalCancellationApproveV2(ctx)
-	_ = err
-}
-
-func TestReturnsRfbsActionSet(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.ReturnsRfbsActionSet(ctx, &V1ReturnsRfbsActionSetRequest{})
-	_ = err
-}
-
 func TestGetConditionalCancellationListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -71,9 +64,16 @@ func TestGetConditionalCancellationListV2(t *testing.T) {
 	_ = resp
 }
 
-func TestConditionalCancellationRejectV2(t *testing.T) {
+func TestReturnsRfbsActionSet(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	err := svc.ConditionalCancellationRejectV2(ctx)
+	err := svc.ReturnsRfbsActionSet(ctx, &V1ReturnsRfbsActionSetRequest{})
+	_ = err
+}
+
+func TestConditionalCancellationApproveV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.ConditionalCancellationApproveV2(ctx)
 	_ = err
 }
