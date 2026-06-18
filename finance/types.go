@@ -1,5 +1,11 @@
 package finance
 
+type Financev3FinanceTransactionListV3Request struct {
+	Filter interface{} `json:"filter"`
+	Page int64 `json:"page"` // 请求中返回的页码。
+	PageSize int64 `json:"page_size"` // 每页的元素数。
+}
+
 type Financev3FinanceTransactionListV3Response struct {
 	Result interface{} `json:"result"`
 }
@@ -14,13 +20,18 @@ type V2GetRealizationReportResponseV2 struct {
 	Result interface{} `json:"result"`
 }
 
-type CreateReportResponse struct {
-	Result interface{} `json:"result"`
+type V1GetCompensationReportRequest struct {
+	Date string `json:"date"` // 报告周期格式为 `YYYY-MM`。
+	Language interface{} `json:"language"`
 }
 
-type V2GetRealizationReportRequestV2 struct {
+type V1GetRealizationReportPostingRequest struct {
 	Month int32 `json:"month"` // 月。
 	Year int32 `json:"year"` // 年。
+}
+
+type Financev3FinanceTransactionTotalsV3Response struct {
+	Result interface{} `json:"result"`
 }
 
 type Financev3FinanceTransactionTotalsV3Request struct {
@@ -29,27 +40,16 @@ type Financev3FinanceTransactionTotalsV3Request struct {
 	TransactionType string `json:"transaction_type"` // 操作类型： - `all` — 所有, - `orders` — 订单, - `returns` — 退货和取消, - `services` — 服务费, - `compensation` — 补贴, - `transferDelivery...
 }
 
-type V1GetCompensationReportRequest struct {
-	Date string `json:"date"` // 报告周期格式为 `YYYY-MM`。
-	Language interface{} `json:"language"`
-}
-
 type V1GetDecompensationReportRequest struct {
 	Date string `json:"date"` // 报告周期格式为 `YYYY-MM`。
 	Language interface{} `json:"language"`
 }
 
-type Financev3FinanceTransactionTotalsV3Response struct {
+type CreateReportResponse struct {
 	Result interface{} `json:"result"`
 }
 
-type Financev3FinanceTransactionListV3Request struct {
-	Filter interface{} `json:"filter"`
-	Page int64 `json:"page"` // 请求中返回的页码。
-	PageSize int64 `json:"page_size"` // 每页的元素数。
-}
-
-type V1GetRealizationReportPostingRequest struct {
-	Month int32 `json:"month"` // 月。
+type V2GetRealizationReportRequestV2 struct {
 	Year int32 `json:"year"` // 年。
+	Month int32 `json:"month"` // 月。
 }

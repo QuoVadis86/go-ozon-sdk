@@ -85,6 +85,13 @@ type ReqBody struct {
 	} `json:"content"`
 }
 
+func containsAny(s string, list []string) bool {
+	for _, item := range list {
+		if s == item { return true }
+	}
+	return false
+}
+
 func truncateRunes(s string, maxLen int) string {
 	runes := []rune(s)
 	if len(runes) <= maxLen {
@@ -194,8 +201,9 @@ func main() {
 
 	type Method struct {
 		Dir, Name, HTTPM, Path, ReqT, RespT, Summary string
-		Deprecated bool
+		Deprecated  bool
 		ReplaceWith string
+		Notes       []string
 	}
 	dirMethods := map[string][]Method{}
 	dirDirectTypes := map[string]map[string]bool{}
@@ -263,7 +271,6 @@ func main() {
 				item.Deprecated = true
 			}
 			if isDep {
-				// Extract replacement endpoint from HTML: <a href="...">/path/to/endpoint</a>
 				if idx := strings.Index(desc, "\">/"); idx > 0 {
 					pathStart := idx + 2
 					pathEnd := strings.Index(desc[pathStart:], "</a>")
@@ -273,11 +280,40 @@ func main() {
 				}
 			}
 
+			// Extract important usage notes from description
+			var notes []string
+			noteKeywords := []string{"请使用", "请确保", "请注意", "每30秒", "每", "状态码为200",
+				"不能", "无法", "不可", "必须先", "请先",
+				"每", "如需", "要获取", "为了", "在更新之前", "在更改状态前"}
+			stripRE := regexp.MustCompile(`<[^>]+>`)
+			for _, kw := range noteKeywords {
+				idx := strings.Index(desc, kw)
+				if idx < 0 { continue }
+				start := idx
+				end := idx + 130
+				if end > len(desc) { end = len(desc) }
+				note := desc[start:end]
+				if nl := strings.IndexAny(note, ".\n。"); nl > 20 {
+					note = note[:nl+1]
+				}
+				note = stripRE.ReplaceAllString(note, "")
+				note = strings.TrimSpace(note)
+				note = sanitizeComment(note)
+				if len(note) > 15 && !containsAny(note, notes) &&
+					!strings.Contains(note, "停用") && !strings.Contains(note, "弃用") {
+					notes = append(notes, note)
+				}
+			}
+			// Deduplicate and limit
+			if len(notes) > 3 {
+				notes = notes[:3]
+			}
+
 			dirMethods[dir] = append(dirMethods[dir], Method{
 				Dir: dir, Name: name, HTTPM: strings.ToUpper(httpM),
 				Path: path, ReqT: reqT, RespT: respT,
 				Summary: item.Summary, Deprecated: item.Deprecated,
-				ReplaceWith: replaceWith,
+				ReplaceWith: replaceWith, Notes: notes,
 			})
 		}
 	}
@@ -391,6 +427,9 @@ func main() {
 			}
 			if m.Summary != "" {
 				ml = append(ml, fmt.Sprintf("// %s", sanitizeComment(m.Summary)))
+			}
+			for _, note := range m.Notes {
+				ml = append(ml, fmt.Sprintf("// Note: %s", note))
 			}
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)
 			pkg := ""

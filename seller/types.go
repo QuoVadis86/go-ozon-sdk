@@ -1,14 +1,14 @@
 package seller
 
+type V1SellerInfoResponse struct {
+	Subscription interface{} `json:"subscription"`
+	Company interface{} `json:"company"`
+	Ratings []interface{} `json:"ratings"` // 评级列表。
+}
+
 type V1RolesByTokenResponse struct {
 	ExpiresAt string `json:"expires_at"` // 密钥到期日期。
 	Roles []interface{} `json:"roles"` // 可用角色和方式信息。
-}
-
-type V1SellerInfoResponse struct {
-	Company interface{} `json:"company"`
-	Ratings []interface{} `json:"ratings"` // 评级列表。
-	Subscription interface{} `json:"subscription"`
 }
 
 type V1SellerOzonLogisticsInfoResponse struct {
