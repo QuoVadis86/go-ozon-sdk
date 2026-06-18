@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestPassList(t *testing.T) {
-	handler := transport.MockHandler(200, ArrivalpassArrivalPassListResponse{})
+func TestReturnPassCreate(t *testing.T) {
+	handler := transport.MockHandler(200, ArrivalpassArrivalPassCreateResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.PassList(ctx, &ArrivalpassArrivalPassListRequest{})
+	resp, err := svc.ReturnPassCreate(ctx, &ArrivalpassArrivalPassCreateRequest{})
 	if err != nil {
-		t.Fatalf("PassList() error: %v", err)
+		t.Fatalf("ReturnPassCreate() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("PassList() returned nil")
+		t.Fatal("ReturnPassCreate() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.PassList(ctx, &ArrivalpassArrivalPassListRequest{})
+	_, err := svc.ReturnPassCreate(ctx, &ArrivalpassArrivalPassCreateRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestCreateWarehouseFBS(t *testing.T) {
-	handler := transport.MockHandler(200, V1CreateWarehouseFBSResponse{})
+func TestUpdateWarehouseFBSFirstMile(t *testing.T) {
+	handler := transport.MockHandler(200, V1UpdateWarehouseFBSFirstMileResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.CreateWarehouseFBS(ctx, &V1CreateWarehouseFBSRequest{})
+	resp, err := svc.UpdateWarehouseFBSFirstMile(ctx, &V1UpdateWarehouseFBSFirstMileRequest{})
 	if err != nil {
-		t.Fatalf("CreateWarehouseFBS() error: %v", err)
+		t.Fatalf("UpdateWarehouseFBSFirstMile() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("CreateWarehouseFBS() returned nil")
+		t.Fatal("UpdateWarehouseFBSFirstMile() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.CreateWarehouseFBS(ctx, &V1CreateWarehouseFBSRequest{})
+	_, err := svc.UpdateWarehouseFBSFirstMile(ctx, &V1UpdateWarehouseFBSFirstMileRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

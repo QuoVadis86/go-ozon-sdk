@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbsSplit(t *testing.T) {
-	handler := transport.MockHandler(200, V1PostingFbsSplitResponse{})
+func TestProductVisibilitySet(t *testing.T) {
+	handler := transport.MockHandler(200, V1ProductVisibilitySetResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbsSplit(ctx)
+	resp, err := svc.ProductVisibilitySet(ctx, &V1ProductVisibilitySetRequest{})
 	if err != nil {
-		t.Fatalf("FbsSplit() error: %v", err)
+		t.Fatalf("ProductVisibilitySet() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbsSplit() returned nil")
+		t.Fatal("ProductVisibilitySet() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbsSplit(ctx)
+	_, err := svc.ProductVisibilitySet(ctx, &V1ProductVisibilitySetRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

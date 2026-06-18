@@ -23,3 +23,6 @@ Thumbs.db
 
 # Temp
 /tmp/
+
+# Environment
+.env

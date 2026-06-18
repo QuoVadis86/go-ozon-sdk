@@ -7,20 +7,20 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 特征值指南
-func (s *Service) GetAttributeValues(ctx context.Context, req *V1GetAttributeValuesRequest) (*V1GetAttributeValuesResponse, error) {
-	var resp V1GetAttributeValuesResponse
-	err := s.Client.Post(ctx, "/v1/description-category/attribute/values", req, &resp)
+// 根据属性的参考值进行搜索
+func (s *Service) SearchAttributeValues(ctx context.Context, req *V1SearchAttributeValuesRequest) (*V1SearchAttributeValuesResponse, error) {
+	var resp V1SearchAttributeValuesResponse
+	err := s.Client.Post(ctx, "/v1/description-category/attribute/values/search", req, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-// 根据属性的参考值进行搜索
-func (s *Service) SearchAttributeValues(ctx context.Context, req *V1SearchAttributeValuesRequest) (*V1SearchAttributeValuesResponse, error) {
-	var resp V1SearchAttributeValuesResponse
-	err := s.Client.Post(ctx, "/v1/description-category/attribute/values/search", req, &resp)
+// 特征值指南
+func (s *Service) GetAttributeValues(ctx context.Context, req *V1GetAttributeValuesRequest) (*V1GetAttributeValuesResponse, error) {
+	var resp V1GetAttributeValuesResponse
+	err := s.Client.Post(ctx, "/v1/description-category/attribute/values", req, &resp)
 	if err != nil {
 		return nil, err
 	}

@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbpDraftDropOffDelete(t *testing.T) {
-	handler := transport.MockHandler(200, V1FbpDraftDropOffDeleteResponse{})
+func TestFbpOrderList(t *testing.T) {
+	handler := transport.MockHandler(200, V1FbpOrderListResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbpDraftDropOffDelete(ctx, &V1FbpDraftDropOffDeleteRequest{})
+	resp, err := svc.FbpOrderList(ctx, &V1FbpOrderListRequest{})
 	if err != nil {
-		t.Fatalf("FbpDraftDropOffDelete() error: %v", err)
+		t.Fatalf("FbpOrderList() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbpDraftDropOffDelete() returned nil")
+		t.Fatal("FbpOrderList() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbpDraftDropOffDelete(ctx, &V1FbpDraftDropOffDeleteRequest{})
+	_, err := svc.FbpOrderList(ctx, &V1FbpOrderListRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

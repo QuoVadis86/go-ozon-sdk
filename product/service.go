@@ -19,20 +19,10 @@ func (s *Service) GetProductList(ctx context.Context, req *V3GetProductListReque
 	return &resp, nil
 }
 
-// 订阅该商品的用户数
-func (s *Service) GetProductInfoSubscription(ctx context.Context, req *V1GetProductInfoSubscriptionRequest) (*V1GetProductInfoSubscriptionResponse, error) {
-	var resp V1GetProductInfoSubscriptionResponse
-	err := s.Client.Post(ctx, "/v1/product/info/subscription", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 查询商品添加或更新状态
-func (s *Service) GetImportProductsInfo(ctx context.Context, req *GetImportProductsInfoRequest) (*GetImportProductsInfoResponse, error) {
-	var resp GetImportProductsInfoResponse
-	err := s.Client.Post(ctx, "/v1/product/import/info", req, &resp)
+// 根据标识符获取商品信息
+func (s *Service) GetProductInfoList(ctx context.Context, req *V3GetProductInfoListRequest) (*V3GetProductInfoListResponse, error) {
+	var resp V3GetProductInfoListResponse
+	err := s.Client.Post(ctx, "/v3/product/info/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +34,28 @@ func (s *Service) GetImportProductsInfo(ctx context.Context, req *GetImportProdu
 func (s *Service) ProductUpdateOfferID(ctx context.Context, req *V1ProductUpdateOfferIdRequest) (*V1ProductUpdateOfferIdResponse, error) {
 	var resp V1ProductUpdateOfferIdResponse
 	err := s.Client.Post(ctx, "/v1/product/update/offer-id", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 将商品归档
+// Note: 请使用方法[/v3/product/info/list](#operation/ProductAPI_GetProductInfoList)
+// Note: 如需查看商品归档后的实际状态，请使用方法[/v3/product/info/list](#operation/ProductAPI_GetProductInfoList)
+func (s *Service) ProductArchive(ctx context.Context, req *ProductArchiveRequest) (*BooleanResponse, error) {
+	var resp BooleanResponse
+	err := s.Client.Post(ctx, "/v1/product/archive", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品详细信息
+func (s *Service) GetProductInfoDescription(ctx context.Context, req *GetProductInfoDescriptionRequest) (*GetProductInfoDescriptionResponse, error) {
+	var resp GetProductInfoDescriptionResponse
+	err := s.Client.Post(ctx, "/v1/product/info/description", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -62,44 +74,10 @@ func (s *Service) GetUploadQuota(ctx context.Context) (*V4GetUploadQuotaResponse
 	return &resp, nil
 }
 
-// 获取商品详细信息
-func (s *Service) GetProductInfoDescription(ctx context.Context, req *GetProductInfoDescriptionRequest) (*GetProductInfoDescriptionResponse, error) {
-	var resp GetProductInfoDescriptionResponse
-	err := s.Client.Post(ctx, "/v1/product/info/description", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 上传或更新商品图片
-// Note: 请使用 [/v3/product/info/list](#operation/ProductAPI_GetProductInfoList) 方法获取信息 —— 它显示了当前图像的
-// Note: 每次调用该方法时，要传递所有应该出现在商品详情页上的图片
-func (s *Service) ProductImportPictures(ctx context.Context, req *V1ProductImportPicturesRequest) (*V1ProductInfoPicturesResponse, error) {
-	var resp V1ProductInfoPicturesResponse
-	err := s.Client.Post(ctx, "/v1/product/pictures/import", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 按SKU获得商品的内容排名
-func (s *Service) GetProductRatingBySku(ctx context.Context, req *V1GetProductRatingBySkuRequest) (*V1GetProductRatingBySkuResponse, error) {
-	var resp V1GetProductRatingBySkuResponse
-	err := s.Client.Post(ctx, "/v1/product/rating-by-sku", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 通过SKU创建商品
-// Note: 每分钟和每天的商品操作数量有限制
-// Note: 无法复制您自己的商品
-func (s *Service) ImportProductsBySKU(ctx context.Context, req *ImportProductsBySKURequest) (*ImportProductsBySKUResponse, error) {
-	var resp ImportProductsBySKUResponse
-	err := s.Client.Post(ctx, "/v1/product/import-by-sku", req, &resp)
+// 获取商品图片
+func (s *Service) ProductInfoPicturesV2(ctx context.Context, req *V2ProductInfoPicturesRequest) (*V2ProductInfoPicturesResponse, error) {
+	var resp V2ProductInfoPicturesResponse
+	err := s.Client.Post(ctx, "/v2/product/pictures/info", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -119,12 +97,64 @@ func (s *Service) ProductUpdateAttributes(ctx context.Context, req *V1ProductUpd
 	return &resp, nil
 }
 
-// 将商品归档
-// Note: 请使用方法[/v3/product/info/list](#operation/ProductAPI_GetProductInfoList)
-// Note: 如需查看商品归档后的实际状态，请使用方法[/v3/product/info/list](#operation/ProductAPI_GetProductInfoList)
-func (s *Service) ProductArchive(ctx context.Context, req *ProductArchiveRequest) (*BooleanResponse, error) {
-	var resp BooleanResponse
-	err := s.Client.Post(ctx, "/v1/product/archive", req, &resp)
+// 查询商品添加或更新状态
+func (s *Service) GetImportProductsInfo(ctx context.Context, req *GetImportProductsInfoRequest) (*GetImportProductsInfoResponse, error) {
+	var resp GetImportProductsInfoResponse
+	err := s.Client.Post(ctx, "/v1/product/import/info", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 上传或更新商品图片
+// Note: 请使用 [/v3/product/info/list](#operation/ProductAPI_GetProductInfoList) 方法获取信息 —— 它显示了当前图像的
+// Note: 每次调用该方法时，要传递所有应该出现在商品详情页上的图片
+func (s *Service) ProductImportPictures(ctx context.Context, req *V1ProductImportPicturesRequest) (*V1ProductInfoPicturesResponse, error) {
+	var resp V1ProductInfoPicturesResponse
+	err := s.Client.Post(ctx, "/v1/product/pictures/import", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品特征描述
+func (s *Service) GetProductAttributesV4(ctx context.Context, req *V4GetProductAttributesV4Request) (*V4GetProductAttributesV4Response, error) {
+	var resp V4GetProductAttributesV4Response
+	err := s.Client.Post(ctx, "/v4/product/info/attributes", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 订阅该商品的用户数
+func (s *Service) GetProductInfoSubscription(ctx context.Context, req *V1GetProductInfoSubscriptionRequest) (*V1GetProductInfoSubscriptionResponse, error) {
+	var resp V1GetProductInfoSubscriptionResponse
+	err := s.Client.Post(ctx, "/v1/product/info/subscription", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 通过SKU创建商品
+// Note: 每分钟和每天的商品操作数量有限制
+// Note: 无法复制您自己的商品
+func (s *Service) ImportProductsBySKU(ctx context.Context, req *ImportProductsBySKURequest) (*ImportProductsBySKUResponse, error) {
+	var resp ImportProductsBySKUResponse
+	err := s.Client.Post(ctx, "/v1/product/import-by-sku", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取商品特征描述
+func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
+	var resp V3GetProductAttributesV3Response
+	err := s.Client.Post(ctx, "/v3/products/info/attributes", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +171,16 @@ func (s *Service) ProductInfoWrongVolume(ctx context.Context, req *V1ProductInfo
 	return &resp, nil
 }
 
+// 按SKU获得商品的内容排名
+func (s *Service) GetProductRatingBySku(ctx context.Context, req *V1GetProductRatingBySkuRequest) (*V1GetProductRatingBySkuResponse, error) {
+	var resp V1GetProductRatingBySkuResponse
+	err := s.Client.Post(ctx, "/v1/product/rating-by-sku", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 // 从存档删除没有SKU的商品
 func (s *Service) DeleteProducts(ctx context.Context, req *V2DeleteProductsRequest) (*V2DeleteProductsResponse, error) {
 	var resp V2DeleteProductsResponse
@@ -151,20 +191,10 @@ func (s *Service) DeleteProducts(ctx context.Context, req *V2DeleteProductsReque
 	return &resp, nil
 }
 
-// 获取商品图片
-func (s *Service) ProductInfoPicturesV2(ctx context.Context, req *V2ProductInfoPicturesRequest) (*V2ProductInfoPicturesResponse, error) {
-	var resp V2ProductInfoPicturesResponse
-	err := s.Client.Post(ctx, "/v2/product/pictures/info", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取商品特征描述
-func (s *Service) GetProductAttributesV4(ctx context.Context, req *V4GetProductAttributesV4Request) (*V4GetProductAttributesV4Response, error) {
-	var resp V4GetProductAttributesV4Response
-	err := s.Client.Post(ctx, "/v4/product/info/attributes", req, &resp)
+// 获取相关SKU
+func (s *Service) ProductGetRelatedSKU(ctx context.Context, req *V1ProductGetRelatedSKURequest) (*V1ProductGetRelatedSKUResponse, error) {
+	var resp V1ProductGetRelatedSKUResponse
+	err := s.Client.Post(ctx, "/v1/product/related-sku/get", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -184,40 +214,10 @@ func (s *Service) ImportProductsV3(ctx context.Context, req *V3ImportProductsReq
 	return &resp, nil
 }
 
-// 获取商品特征描述
-func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
-	var resp V3GetProductAttributesV3Response
-	err := s.Client.Post(ctx, "/v3/products/info/attributes", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 从档案中还原商品
 func (s *Service) ProductUnarchive(ctx context.Context, req *ProductUnarchiveRequest) (*BooleanResponse, error) {
 	var resp BooleanResponse
 	err := s.Client.Post(ctx, "/v1/product/unarchive", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取相关SKU
-func (s *Service) ProductGetRelatedSKU(ctx context.Context, req *V1ProductGetRelatedSKURequest) (*V1ProductGetRelatedSKUResponse, error) {
-	var resp V1ProductGetRelatedSKUResponse
-	err := s.Client.Post(ctx, "/v1/product/related-sku/get", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 根据标识符获取商品信息
-func (s *Service) GetProductInfoList(ctx context.Context, req *V3GetProductInfoListRequest) (*V3GetProductInfoListResponse, error) {
-	var resp V3GetProductInfoListResponse
-	err := s.Client.Post(ctx, "/v3/product/info/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}

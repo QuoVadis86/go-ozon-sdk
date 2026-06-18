@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestPostingFBSActGetContainerLabels(t *testing.T) {
-	handler := transport.MockHandler(200, PostingPostingFBSActGetContainerLabelsResponse{})
+func TestFbsPostingTrackingNumberSet(t *testing.T) {
+	handler := transport.MockHandler(200, PostingFbsPostingMoveStatusResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.PostingFBSActGetContainerLabels(ctx, &PostingPostingFBSActGetContainerLabelsRequest{})
+	resp, err := svc.FbsPostingTrackingNumberSet(ctx, &PostingFbsPostingTrackingNumberSetRequest{})
 	if err != nil {
-		t.Fatalf("PostingFBSActGetContainerLabels() error: %v", err)
+		t.Fatalf("FbsPostingTrackingNumberSet() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("PostingFBSActGetContainerLabels() returned nil")
+		t.Fatal("FbsPostingTrackingNumberSet() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.PostingFBSActGetContainerLabels(ctx, &PostingPostingFBSActGetContainerLabelsRequest{})
+	_, err := svc.FbsPostingTrackingNumberSet(ctx, &PostingFbsPostingTrackingNumberSetRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

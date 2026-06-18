@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestSellerOzonLogisticsInfo(t *testing.T) {
-	handler := transport.MockHandler(200, V1SellerOzonLogisticsInfoResponse{})
+func TestSellerInfo(t *testing.T) {
+	handler := transport.MockHandler(200, V1SellerInfoResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.SellerOzonLogisticsInfo(ctx)
+	resp, err := svc.SellerInfo(ctx)
 	if err != nil {
-		t.Fatalf("SellerOzonLogisticsInfo() error: %v", err)
+		t.Fatalf("SellerInfo() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("SellerOzonLogisticsInfo() returned nil")
+		t.Fatal("SellerInfo() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.SellerOzonLogisticsInfo(ctx)
+	_, err := svc.SellerInfo(ctx)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

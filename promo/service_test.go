@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestSellerActionsCreateMultiLevelDiscount(t *testing.T) {
-	handler := transport.MockHandler(200, V1SellerActionsCreateMultiLevelDiscountResponse{})
+func TestPromosCandidates(t *testing.T) {
+	handler := transport.MockHandler(200, SellerApiGetSellerProductV1Response{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.SellerActionsCreateMultiLevelDiscount(ctx, &V1SellerActionsCreateMultiLevelDiscountRequest{})
+	resp, err := svc.PromosCandidates(ctx, &SellerApiGetSellerProductV1Request{})
 	if err != nil {
-		t.Fatalf("SellerActionsCreateMultiLevelDiscount() error: %v", err)
+		t.Fatalf("PromosCandidates() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("SellerActionsCreateMultiLevelDiscount() returned nil")
+		t.Fatal("PromosCandidates() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.SellerActionsCreateMultiLevelDiscount(ctx, &V1SellerActionsCreateMultiLevelDiscountRequest{})
+	_, err := svc.PromosCandidates(ctx, &SellerApiGetSellerProductV1Request{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

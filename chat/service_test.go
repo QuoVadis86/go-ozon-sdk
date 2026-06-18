@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestChatSendFile(t *testing.T) {
-	handler := transport.MockHandler(200, ChatSendFileResponse{})
+func TestChatSendMessage(t *testing.T) {
+	handler := transport.MockHandler(200, ChatSendMessageResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.ChatSendFile(ctx, &ChatSendFileRequest{})
+	resp, err := svc.ChatSendMessage(ctx, &ChatSendMessageRequest{})
 	if err != nil {
-		t.Fatalf("ChatSendFile() error: %v", err)
+		t.Fatalf("ChatSendMessage() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("ChatSendFile() returned nil")
+		t.Fatal("ChatSendMessage() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.ChatSendFile(ctx, &ChatSendFileRequest{})
+	_, err := svc.ChatSendMessage(ctx, &ChatSendMessageRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

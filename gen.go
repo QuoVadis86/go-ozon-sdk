@@ -894,6 +894,41 @@ func main() {
 			tlines = append(tlines, "}", "")
 		}
 		os.WriteFile(dp+"/service_test.go", []byte(strings.Join(tlines, "\n")), 0644)
+
+		// Generate integration test (only for read-only methods with no request body)
+		// Find a method with no request body for safe integration testing
+		var integrationMethod Method
+		for _, m := range methods {
+			if m.ReqT == "" && m.RespT != "" {
+				integrationMethod = m
+				break
+			}
+		}
+		if integrationMethod.Name != "" {
+			itLines := []string{
+				fmt.Sprintf("package %s", dir), "",
+				`import ("context"; "os"; "testing"; "github.com/QuoVadis86/go-ozon-sdk/transport")`, "",
+				"func TestIntegration_" + integrationMethod.Name + "(t *testing.T) {",
+				`	clientID := os.Getenv("OZON_CLIENT_ID")`,
+				`	apiKey := os.Getenv("OZON_API_KEY")`,
+				`	if clientID == "" || apiKey == "" {`,
+				`		t.Skip("set OZON_CLIENT_ID and OZON_API_KEY to run integration tests")`,
+				"	}",
+				`	cl := transport.New(clientID, apiKey, nil)`,
+				fmt.Sprintf("\tsvc := &Service{Client: cl}"),
+				"	ctx := context.Background()",
+			}
+			call := fmt.Sprintf("\tresp, err := svc.%s(ctx)", integrationMethod.Name)
+			itLines = append(itLines, call)
+			itLines = append(itLines, "\tif err != nil {")
+			itLines = append(itLines, fmt.Sprintf("\t\tt.Fatalf(\"%s() error: %%v\", err)", integrationMethod.Name))
+			itLines = append(itLines, "\t}")
+			itLines = append(itLines, "\tif resp == nil {")
+			itLines = append(itLines, fmt.Sprintf("\t\tt.Fatal(\"%s() returned nil\")", integrationMethod.Name))
+			itLines = append(itLines, "\t}")
+			itLines = append(itLines, "}", "")
+			os.WriteFile(dp+"/integration_test.go", []byte(strings.Join(itLines, "\n")), 0644)
+		}
 		fmt.Printf("%s: %d methods, %d types\n", dir, len(methods), typeCount)
 	}
 
