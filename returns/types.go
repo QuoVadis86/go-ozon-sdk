@@ -1,242 +1,52 @@
 package returns
 
-type V2ReturnsRfbsVerifyRequest struct {
-	ReturnID                int64  `json:"return_id"`                 // 退货申请的标识符。
-	ReturnMethodDescription string `json:"return_method_description"` // 商品退货方式。
+// 申请状态： - `ON_APPROVAL` — 审核中， - `APPROVED` — 已确认， - `REJECTED` — 已拒绝。
+type V2CancellationStateEnum string
+
+// 取消申请的状态。
+type GetConditionalCancellationListV2ResponseState struct {
+	ID    int64                   `json:"id"`   // 状态标识符。
+	Name  string                  `json:"name"` // 状态名称。
+	State V2CancellationStateEnum `json:"state"`
 }
-
-// 退货状态信息。
-type V2ReturnsRfbsGetV2ResponseState struct {
-	State     string `json:"state"`      // 状态。
-	StateName string `json:"state_name"` // 状态的俄语名称。
-}
-
-// 退货状态。
-type GetReturnsListResponseVisualStatus struct {
-	DisplayName string `json:"display_name"` // 退货状态名称。
-	SysName     string `json:"sys_name"`     // 退货状态的系统名称。
-	ID          int32  `json:"id"`           // 退货状态ID。
-}
-
-// 退货状态信息。
-type GetReturnsListResponseVisual struct {
-	Status       GetReturnsListResponseVisualStatus `json:"status"`
-	ChangeMoment string                             `json:"change_moment"` // 退货状态的变更日期。
-}
-
-// 退货所在仓库的信息。
-type GetReturnsListResponsePlaceNow struct {
-	ID      int64  `json:"id"`      // 仓库ID。
-	Name    string `json:"name"`    // 名称。
-	Address string `json:"address"` // 地址。
-}
-
-// 销毁费用。
-type SellerReturnsv1MoneyUtilization struct {
-	CurrencyCode string  `json:"currency_code"` // 货币。
-	Price        float64 `json:"price"`         // 销毁费用。
-}
-
-// 存储费用。
-type SellerReturnsv1MoneyStorage struct {
-	CurrencyCode string  `json:"currency_code"` // 货币。
-	Price        float64 `json:"price"`         // 存储费用。
-}
-
-// 存储信息。
-type GetReturnsListResponseStorage struct {
-	ArrivedMoment           string                          `json:"arrived_moment"` // 退货准备交付给卖家的日期。
-	Days                    int64                           `json:"days"`           // 退货等待交付给卖家的天数。
-	UtilizationSum          SellerReturnsv1MoneyUtilization `json:"utilization_sum"`
-	UtilizationForecastDate string                          `json:"utilization_forecast_date"` // 预计销毁日期。
-	Sum                     SellerReturnsv1MoneyStorage     `json:"sum"`
-	TarifficationFirstDate  string                          `json:"tariffication_first_date"` // 计算存储费用的第一天。
-	TarifficationStartDate  string                          `json:"tariffication_start_date"` // 计算存储费用的开始日期。
-}
-
-// 赔偿状态。
-// SysName values
-type SysName string
-
-const (
-	SysNameSent               SysName = "Sent"               // 已发送；
-	SysNameReceived           SysName = "Received"           // 已收到；
-	SysNameCanceled           SysName = "Canceled"           // 已取消；
-	SysNameDecompensationSent SysName = "DecompensationSent" // 已进行赔偿返还。
-)
-
-type GetReturnsListResponseCompensationStatus struct {
-	ID          int32   `json:"id"`           // 状态标识符。
-	DisplayName string  `json:"display_name"` // 状态名称： - “发送进行赔偿”， - “您已收到赔偿”， - "赔偿已取消"， - "已进行赔偿返还"。
-	SysName     SysName `json:"sys_name"`     // 状态的系统名称： - `Sent`——已发送； - `Received`——已收到； - `Canceled`——已取消； - `DecompensationSent`——已进行赔偿返还。
-}
-
-// 赔偿状态信息。
-type GetReturnsListResponseCompensation struct {
-	Status       GetReturnsListResponseCompensationStatus `json:"status"`
-	ChangeMoment string                                   `json:"change_moment"` // 赔偿状态的变更日期。
-}
-
-// 退货信息。
-type GetReturnsListResponseLogistic struct {
-	Barcode                         string `json:"barcode"`                            // 退货标签的条形码。
-	TechnicalReturnMoment           string `json:"technical_return_moment"`            // 商品被标记为技术退货的日期。
-	FinalMoment                     string `json:"final_moment"`                       // 退货到达履约中心或卖家收到退货的日期。
-	CancelledWithCompensationMoment string `json:"cancelled_with_compensation_moment"` // 向卖家补偿退货的日期。
-	ReturnDate                      string `json:"return_date"`                        // 买家退货的日期。
-}
-
-type GetReturnsListResponseExemplar struct {
-	ID int64 `json:"id"` // 实例ID。
-}
-
-// 其他信息。
-type GetReturnsListResponseAdditionalInfo struct {
-	IsOpened      bool `json:"is_opened"`       // 如果退货已开封，显示`true`。
-	IsSuperEconom bool `json:"is_super_econom"` // 如果退货为"超级经济"商品，显示`true`。
-}
-
-// 退货运往的仓库信息。
-type GetReturnsListResponsePlaceTarget struct {
-	ID      int64  `json:"id"`      // 仓库ID。
-	Name    string `json:"name"`    // 名称。
-	Address string `json:"address"` // 地址。
-}
-
-// 不含佣金的商品价格。
-type SellerReturnsv1MoneyWithoutCommission struct {
-	CurrencyCode string  `json:"currency_code"` // 货币。
-	Price        float64 `json:"price"`         // 不含佣金的商品价格。
-}
-
-// 佣金费用。
-type SellerReturnsv1MoneyCommission struct {
-	CurrencyCode string  `json:"currency_code"` // 货币。
-	Price        float64 `json:"price"`         // 佣金费用。
-}
-
-// 商品价格。
-type SellerReturnsv1MoneyProduct struct {
-	Price        float64 `json:"price"`         // 商品价格。
-	CurrencyCode string  `json:"currency_code"` // 货币。
-}
-
-// 商品信息。
-type GetReturnsListResponseProduct struct {
-	SKU                    int64                                 `json:"sku"`      // 商品在Ozon系统中的ID（SKU）。
-	OfferID                string                                `json:"offer_id"` // 卖家系统中的商品标识符是商品货号。
-	Name                   string                                `json:"name"`     // 商品名称。
-	Price                  SellerReturnsv1MoneyProduct           `json:"price"`
-	PriceWithoutCommission SellerReturnsv1MoneyWithoutCommission `json:"price_without_commission"`
-	CommissionPercent      float64                               `json:"commission_percent"` // 佣金比例。
-	Commission             SellerReturnsv1MoneyCommission        `json:"commission"`
-	Quantity               int32                                 `json:"quantity"` // 产品数量。
-}
-
-// Type values
-type Type string
-
-const (
-	TypeCancellation  Type = "Cancellation"  // 取消订单（交货前）；
-	TypeFullReturn    Type = "FullReturn"    // 完全拒收（交货时）；
-	TypePartialReturn Type = "PartialReturn" // 部分拒收（交货时）；
-	TypeClientReturn  Type = "ClientReturn"  // 客户退货（交货后）；
-	TypeUnknown       Type = "Unknown"       // 技术退货。
-)
-
-// Schema values
-type Schema string
-
-const (
-	SchemaFBS Schema = "FBS"
-	SchemaFBO Schema = "FBO"
-)
-
-type GetReturnsListResponseReturnsItem struct {
-	ID                 int64                                `json:"id"`       // 退货ID。
-	Type               Type                                 `json:"type_"`    // 退货类型： `Cancellation` - 取消订单（交货前）； `FullReturn` - 完全拒收（交货时）； `PartialReturn` - 部分拒收（交货时）； `ClientReturn` - 客户退货（交货后）； `Un...
-	Schema             Schema                               `json:"schema"`   // 退货方案： `FBS`； `FBO`。
-	OrderID            int64                                `json:"order_id"` // 订单ID。
-	Place              GetReturnsListResponsePlaceNow       `json:"place"`
-	SourceID           int64                                `json:"source_id"`      // 先前的退货ID。
-	PostingNumber      string                               `json:"posting_number"` // 货件编号。
-	Storage            GetReturnsListResponseStorage        `json:"storage"`
-	ReturnClearingID   int64                                `json:"return_clearing_id"` // 初始货件的退货条形码。
-	CompensationStatus GetReturnsListResponseCompensation   `json:"compensation_status"`
-	ReturnReasonName   string                               `json:"return_reason_name"` // 退货或取消的原因。
-	OrderNumber        string                               `json:"order_number"`       // 订单编号。
-	AdditionalInfo     GetReturnsListResponseAdditionalInfo `json:"additional_info"`
-	ClearingID         int64                                `json:"clearing_id"` // 初始货件条形码。
-	CompanyID          int64                                `json:"company_id"`  // 卖家ID。
-	TargetPlace        GetReturnsListResponsePlaceTarget    `json:"target_place"`
-	Product            GetReturnsListResponseProduct        `json:"product"`
-	Logistic           GetReturnsListResponseLogistic       `json:"logistic"`
-	Visual             GetReturnsListResponseVisual         `json:"visual"`
-	Exemplars          []GetReturnsListResponseExemplar     `json:"exemplars"` // 退货实例信息。
-}
-
-type V2ReturnsRfbsGetRequest struct {
-	ReturnID int64 `json:"return_id"` // 退货申请标识符。通过方法 [/v2/returns/rfbs/list](#operation/RFBSReturnsAPI_ReturnsRfbsListV2) 获取。
-}
-
-// 按取消申请状态筛选： - `ALL` — 所有状态的申请， - `ON_APPROVAL` — 审核中申请， - `APPROVED` — 已确认申请， - `REJECTED` — 已拒绝申请。
-type V2CancellationStateEnumFilters string
 
 // 取消发起人： - `SELLER` — 卖家， - `CLIENT` — 买家， - `OZON` — Ozon, - `SYSTEM` — 系统， - `DELIVERY` — 配送服务。
 type V2CancellationInitiatorEnum string
 
-// 过滤器。
-// CancellationInitiator values
-type CancellationInitiator string
-
-const (
-	CancellationInitiatorSeller   CancellationInitiator = "SELLER"   // 卖家，
-	CancellationInitiatorClient   CancellationInitiator = "CLIENT"   // 买家，
-	CancellationInitiatorOzon     CancellationInitiator = "OZON"     // Ozon，
-	CancellationInitiatorSystem   CancellationInitiator = "SYSTEM"   // 系统，
-	CancellationInitiatorDelivery CancellationInitiator = "DELIVERY" // 配送服务。
-)
-
-// State values
-type State string
-
-const (
-	StateALL        State = "ALL"         // 所有状态的申请，
-	StateONApproval State = "ON_APPROVAL" // 审核中申请，
-	StateApproved   State = "APPROVED"    // 已确认申请，
-	StateRejected   State = "REJECTED"    // 已拒绝申请。
-)
-
-type GetConditionalCancellationListV2RequestFilters struct {
-	PostingNumber         []string                       `json:"posting_number"`         // 按货件编号筛选。
-	State                 V2CancellationStateEnumFilters `json:"state"`                  // 按取消申请状态筛选： - `ALL` — 所有状态的申请， - `ON_APPROVAL` — 审核中申请， - `APPROVED` — 已确认申请， - `REJECTED` — 已拒绝申请。
-	CancellationInitiator []V2CancellationInitiatorEnum  `json:"cancellation_initiator"` // 取消发起人： - `SELLER` — 卖家， - `CLIENT` — 买家， - `OZON` — Ozon， - `SYSTEM` — 系统， - `DELIVERY` — 配送服务。
+// 取消原因。
+type GetConditionalCancellationListV2ResponseCancellationReason struct {
+	ID   int64  `json:"id"`   // 取消原因标识符。
+	Name string `json:"name"` // 取消原因名称。
 }
 
-// Comment values
-type Comment string
+type GetConditionalCancellationListV2ResponseResult struct {
+	CancellationInitiator     V2CancellationInitiatorEnum                                `json:"cancellation_initiator"`
+	CancellationReason        GetConditionalCancellationListV2ResponseCancellationReason `json:"cancellation_reason"`
+	CancellationReasonMessage string                                                     `json:"cancellation_reason_message"` // 取消申请中由取消发起人手动填写的备注。
+	CancelledAt               string                                                     `json:"cancelled_at"`                // 取消申请的创建日期。
+	OrderDate                 string                                                     `json:"order_date"`                  // 订单的创建日期。
+	SourceID                  int64                                                      `json:"source_id"`                   // 上一次取消申请的标识符。 用于保持向后兼容性。
+	State                     GetConditionalCancellationListV2ResponseState              `json:"state"`
+	ApproveComment            string                                                     `json:"approve_comment"`      // 在确认或拒绝取消申请时填写的备注。
+	ApproveDate               string                                                     `json:"approve_date"`         // 取消申请确认或拒绝的日期。
+	AutoApproveDate           string                                                     `json:"auto_approve_date"`    // 申请将在此日期后自动确认。
+	CancellationID            int64                                                      `json:"cancellation_id"`      // 取消申请标识符。
+	PostingNumber             string                                                     `json:"posting_number"`       // 货件编号。
+	TPLIntegrationType        string                                                     `json:"tpl_integration_type"` // 与配送服务的集成类型。
+}
 
-const (
-	CommentId1  Comment = "id: -1"
-	CommentId10 Comment = "id: -10"
-)
+type V2GetConditionalCancellationListV2Response struct {
+	Counter int64                                            `json:"counter"` // `ON_APPROVAL` 状态申请的计数器。
+	LastID  int64                                            `json:"last_id"` // 页面上最后一个值的标识符。 要获取后续值，请指定上一次请求响应中的 `last_id`。
+	Result  []GetConditionalCancellationListV2ResponseResult `json:"result"`  // 取消申请的详细信息。
+}
 
-// RejectionReasonID values
-type RejectionReasonID string
-
-const (
-	RejectionReasonIDId1                    RejectionReasonID = "id: -1"
-	RejectionReasonIDId10                   RejectionReasonID = "id: -10"
-	RejectionReasonIDReturnsRejectionReason RejectionReasonID = "returns.rejection_reason"
-)
-
-type V1ReturnsRfbsActionSetRequest struct {
-	RejectionReasonID  int32   `json:"rejection_reason_id"` // 取消原因的标识符。 对于 `id: -1` 和 `id: -10`，备注为必填项。 获取可用取消原因 `returns.rejection_reason`，请使用方法 [/v2/returns/rfbs/get](#operation/RF...
-	ReturnForBackWay   float64 `json:"return_for_back_way"` // 退还给买家的商品运费金额。 负值将被视为 `0`。
-	ReturnID           int64   `json:"return_id"`           // 退货申请的标识符。
-	Comment            Comment `json:"comment"`             // 卖家评论。 对于 `id: -1` 和 `id: -10`，备注为必填项。
-	CompensationAmount float64 `json:"compensation_amount"` // 赔偿金额。 对于 `id: 1020`，备注也为必填项。
-	ID                 int32   `json:"id"`                  // 操作标识符。 获取可用操作 `returns.available_actions` ，请使用方法 [/v2/returns/rfbs/get](#operation/RFBSReturnsAPI_ReturnsRfbsGetV2)。
+// 退货申请和退款状态。
+type V2ReturnsRfbsListV2ResponseState struct {
+	GroupState           string `json:"group_state"`             // 根据应用的筛选器的申请状态。
+	MoneyReturnStateName string `json:"money_return_state_name"` // 退款状态。
+	State                string `json:"state"`                   // 申请状态。
+	StateName            string `json:"state_name"`              // 退货申请状态的俄语名称。
 }
 
 type RfbsGetV2ResponseAvailableAction struct {
@@ -244,20 +54,14 @@ type RfbsGetV2ResponseAvailableAction struct {
 	Name string `json:"name"` // 操作名称。
 }
 
-// 申请创建期间。
-type CreatedAt struct {
-	From string `json:"from"` // 开始日期。
-	To   string `json:"to"`   // 结束日期。
-}
-
-// 根据退货状态变更日期筛选。
-type V1TimeRangeVisualStatus struct {
+// 根据存储费用开始日期筛选。
+type V1TimeRangeStorageTariffication struct {
 	TimeFrom string `json:"time_from"` // 开始日期。
 	TimeTo   string `json:"time_to"`   // 结束日期。
 }
 
-// 根据存储费用开始日期筛选。
-type V1TimeRangeStorageTariffication struct {
+// 根据退货状态变更日期筛选。
+type V1TimeRangeVisualStatus struct {
 	TimeTo   string `json:"time_to"`   // 结束日期。
 	TimeFrom string `json:"time_from"` // 开始日期。
 }
@@ -326,37 +130,49 @@ const (
 )
 
 type GetReturnsListRequestFilter struct {
+	WarehouseID                   int64                           `json:"warehouse_id"`  // 根据仓库ID筛选。可以使用方法 [/v1/warehouse/list](#operation/WarehouseAPI_WarehouseList)获取。
+	Barcode                       string                          `json:"barcode"`       // 根据退货标签条形码筛选。
+	ReturnSchema                  ReturnSchema                    `json:"return_schema"` // 根据配送方案筛选：`FBS` 或`FBO`。
 	LogisticReturnDate            V1TimeRangeReturnDate           `json:"logistic_return_date"`
-	VisualStatusChangeMoment      V1TimeRangeVisualStatus         `json:"visual_status_change_moment"`
 	OrderID                       int64                           `json:"order_id"`               // 根据订单ID筛选。
-	PostingNumbers                []string                        `json:"posting_numbers"`        // 根据货件编号筛选。请勿传递超过 50 个货盒单号。
-	VisualStatusName              VisualStatusName                `json:"visual_status_name"`     // 根据退货状态筛选： - `DisputeOpened` — 与买家有争议； - `OnSellerApproval` — 等待卖家批准； - `ArrivedAtReturnPlace` — 到达取货点； - `OnSellerClarif...
-	Barcode                       string                          `json:"barcode"`                // 根据退货标签条形码筛选。
-	ReturnSchema                  ReturnSchema                    `json:"return_schema"`          // 根据配送方案筛选：`FBS` 或`FBO`。
+	ProductName                   string                          `json:"product_name"`           // 根据商品名称筛选。
 	CompensationStatusID          int32                           `json:"compensation_status_id"` // 按赔偿状态筛选： - `1`——已发送； - `2`——已收到； - `3`——已取消； - `4`——已进行赔偿返还。
 	StorageTarifficationStartDate V1TimeRangeStorageTariffication `json:"storage_tariffication_start_date"`
-	ProductName                   string                          `json:"product_name"` // 根据商品名称筛选。
-	OfferID                       string                          `json:"offer_id"`     // 根据商品货号筛选。
-	WarehouseID                   int64                           `json:"warehouse_id"` // 根据仓库ID筛选。可以使用方法 [/v1/warehouse/list](#operation/WarehouseAPI_WarehouseList)获取。
+	VisualStatusChangeMoment      V1TimeRangeVisualStatus         `json:"visual_status_change_moment"`
+	PostingNumbers                []string                        `json:"posting_numbers"`    // 根据货件编号筛选。请勿传递超过 50 个货盒单号。
+	OfferID                       string                          `json:"offer_id"`           // 根据商品货号筛选。
+	VisualStatusName              VisualStatusName                `json:"visual_status_name"` // 根据退货状态筛选： - `DisputeOpened` — 与买家有争议； - `OnSellerApproval` — 等待卖家批准； - `ArrivedAtReturnPlace` — 到达取货点； - `OnSellerClarif...
 }
 
-type V1GetReturnsListRequest struct {
-	Filter GetReturnsListRequestFilter `json:"filter"`
-	Limit  int32                       `json:"limit"`   // 加载的退货数量。
-	LastID int64                       `json:"last_id"` // 最后加载的退货ID。
+type V2ReturnsRfbsVerifyRequest struct {
+	ReturnID                int64  `json:"return_id"`                 // 退货申请的标识符。
+	ReturnMethodDescription string `json:"return_method_description"` // 商品退货方式。
 }
 
-type RfbsGetV2ResponseRejectionReason struct {
-	Hint              string `json:"hint"`                // 有关退货的进一步操作的提示。
-	ID                int32  `json:"id"`                  // 原因的标识符。
-	IsCommentRequired bool   `json:"is_comment_required"` // 指示是否需要备注。
-	Name              string `json:"name"`                // 原因的描述。
+// 附加信息。
+type GetConditionalCancellationListV2RequestWith struct {
+	Counter bool `json:"counter"` // 表示需要在响应中返回处于 `ON_APPROVAL` 状态的申请数量的标志。
 }
 
-// 退货方式信息。
-type RfbsGetV2ResponseClientReturnMethodType struct {
-	ID   int32  `json:"id"`   // 标识符。
-	Name string `json:"name"` // 名称。
+// 退货信息。
+type GetReturnsListResponseLogistic struct {
+	Barcode                         string `json:"barcode"`                            // 退货标签的条形码。
+	TechnicalReturnMoment           string `json:"technical_return_moment"`            // 商品被标记为技术退货的日期。
+	FinalMoment                     string `json:"final_moment"`                       // 退货到达履约中心或卖家收到退货的日期。
+	CancelledWithCompensationMoment string `json:"cancelled_with_compensation_moment"` // 向卖家补偿退货的日期。
+	ReturnDate                      string `json:"return_date"`                        // 买家退货的日期。
+}
+
+// 存储费用。
+type SellerReturnsv1MoneyStorage struct {
+	Price        float64 `json:"price"`         // 存储费用。
+	CurrencyCode string  `json:"currency_code"` // 货币。
+}
+
+// 商品价格。
+type SellerReturnsv1MoneyProduct struct {
+	CurrencyCode string  `json:"currency_code"` // 货币。
+	Price        float64 `json:"price"`         // 商品价格。
 }
 
 // 商品信息。
@@ -373,62 +189,43 @@ const (
 )
 
 type V2Product struct {
-	Name         string       `json:"name"`          // 商品名称。
 	OfferID      string       `json:"offer_id"`      // 卖家系统中的商品标识符 —— 货号。
 	CurrencyCode CurrencyCode `json:"currency_code"` // 您的价格所使用的货币。与您在个人中心中设置的货币相匹配。 可能的值: - `RUB` — 俄罗斯卢布, - `BYN` — 白俄罗斯卢布, - `KZT` — 坚戈, - `EUR` — 欧元, - `USD` — 美元, - `CNY` ...
 	Price        int32        `json:"price"`         // 商品价格。
 	SKU          int64        `json:"sku"`           // Ozon系统中的商品标识符 —— SKU。
+	Name         string       `json:"name"`          // 商品名称。
 }
 
-// 退货原因信息。
-type RfbsGetV2ResponseReturnReason struct {
-	ID       int32  `json:"id"`        // 原因的标识符。
-	IsDefect bool   `json:"is_defect"` // 指示商品是否有瑕疵。
-	Name     string `json:"name"`      // 原因的描述。
+type V1GetReturnsListRequest struct {
+	Filter GetReturnsListRequestFilter `json:"filter"`
+	Limit  int32                       `json:"limit"`   // 加载的退货数量。
+	LastID int64                       `json:"last_id"` // 最后加载的退货ID。
 }
 
-// 申请信息。
-type RfbsGetResponseReturns struct {
-	ClientName              string                                  `json:"client_name"`             // 买家姓名。
-	Comment                 string                                  `json:"comment"`                 // 买家评论。
-	WarehouseID             int64                                   `json:"warehouse_id"`            // 仓库标识符。
-	PostingNumber           string                                  `json:"posting_number"`          // 货件编号。
-	RuPostTrackingNumber    string                                  `json:"ru_post_tracking_number"` // 跟踪号码。
-	RejectionReason         []RfbsGetV2ResponseRejectionReason      `json:"rejection_reason"`        // 申请被拒绝的原因的信息。
-	AvailableActions        []RfbsGetV2ResponseAvailableAction      `json:"available_actions"`       // 申请的可用操作的信息。
-	ClientPhoto             []string                                `json:"client_photo"`            // 商品照片链接。
-	ClientReturnMethodType  RfbsGetV2ResponseClientReturnMethodType `json:"client_return_method_type"`
-	CreatedAt               string                                  `json:"created_at"`   // 申请创建日期。
-	OrderNumber             string                                  `json:"order_number"` // 订单号。
-	Product                 V2Product                               `json:"product"`
-	RejectionComment        string                                  `json:"rejection_comment"` // 有关申请被拒绝的备注。
-	ReturnNumber            string                                  `json:"return_number"`     // 退货申请编号。
-	State                   V2ReturnsRfbsGetV2ResponseState         `json:"state"`
-	ReturnMethodDescription string                                  `json:"return_method_description"` // 商品退货方式。
-	ReturnReason            RfbsGetV2ResponseReturnReason           `json:"return_reason"`
+// 退货状态。
+type GetReturnsListResponseVisualStatus struct {
+	ID          int32  `json:"id"`           // 退货状态ID。
+	DisplayName string `json:"display_name"` // 退货状态名称。
+	SysName     string `json:"sys_name"`     // 退货状态的系统名称。
 }
 
-// 退货申请和退款状态。
-type V2ReturnsRfbsListV2ResponseState struct {
-	GroupState           string `json:"group_state"`             // 根据应用的筛选器的申请状态。
-	MoneyReturnStateName string `json:"money_return_state_name"` // 退款状态。
-	State                string `json:"state"`                   // 申请状态。
-	StateName            string `json:"state_name"`              // 退货申请状态的俄语名称。
+// 退货状态信息。
+type GetReturnsListResponseVisual struct {
+	Status       GetReturnsListResponseVisualStatus `json:"status"`
+	ChangeMoment string                             `json:"change_moment"` // 退货状态的变更日期。
 }
 
-// 申请信息。
-type RfbsListResponseReturns struct {
-	ReturnNumber  string                           `json:"return_number"` // 退货申请编号。
-	State         V2ReturnsRfbsListV2ResponseState `json:"state"`
-	ClientName    string                           `json:"client_name"`    // 买家姓名。
-	CreatedAt     string                           `json:"created_at"`     // 创建日期。
-	OrderNumber   string                           `json:"order_number"`   // 订单号。
-	PostingNumber string                           `json:"posting_number"` // 货件编号。
-	Product       V2Product                        `json:"product"`
-	ReturnID      int64                            `json:"return_id"` // 退货申请的标识符。
+// 佣金费用。
+type SellerReturnsv1MoneyCommission struct {
+	CurrencyCode string  `json:"currency_code"` // 货币。
+	Price        float64 `json:"price"`         // 佣金费用。
 }
 
-type V1Empty any
+// 申请创建期间。
+type CreatedAt struct {
+	From string `json:"from"` // 开始日期。
+	To   string `json:"to"`   // 结束日期。
+}
 
 // 筛选器。
 // GroupState values
@@ -445,10 +242,10 @@ const (
 )
 
 type V2ReturnsRfbsFilter struct {
+	GroupState    []string  `json:"group_state"` // 根据申请状态筛选: - `All` — 所有申请。 - `New` — 新申请。 - `Delivering` — 在途中。 - `Checkout` — 审核中。 - `Arbitration` — 具争议。 - `Approved` —...
+	CreatedAt     CreatedAt `json:"created_at"`
 	OfferID       string    `json:"offer_id"`       // 卖家系统中的商品标识符 —— 货号。
 	PostingNumber string    `json:"posting_number"` // 货件编号。
-	GroupState    []string  `json:"group_state"`    // 根据申请状态筛选: - `All` — 所有申请。 - `New` — 新申请。 - `Delivering` — 在途中。 - `Checkout` — 审核中。 - `Arbitration` — 具争议。 - `Approved` —...
-	CreatedAt     CreatedAt `json:"created_at"`
 }
 
 type V2ReturnsRfbsListRequest struct {
@@ -457,19 +254,246 @@ type V2ReturnsRfbsListRequest struct {
 	Limit  int32               `json:"limit"`   // 响应中的值数量。
 }
 
-type V2ReturnsRfbsReceiveReturnRequest struct {
-	ReturnID int64 `json:"return_id"` // 退货申请的标识符。
+// 申请信息。
+type RfbsListResponseReturns struct {
+	ClientName    string                           `json:"client_name"`    // 买家姓名。
+	CreatedAt     string                           `json:"created_at"`     // 创建日期。
+	OrderNumber   string                           `json:"order_number"`   // 订单号。
+	PostingNumber string                           `json:"posting_number"` // 货件编号。
+	Product       V2Product                        `json:"product"`
+	ReturnID      int64                            `json:"return_id"`     // 退货申请的标识符。
+	ReturnNumber  string                           `json:"return_number"` // 退货申请编号。
+	State         V2ReturnsRfbsListV2ResponseState `json:"state"`
+}
+
+type V2ReturnsRfbsListResponse struct {
+	Returns RfbsListResponseReturns `json:"returns"`
+}
+
+type RfbsGetV2ResponseRejectionReason struct {
+	Hint              string `json:"hint"`                // 有关退货的进一步操作的提示。
+	ID                int32  `json:"id"`                  // 原因的标识符。
+	IsCommentRequired bool   `json:"is_comment_required"` // 指示是否需要备注。
+	Name              string `json:"name"`                // 原因的描述。
+}
+
+// 退货原因信息。
+type RfbsGetV2ResponseReturnReason struct {
+	ID       int32  `json:"id"`        // 原因的标识符。
+	IsDefect bool   `json:"is_defect"` // 指示商品是否有瑕疵。
+	Name     string `json:"name"`      // 原因的描述。
+}
+
+// 按取消申请状态筛选： - `ALL` — 所有状态的申请， - `ON_APPROVAL` — 审核中申请， - `APPROVED` — 已确认申请， - `REJECTED` — 已拒绝申请。
+type V2CancellationStateEnumFilters string
+
+// 其他信息。
+type GetReturnsListResponseAdditionalInfo struct {
+	IsOpened      bool `json:"is_opened"`       // 如果退货已开封，显示`true`。
+	IsSuperEconom bool `json:"is_super_econom"` // 如果退货为"超级经济"商品，显示`true`。
+}
+
+type GetReturnsListResponseExemplar struct {
+	ID int64 `json:"id"` // 实例ID。
+}
+
+// 销毁费用。
+type SellerReturnsv1MoneyUtilization struct {
+	CurrencyCode string  `json:"currency_code"` // 货币。
+	Price        float64 `json:"price"`         // 销毁费用。
+}
+
+// 存储信息。
+type GetReturnsListResponseStorage struct {
+	UtilizationSum          SellerReturnsv1MoneyUtilization `json:"utilization_sum"`
+	UtilizationForecastDate string                          `json:"utilization_forecast_date"` // 预计销毁日期。
+	Sum                     SellerReturnsv1MoneyStorage     `json:"sum"`
+	TarifficationFirstDate  string                          `json:"tariffication_first_date"` // 计算存储费用的第一天。
+	TarifficationStartDate  string                          `json:"tariffication_start_date"` // 计算存储费用的开始日期。
+	ArrivedMoment           string                          `json:"arrived_moment"`           // 退货准备交付给卖家的日期。
+	Days                    int64                           `json:"days"`                     // 退货等待交付给卖家的天数。
+}
+
+// 不含佣金的商品价格。
+type SellerReturnsv1MoneyWithoutCommission struct {
+	CurrencyCode string  `json:"currency_code"` // 货币。
+	Price        float64 `json:"price"`         // 不含佣金的商品价格。
+}
+
+// 商品信息。
+type GetReturnsListResponseProduct struct {
+	Commission             SellerReturnsv1MoneyCommission        `json:"commission"`
+	Quantity               int32                                 `json:"quantity"` // 产品数量。
+	SKU                    int64                                 `json:"sku"`      // 商品在Ozon系统中的ID（SKU）。
+	OfferID                string                                `json:"offer_id"` // 卖家系统中的商品标识符是商品货号。
+	Name                   string                                `json:"name"`     // 商品名称。
+	Price                  SellerReturnsv1MoneyProduct           `json:"price"`
+	PriceWithoutCommission SellerReturnsv1MoneyWithoutCommission `json:"price_without_commission"`
+	CommissionPercent      float64                               `json:"commission_percent"` // 佣金比例。
+}
+
+// 赔偿状态。
+// SysName values
+type SysName string
+
+const (
+	SysNameSent               SysName = "Sent"               // 已发送；
+	SysNameReceived           SysName = "Received"           // 已收到；
+	SysNameCanceled           SysName = "Canceled"           // 已取消；
+	SysNameDecompensationSent SysName = "DecompensationSent" // 已进行赔偿返还。
+)
+
+type GetReturnsListResponseCompensationStatus struct {
+	ID          int32   `json:"id"`           // 状态标识符。
+	DisplayName string  `json:"display_name"` // 状态名称： - “发送进行赔偿”， - “您已收到赔偿”， - "赔偿已取消"， - "已进行赔偿返还"。
+	SysName     SysName `json:"sys_name"`     // 状态的系统名称： - `Sent`——已发送； - `Received`——已收到； - `Canceled`——已取消； - `DecompensationSent`——已进行赔偿返还。
+}
+
+// 赔偿状态信息。
+type GetReturnsListResponseCompensation struct {
+	Status       GetReturnsListResponseCompensationStatus `json:"status"`
+	ChangeMoment string                                   `json:"change_moment"` // 赔偿状态的变更日期。
+}
+
+// 退货运往的仓库信息。
+type GetReturnsListResponsePlaceTarget struct {
+	ID      int64  `json:"id"`      // 仓库ID。
+	Name    string `json:"name"`    // 名称。
+	Address string `json:"address"` // 地址。
+}
+
+// 退货所在仓库的信息。
+type GetReturnsListResponsePlaceNow struct {
+	ID      int64  `json:"id"`      // 仓库ID。
+	Name    string `json:"name"`    // 名称。
+	Address string `json:"address"` // 地址。
+}
+
+// Type values
+type Type string
+
+const (
+	TypeCancellation  Type = "Cancellation"  // 取消订单（交货前）；
+	TypeFullReturn    Type = "FullReturn"    // 完全拒收（交货时）；
+	TypePartialReturn Type = "PartialReturn" // 部分拒收（交货时）；
+	TypeClientReturn  Type = "ClientReturn"  // 客户退货（交货后）；
+	TypeUnknown       Type = "Unknown"       // 技术退货。
+)
+
+// Schema values
+type Schema string
+
+const (
+	SchemaFBS Schema = "FBS"
+	SchemaFBO Schema = "FBO"
+)
+
+type GetReturnsListResponseReturnsItem struct {
+	Type               Type                                 `json:"type_"`  // 退货类型： `Cancellation` - 取消订单（交货前）； `FullReturn` - 完全拒收（交货时）； `PartialReturn` - 部分拒收（交货时）； `ClientReturn` - 客户退货（交货后）； `Un...
+	Schema             Schema                               `json:"schema"` // 退货方案： `FBS`； `FBO`。
+	Place              GetReturnsListResponsePlaceNow       `json:"place"`
+	AdditionalInfo     GetReturnsListResponseAdditionalInfo `json:"additional_info"`
+	SourceID           int64                                `json:"source_id"`   // 先前的退货ID。
+	ClearingID         int64                                `json:"clearing_id"` // 初始货件条形码。
+	Exemplars          []GetReturnsListResponseExemplar     `json:"exemplars"`   // 退货实例信息。
+	ID                 int64                                `json:"id"`          // 退货ID。
+	Storage            GetReturnsListResponseStorage        `json:"storage"`
+	Product            GetReturnsListResponseProduct        `json:"product"`
+	ReturnClearingID   int64                                `json:"return_clearing_id"` // 初始货件的退货条形码。
+	CompensationStatus GetReturnsListResponseCompensation   `json:"compensation_status"`
+	CompanyID          int64                                `json:"company_id"` // 卖家ID。
+	OrderID            int64                                `json:"order_id"`   // 订单ID。
+	Logistic           GetReturnsListResponseLogistic       `json:"logistic"`
+	Visual             GetReturnsListResponseVisual         `json:"visual"`
+	ReturnReasonName   string                               `json:"return_reason_name"` // 退货或取消的原因。
+	OrderNumber        string                               `json:"order_number"`       // 订单编号。
+	TargetPlace        GetReturnsListResponsePlaceTarget    `json:"target_place"`
+	PostingNumber      string                               `json:"posting_number"` // 货件编号。
+}
+
+type V1GetReturnsListResponse struct {
+	HasNext bool                                `json:"has_next"` // 如果卖家有其他退货，显示`true`。
+	Returns []GetReturnsListResponseReturnsItem `json:"returns"`  // 退货信息。
+}
+
+type V2ReturnsRfbsReturnMoneyRequest struct {
+	ReturnID         int64 `json:"return_id"`           // 退货申请的标识符。
+	ReturnForBackWay int64 `json:"return_for_back_way"` // 退还给买家的商品运费金额。
+}
+
+// RejectionReasonID values
+type RejectionReasonID string
+
+const (
+	RejectionReasonIDId1                    RejectionReasonID = "id: -1"
+	RejectionReasonIDId10                   RejectionReasonID = "id: -10"
+	RejectionReasonIDReturnsRejectionReason RejectionReasonID = "returns.rejection_reason"
+)
+
+// Comment values
+type Comment string
+
+const (
+	CommentId1  Comment = "id: -1"
+	CommentId10 Comment = "id: -10"
+)
+
+type V1ReturnsRfbsActionSetRequest struct {
+	Comment            Comment `json:"comment"`             // 卖家评论。 对于 `id: -1` 和 `id: -10`，备注为必填项。
+	CompensationAmount float64 `json:"compensation_amount"` // 赔偿金额。 对于 `id: 1020`，备注也为必填项。
+	ID                 int32   `json:"id"`                  // 操作标识符。 获取可用操作 `returns.available_actions` ，请使用方法 [/v2/returns/rfbs/get](#operation/RFBSReturnsAPI_ReturnsRfbsGetV2)。
+	RejectionReasonID  int32   `json:"rejection_reason_id"` // 取消原因的标识符。 对于 `id: -1` 和 `id: -10`，备注为必填项。 获取可用取消原因 `returns.rejection_reason`，请使用方法 [/v2/returns/rfbs/get](#operation/RF...
+	ReturnForBackWay   float64 `json:"return_for_back_way"` // 退还给买家的商品运费金额。 负值将被视为 `0`。
+	ReturnID           int64   `json:"return_id"`           // 退货申请的标识符。
+}
+
+// 过滤器。
+// CancellationInitiator values
+type CancellationInitiator string
+
+const (
+	CancellationInitiatorSeller   CancellationInitiator = "SELLER"   // 卖家，
+	CancellationInitiatorClient   CancellationInitiator = "CLIENT"   // 买家，
+	CancellationInitiatorOzon     CancellationInitiator = "OZON"     // Ozon，
+	CancellationInitiatorSystem   CancellationInitiator = "SYSTEM"   // 系统，
+	CancellationInitiatorDelivery CancellationInitiator = "DELIVERY" // 配送服务。
+)
+
+// State values
+type State string
+
+const (
+	StateALL        State = "ALL"         // 所有状态的申请，
+	StateONApproval State = "ON_APPROVAL" // 审核中申请，
+	StateApproved   State = "APPROVED"    // 已确认申请，
+	StateRejected   State = "REJECTED"    // 已拒绝申请。
+)
+
+type GetConditionalCancellationListV2RequestFilters struct {
+	CancellationInitiator []V2CancellationInitiatorEnum  `json:"cancellation_initiator"` // 取消发起人： - `SELLER` — 卖家， - `CLIENT` — 买家， - `OZON` — Ozon， - `SYSTEM` — 系统， - `DELIVERY` — 配送服务。
+	PostingNumber         []string                       `json:"posting_number"`         // 按货件编号筛选。
+	State                 V2CancellationStateEnumFilters `json:"state"`                  // 按取消申请状态筛选： - `ALL` — 所有状态的申请， - `ON_APPROVAL` — 审核中申请， - `APPROVED` — 已确认申请， - `REJECTED` — 已拒绝申请。
 }
 
 type V2ReturnsRfbsRejectRequest struct {
-	ReturnID          int64  `json:"return_id"`           // 退货申请的标识符。
 	Comment           string `json:"comment"`             // 备注。 如果 [/v2/returns/rfbs/get](#operation/RFBSReturnsAPI_ReturnsRfbsGetV2) 方法的响应中 `rejection_reason.is_comment_required` ...
 	RejectionReasonID int64  `json:"rejection_reason_id"` // 取消原因的标识符。 从 [/v2/returns/rfbs/get](#operation/RFBSReturnsAPI_ReturnsRfbsGetV2) 响应中获取的原因列表中传递标识符，参数为 `rejection_reason`。
+	ReturnID          int64  `json:"return_id"`           // 退货申请的标识符。
 }
 
-// 附加信息。
-type GetConditionalCancellationListV2RequestWith struct {
-	Counter bool `json:"counter"` // 表示需要在响应中返回处于 `ON_APPROVAL` 状态的申请数量的标志。
+// 退货方式信息。
+type RfbsGetV2ResponseClientReturnMethodType struct {
+	Name string `json:"name"` // 名称。
+	ID   int32  `json:"id"`   // 标识符。
+}
+
+type V2ReturnsRfbsCompensateRequest struct {
+	ReturnID           int64  `json:"return_id"`           // 退货申请的标识符。
+	CompensationAmount string `json:"compensation_amount"` // 赔偿金额。
+}
+
+type V2ReturnsRfbsReceiveReturnRequest struct {
+	ReturnID int64 `json:"return_id"` // 退货申请的标识符。
 }
 
 type V2GetConditionalCancellationListV2Request struct {
@@ -479,63 +503,39 @@ type V2GetConditionalCancellationListV2Request struct {
 	With    GetConditionalCancellationListV2RequestWith    `json:"with"`
 }
 
-// 取消原因。
-type GetConditionalCancellationListV2ResponseCancellationReason struct {
-	ID   int64  `json:"id"`   // 取消原因标识符。
-	Name string `json:"name"` // 取消原因名称。
+type V1Empty any
+
+// 退货状态信息。
+type V2ReturnsRfbsGetV2ResponseState struct {
+	State     string `json:"state"`      // 状态。
+	StateName string `json:"state_name"` // 状态的俄语名称。
 }
 
-type V1GetReturnsListResponse struct {
-	Returns []GetReturnsListResponseReturnsItem `json:"returns"`  // 退货信息。
-	HasNext bool                                `json:"has_next"` // 如果卖家有其他退货，显示`true`。
-}
-
-// 申请状态： - `ON_APPROVAL` — 审核中， - `APPROVED` — 已确认， - `REJECTED` — 已拒绝。
-type V2CancellationStateEnum string
-
-// 取消申请的状态。
-type GetConditionalCancellationListV2ResponseState struct {
-	Name  string                  `json:"name"` // 状态名称。
-	State V2CancellationStateEnum `json:"state"`
-	ID    int64                   `json:"id"` // 状态标识符。
-}
-
-type GetConditionalCancellationListV2ResponseResult struct {
-	CancelledAt               string                                                     `json:"cancelled_at"`                // 取消申请的创建日期。
-	OrderDate                 string                                                     `json:"order_date"`                  // 订单的创建日期。
-	ApproveComment            string                                                     `json:"approve_comment"`             // 在确认或拒绝取消申请时填写的备注。
-	ApproveDate               string                                                     `json:"approve_date"`                // 取消申请确认或拒绝的日期。
-	AutoApproveDate           string                                                     `json:"auto_approve_date"`           // 申请将在此日期后自动确认。
-	CancellationReasonMessage string                                                     `json:"cancellation_reason_message"` // 取消申请中由取消发起人手动填写的备注。
-	PostingNumber             string                                                     `json:"posting_number"`              // 货件编号。
-	SourceID                  int64                                                      `json:"source_id"`                   // 上一次取消申请的标识符。 用于保持向后兼容性。
-	State                     GetConditionalCancellationListV2ResponseState              `json:"state"`
-	TPLIntegrationType        string                                                     `json:"tpl_integration_type"` // 与配送服务的集成类型。
-	CancellationID            int64                                                      `json:"cancellation_id"`      // 取消申请标识符。
-	CancellationInitiator     V2CancellationInitiatorEnum                                `json:"cancellation_initiator"`
-	CancellationReason        GetConditionalCancellationListV2ResponseCancellationReason `json:"cancellation_reason"`
-}
-
-type V2GetConditionalCancellationListV2Response struct {
-	Result  []GetConditionalCancellationListV2ResponseResult `json:"result"`  // 取消申请的详细信息。
-	Counter int64                                            `json:"counter"` // `ON_APPROVAL` 状态申请的计数器。
-	LastID  int64                                            `json:"last_id"` // 页面上最后一个值的标识符。 要获取后续值，请指定上一次请求响应中的 `last_id`。
+// 申请信息。
+type RfbsGetResponseReturns struct {
+	AvailableActions        []RfbsGetV2ResponseAvailableAction      `json:"available_actions"`         // 申请的可用操作的信息。
+	ClientName              string                                  `json:"client_name"`               // 买家姓名。
+	OrderNumber             string                                  `json:"order_number"`              // 订单号。
+	PostingNumber           string                                  `json:"posting_number"`            // 货件编号。
+	ReturnMethodDescription string                                  `json:"return_method_description"` // 商品退货方式。
+	ClientReturnMethodType  RfbsGetV2ResponseClientReturnMethodType `json:"client_return_method_type"`
+	Comment                 string                                  `json:"comment"`                 // 买家评论。
+	ReturnNumber            string                                  `json:"return_number"`           // 退货申请编号。
+	RuPostTrackingNumber    string                                  `json:"ru_post_tracking_number"` // 跟踪号码。
+	State                   V2ReturnsRfbsGetV2ResponseState         `json:"state"`
+	ReturnReason            RfbsGetV2ResponseReturnReason           `json:"return_reason"`
+	ClientPhoto             []string                                `json:"client_photo"` // 商品照片链接。
+	CreatedAt               string                                  `json:"created_at"`   // 申请创建日期。
+	Product                 V2Product                               `json:"product"`
+	RejectionComment        string                                  `json:"rejection_comment"` // 有关申请被拒绝的备注。
+	RejectionReason         []RfbsGetV2ResponseRejectionReason      `json:"rejection_reason"`  // 申请被拒绝的原因的信息。
+	WarehouseID             int64                                   `json:"warehouse_id"`      // 仓库标识符。
 }
 
 type V2ReturnsRfbsGetResponse struct {
 	Returns RfbsGetResponseReturns `json:"returns"`
 }
 
-type V2ReturnsRfbsListResponse struct {
-	Returns RfbsListResponseReturns `json:"returns"`
-}
-
-type V2ReturnsRfbsReturnMoneyRequest struct {
-	ReturnID         int64 `json:"return_id"`           // 退货申请的标识符。
-	ReturnForBackWay int64 `json:"return_for_back_way"` // 退还给买家的商品运费金额。
-}
-
-type V2ReturnsRfbsCompensateRequest struct {
-	CompensationAmount string `json:"compensation_amount"` // 赔偿金额。
-	ReturnID           int64  `json:"return_id"`           // 退货申请的标识符。
+type V2ReturnsRfbsGetRequest struct {
+	ReturnID int64 `json:"return_id"` // 退货申请标识符。通过方法 [/v2/returns/rfbs/list](#operation/RFBSReturnsAPI_ReturnsRfbsListV2) 获取。
 }

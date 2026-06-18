@@ -7,10 +7,10 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 聊天清单
-func (s *Service) ChatListV3(ctx context.Context, req *V3ChatList) (*V3ChatListResponse, error) {
-	var resp V3ChatListResponse
-	err := s.Client.Post(ctx, "/v3/chat/list", req, &resp)
+// 发送信息
+func (s *Service) ChatSendMessage(ctx context.Context, req *ChatSendMessageRequest) (*ChatSendMessageResponse, error) {
+	var resp ChatSendMessageResponse
+	err := s.Client.Post(ctx, "/v1/chat/send/message", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -21,16 +21,6 @@ func (s *Service) ChatListV3(ctx context.Context, req *V3ChatList) (*V3ChatListR
 func (s *Service) ChatSendFile(ctx context.Context, req *ChatSendFileRequest) (*ChatSendFileResponse, error) {
 	var resp ChatSendFileResponse
 	err := s.Client.Post(ctx, "/v1/chat/send/file", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 聊天历史记录
-func (s *Service) ChatHistoryV3(ctx context.Context, req *V3ChatHistoryRequest) (*V3ChatHistoryResponse, error) {
-	var resp V3ChatHistoryResponse
-	err := s.Client.Post(ctx, "/v3/chat/history", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -58,10 +48,20 @@ func (s *Service) ChatStart(ctx context.Context, req *ChatStartRequest) (*ChatSt
 	return &resp, nil
 }
 
-// 发送信息
-func (s *Service) ChatSendMessage(ctx context.Context, req *ChatSendMessageRequest) (*ChatSendMessageResponse, error) {
-	var resp ChatSendMessageResponse
-	err := s.Client.Post(ctx, "/v1/chat/send/message", req, &resp)
+// 聊天历史记录
+func (s *Service) ChatHistoryV3(ctx context.Context, req *V3ChatHistoryRequest) (*V3ChatHistoryResponse, error) {
+	var resp V3ChatHistoryResponse
+	err := s.Client.Post(ctx, "/v3/chat/history", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 聊天清单
+func (s *Service) ChatListV3(ctx context.Context, req *V3ChatList) (*V3ChatListResponse, error) {
+	var resp V3ChatListResponse
+	err := s.Client.Post(ctx, "/v3/chat/list", req, &resp)
 	if err != nil {
 		return nil, err
 	}

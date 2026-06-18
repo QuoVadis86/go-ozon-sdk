@@ -97,14 +97,6 @@ type Schema struct {
 	Nullable    bool                   `json:"nullable"`
 }
 
-type ReqBody struct {
-	Content map[string]struct {
-		Schema struct {
-			Ref string `json:"$ref"`
-		} `json:"schema"`
-	} `json:"content"`
-}
-
 // resolveFieldType determines the Go type for a property, handling enums, arrays, etc.
 func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas map[string]Schema) string {
 	ref, _ := p["$ref"].(string)
@@ -364,7 +356,7 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 	if s.Description != "" {
 		*out = append(*out, fmt.Sprintf("// %s", sanitizeComment(s.Description)))
 	}
-	if s.Properties == nil || len(s.Properties) == 0 {
+	if len(s.Properties) == 0 {
 		if allGeneratedTypes[name] {
 			*out = append(*out, "")
 			return
@@ -389,10 +381,6 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			*out = append(*out, fmt.Sprintf("type %s any", name))
 		}
 		*out = append(*out, "")
-		return
-	}
-
-	if s.Properties == nil {
 		return
 	}
 
@@ -530,7 +518,7 @@ func main() {
 	depOf := map[string]map[string]bool{}
 	for sname, s := range schemas {
 		depOf[sname] = map[string]bool{}
-		if s.Properties == nil {
+		if len(s.Properties) == 0 {
 			continue
 		}
 		for _, pv := range s.Properties {
