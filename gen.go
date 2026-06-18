@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -824,4 +825,7 @@ func main() {
 		os.WriteFile(dp+"/service_test.go", []byte(strings.Join(tlines, "\n")), 0644)
 		fmt.Printf("%s: %d methods, %d types\n", dir, len(methods), typeCount)
 	}
+
+	// Format all generated files
+	exec.Command("go", "fmt", "./...").Run()
 }
