@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestDeliveryMethodListV2(t *testing.T) {
-	handler := transport.MockHandler(200, V2DeliveryMethodListV2Response{})
+func TestUnarchiveWarehouseFBS(t *testing.T) {
+	handler := transport.MockHandler(200, V1UnarchiveWarehouseFBSResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.DeliveryMethodListV2(ctx, &V2DeliveryMethodListV2Request{})
+	resp, err := svc.UnarchiveWarehouseFBS(ctx, &V1UnarchiveWarehouseFBSRequest{})
 	if err != nil {
-		t.Fatalf("DeliveryMethodListV2() error: %v", err)
+		t.Fatalf("UnarchiveWarehouseFBS() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("DeliveryMethodListV2() returned nil")
+		t.Fatal("UnarchiveWarehouseFBS() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.DeliveryMethodListV2(ctx, &V2DeliveryMethodListV2Request{})
+	_, err := svc.UnarchiveWarehouseFBS(ctx, &V1UnarchiveWarehouseFBSRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

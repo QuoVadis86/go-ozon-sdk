@@ -11,8 +11,8 @@ type PolygonBindRequestpolygon struct {
 
 // 仓库位置。
 type PolygonBindRequestwhLocation struct {
-	Lon string `json:"lon"` // 仓库位置的地理经度。
 	Lat string `json:"lat"` // 仓库位置的地理纬度。
+	Lon string `json:"lon"` // 仓库位置的地理经度。
 }
 
 type Polygonv1PolygonBindRequest struct {

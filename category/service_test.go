@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestGetTree(t *testing.T) {
-	handler := transport.MockHandler(200, V1GetTreeResponse{})
+func TestGetAttributes(t *testing.T) {
+	handler := transport.MockHandler(200, V1GetAttributesResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.GetTree(ctx, &V1GetTreeRequest{})
+	resp, err := svc.GetAttributes(ctx, &V1GetAttributesRequest{})
 	if err != nil {
-		t.Fatalf("GetTree() error: %v", err)
+		t.Fatalf("GetAttributes() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("GetTree() returned nil")
+		t.Fatal("GetAttributes() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.GetTree(ctx, &V1GetTreeRequest{})
+	_, err := svc.GetAttributes(ctx, &V1GetAttributesRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

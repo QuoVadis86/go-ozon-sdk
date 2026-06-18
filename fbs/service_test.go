@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestPostingFbsUnfulfilledList(t *testing.T) {
-	handler := transport.MockHandler(200, PostingV4PostingFbsUnfulfilledListResponse{})
+func TestCarriageCreate(t *testing.T) {
+	handler := transport.MockHandler(200, V1CarriageCreateResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.PostingFbsUnfulfilledList(ctx, &PostingV4PostingFbsUnfulfilledListRequest{})
+	resp, err := svc.CarriageCreate(ctx, &V1CarriageCreateRequest{})
 	if err != nil {
-		t.Fatalf("PostingFbsUnfulfilledList() error: %v", err)
+		t.Fatalf("CarriageCreate() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("PostingFbsUnfulfilledList() returned nil")
+		t.Fatal("CarriageCreate() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.PostingFbsUnfulfilledList(ctx, &PostingV4PostingFbsUnfulfilledListRequest{})
+	_, err := svc.CarriageCreate(ctx, &V1CarriageCreateRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

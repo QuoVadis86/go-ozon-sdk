@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestActionsAutoAddProductsDelete(t *testing.T) {
-	handler := transport.MockHandler(200, ActionsV1ActionsAutoAddProductsDeleteResponse{})
+func TestTaskDecline(t *testing.T) {
+	handler := transport.MockHandler(200, V1ApproveDeclineDiscountTasksResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.ActionsAutoAddProductsDelete(ctx, &ActionsV1ActionsAutoAddProductsDeleteRequest{})
+	resp, err := svc.TaskDecline(ctx, &V1DeclineDiscountTasksRequest{})
 	if err != nil {
-		t.Fatalf("ActionsAutoAddProductsDelete() error: %v", err)
+		t.Fatalf("TaskDecline() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("ActionsAutoAddProductsDelete() returned nil")
+		t.Fatal("TaskDecline() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.ActionsAutoAddProductsDelete(ctx, &ActionsV1ActionsAutoAddProductsDeleteRequest{})
+	_, err := svc.TaskDecline(ctx, &V1DeclineDiscountTasksRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

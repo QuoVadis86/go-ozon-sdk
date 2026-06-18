@@ -216,8 +216,6 @@ func sanitizeComment(s string) string {
 
 var enumRe = regexp.MustCompile("`([^`]+)`")
 
-var descRe = regexp.MustCompile("`([^`]+)`(?:\\s*[-–—]+\\s*([^\n\r;]*))?")
-
 // extractEnumValues parses field description for inline enum values like:
 // - `value` — description
 // Returns deduplicated non-boolean string values.
@@ -227,20 +225,41 @@ func extractEnumValues(desc string) []string {
 }
 
 // extractEnumValuesWithDesc returns values and their descriptions.
+// Parses lines like: "- `value` — description" or "- `value`--description"
+// Only matches values on lines that START with a dash/asterisk/bullet, not inline backtick mentions.
 func extractEnumValuesWithDesc(desc string) ([]string, []string) {
 	if desc == "" {
-		return nil, nil
-	}
-	matches := descRe.FindAllStringSubmatch(desc, -1)
-	if len(matches) < 2 {
 		return nil, nil
 	}
 	boolSet := map[string]bool{"true": true, "false": true, "0": true, "1": true, "yes": true, "no": true}
 	seen := map[string]bool{}
 	var vals []string
 	var valDescs []string
-	for _, m := range matches {
-		v := strings.TrimSpace(m[1])
+
+	for _, line := range strings.Split(desc, "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		// Must start with a list marker (dash, asterisk, bullet)
+		if !strings.HasPrefix(line, "-") && !strings.HasPrefix(line, "*") && !strings.HasPrefix(line, "–") && !strings.HasPrefix(line, "—") {
+			continue
+		}
+		// Remove the leading list marker and whitespace
+		rest := strings.TrimLeft(line, "-–—* \t")
+		// Find backtick-delimited value at the start of the rest
+		if !strings.HasPrefix(rest, "`") {
+			continue
+		}
+		rest = rest[1:] // skip opening backtick
+		endIdx := strings.Index(rest, "`")
+		if endIdx < 0 {
+			continue
+		}
+		v := rest[:endIdx]
+		rest = rest[endIdx+1:] // skip closing backtick
+
+		v = strings.TrimSpace(v)
 		if v == "" || boolSet[strings.ToLower(v)] {
 			continue
 		}
@@ -249,9 +268,27 @@ func extractEnumValuesWithDesc(desc string) ([]string, []string) {
 		}
 		seen[v] = true
 		vals = append(vals, v)
-		d := strings.TrimSpace(m[2])
+
+		// Extract description after the value (after separator like — or -)
+		rest = strings.TrimSpace(rest)
+		d := ""
+		if len(rest) > 0 {
+			// Skip separator characters (—, –, -)
+			sepLen := 0
+			for _, r := range rest {
+				if r == '—' || r == '–' || r == '-' || r == ' ' {
+					sepLen += len(string(r))
+				} else {
+					break
+				}
+			}
+			d = strings.TrimSpace(rest[sepLen:])
+			// Remove trailing punctuation
+			d = strings.TrimRight(d, "。.;;,， ")
+		}
 		valDescs = append(valDescs, d)
 	}
+
 	if len(vals) < 2 {
 		return nil, nil
 	}

@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestGetRealizationByDayReportV1(t *testing.T) {
-	handler := transport.MockHandler(200, GetRealizationReportByDayResponse{})
+func TestAnalyticsGetData(t *testing.T) {
+	handler := transport.MockHandler(200, AnalyticsAnalyticsGetDataResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
+	resp, err := svc.AnalyticsGetData(ctx, &AnalyticsAnalyticsGetDataRequest{})
 	if err != nil {
-		t.Fatalf("GetRealizationByDayReportV1() error: %v", err)
+		t.Fatalf("AnalyticsGetData() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("GetRealizationByDayReportV1() returned nil")
+		t.Fatal("AnalyticsGetData() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.GetRealizationByDayReportV1(ctx, &V1GetRealizationReportByDayRequest{})
+	_, err := svc.AnalyticsGetData(ctx, &AnalyticsAnalyticsGetDataRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

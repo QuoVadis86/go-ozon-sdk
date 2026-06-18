@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestReturnsRfbsListV2(t *testing.T) {
-	handler := transport.MockHandler(200, V2ReturnsRfbsListResponse{})
+func TestReturnsRfbsGetV2(t *testing.T) {
+	handler := transport.MockHandler(200, V2ReturnsRfbsGetResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.ReturnsRfbsListV2(ctx, &V2ReturnsRfbsListRequest{})
+	resp, err := svc.ReturnsRfbsGetV2(ctx, &V2ReturnsRfbsGetRequest{})
 	if err != nil {
-		t.Fatalf("ReturnsRfbsListV2() error: %v", err)
+		t.Fatalf("ReturnsRfbsGetV2() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("ReturnsRfbsListV2() returned nil")
+		t.Fatal("ReturnsRfbsGetV2() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.ReturnsRfbsListV2(ctx, &V2ReturnsRfbsListRequest{})
+	_, err := svc.ReturnsRfbsGetV2(ctx, &V2ReturnsRfbsGetRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

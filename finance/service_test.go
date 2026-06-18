@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFinanceTransactionListV3(t *testing.T) {
-	handler := transport.MockHandler(200, V3FinanceTransactionListV3Response{})
+func TestGetDecompensationReport(t *testing.T) {
+	handler := transport.MockHandler(200, CreateReportResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FinanceTransactionListV3(ctx, &V3FinanceTransactionListV3Request{})
+	resp, err := svc.GetDecompensationReport(ctx, &V1GetDecompensationReportRequest{})
 	if err != nil {
-		t.Fatalf("FinanceTransactionListV3() error: %v", err)
+		t.Fatalf("GetDecompensationReport() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FinanceTransactionListV3() returned nil")
+		t.Fatal("GetDecompensationReport() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FinanceTransactionListV3(ctx, &V3FinanceTransactionListV3Request{})
+	_, err := svc.GetDecompensationReport(ctx, &V1GetDecompensationReportRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

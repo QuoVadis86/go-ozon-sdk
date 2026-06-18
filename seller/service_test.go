@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestRolesByToken(t *testing.T) {
-	handler := transport.MockHandler(200, V1RolesByTokenResponse{})
+func TestSellerOzonLogisticsInfo(t *testing.T) {
+	handler := transport.MockHandler(200, V1SellerOzonLogisticsInfoResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.RolesByToken(ctx)
+	resp, err := svc.SellerOzonLogisticsInfo(ctx)
 	if err != nil {
-		t.Fatalf("RolesByToken() error: %v", err)
+		t.Fatalf("SellerOzonLogisticsInfo() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("RolesByToken() returned nil")
+		t.Fatal("SellerOzonLogisticsInfo() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.RolesByToken(ctx)
+	_, err := svc.SellerOzonLogisticsInfo(ctx)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

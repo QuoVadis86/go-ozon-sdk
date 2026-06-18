@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbsPostingProductExemplarStatusV5(t *testing.T) {
-	handler := transport.MockHandler(200, V5FbsPostingProductExemplarStatusV5Response{})
+func TestFbsPostingProductExemplarCreateOrGetV6(t *testing.T) {
+	handler := transport.MockHandler(200, V6FbsPostingProductExemplarCreateOrGetV6Response{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbsPostingProductExemplarStatusV5(ctx, &V5FbsPostingProductExemplarStatusV5Request{})
+	resp, err := svc.FbsPostingProductExemplarCreateOrGetV6(ctx, &V6FbsPostingProductExemplarCreateOrGetV6Request{})
 	if err != nil {
-		t.Fatalf("FbsPostingProductExemplarStatusV5() error: %v", err)
+		t.Fatalf("FbsPostingProductExemplarCreateOrGetV6() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbsPostingProductExemplarStatusV5() returned nil")
+		t.Fatal("FbsPostingProductExemplarCreateOrGetV6() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbsPostingProductExemplarStatusV5(ctx, &V5FbsPostingProductExemplarStatusV5Request{})
+	_, err := svc.FbsPostingProductExemplarCreateOrGetV6(ctx, &V6FbsPostingProductExemplarCreateOrGetV6Request{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

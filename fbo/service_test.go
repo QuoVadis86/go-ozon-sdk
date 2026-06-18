@@ -8,17 +8,17 @@ import (
 
 var ctx = context.Background()
 
-func TestFbpCreateLabel(t *testing.T) {
-	handler := transport.MockHandler(200, V1FbpCreateLabelResponse{})
+func TestFbpDraftDropOffProductValidate(t *testing.T) {
+	handler := transport.MockHandler(200, V1FbpDraftDropOffProductValidateResponse{})
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	resp, err := svc.FbpCreateLabel(ctx, &V1FbpCreateLabelRequest{})
+	resp, err := svc.FbpDraftDropOffProductValidate(ctx, &V1FbpDraftDropOffProductValidateRequest{})
 	if err != nil {
-		t.Fatalf("FbpCreateLabel() error: %v", err)
+		t.Fatalf("FbpDraftDropOffProductValidate() error: %v", err)
 	}
 	if resp == nil {
-		t.Fatal("FbpCreateLabel() returned nil")
+		t.Fatal("FbpDraftDropOffProductValidate() returned nil")
 	}
 }
 
@@ -30,7 +30,7 @@ func TestAPIError(t *testing.T) {
 	cl, srv := transport.NewTestClient(handler)
 	defer srv.Close()
 	svc := &Service{Client: cl}
-	_, err := svc.FbpCreateLabel(ctx, &V1FbpCreateLabelRequest{})
+	_, err := svc.FbpDraftDropOffProductValidate(ctx, &V1FbpDraftDropOffProductValidateRequest{})
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
