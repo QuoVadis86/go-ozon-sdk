@@ -174,3 +174,23 @@ func (s *Service) FbsPostingProductExemplarValidateV5(ctx context.Context, req *
 	}
 	return &resp, nil
 }
+
+// 按标识符获取货件信息
+func (s *Service) GetFbpPosting(ctx context.Context, req *PostingV1GetFbpPostingRequest) (*PostingV1GetFbpPostingResponse, error) {
+	var resp PostingV1GetFbpPostingResponse
+	err := s.Client.Post(ctx, "/v1/posting/fbp/get", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取每订单商品销售报告
+func (s *Service) CreateCompanyFinanceRealizationPostingReport(ctx context.Context, req *ReportV1CreateCompanyFinanceRealizationPostingReportRequest) (*ReportV1CreateCompanyFinanceRealizationPostingReportResponse, error) {
+	var resp ReportV1CreateCompanyFinanceRealizationPostingReportResponse
+	err := s.Client.Post(ctx, "/v1/report/realization/posting/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}

@@ -18,10 +18,11 @@ func (s *Service) ProductUpdateAttributes(ctx context.Context, req *V1ProductUpd
 	return &resp, nil
 }
 
-// 获取商品特征描述
+// Deprecated: /v3/products/info/attributes 已从官方 API 下线, 请使用 GetProductAttributesV4 (POST /v4/product/info/attributes)。
+// 保留方法以兼容旧调用方, 实际请求转发到 /v4/product/info/attributes。
 func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
 	var resp V3GetProductAttributesV3Response
-	err := s.Client.Post(ctx, "/v3/products/info/attributes", req, &resp)
+	err := s.Client.Post(ctx, "/v4/product/info/attributes", req, &resp)
 	if err != nil {
 		return nil, err
 	}
