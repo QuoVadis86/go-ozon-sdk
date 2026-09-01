@@ -49,7 +49,7 @@ func (s *Service) CommentDelete(ctx context.Context, req *V1CommentDeleteRequest
 // 提问数量最多的商品
 func (s *Service) TopSku(ctx context.Context, req *V1QuestionTopSkuRequest) (*V1QuestionTopSkuResponse, error) {
 	var resp V1QuestionTopSkuResponse
-	err := s.Client.Post(ctx, "/v1/question/top_sku", req, &resp)
+	err := s.Client.Post(ctx, "/v1/question/top-sku", req, &resp)
 	if err != nil {
 		return nil, err
 	}

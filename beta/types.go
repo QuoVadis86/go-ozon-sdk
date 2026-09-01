@@ -790,3 +790,128 @@ type V2GetDiscountTaskListV2Request struct {
 	Limit  int64                                            `json:"limit"`   // 每页最大申请数量。
 	Status V2GetDiscountTaskListV2RequestDiscountTaskStatus `json:"status"`
 }
+
+// 网站上的商品价格。
+type MoneyMoneyCustomerPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 商品佣金。
+type MoneyMoneyComissions struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 计入促销活动后的商品价格，不包括由Ozon承担费用的促销活动。
+type MoneyMoneyFBPget struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+type PostingV1GetFbpPostingResponsePostingFinancialDataProductsActions struct {
+	ActionID        int64   `json:"action_id"`        // 促销活动标识符。
+	ActionType      string  `json:"action_type"`      // 促销活动类型。
+	DateFrom        string  `json:"date_from"`        // 促销活动开始日期。
+	DateTo          string  `json:"date_to"`          // 促销活动结束日期。
+	Description     string  `json:"description"`      // 促销活动名称。
+	DiscountPercent float64 `json:"discount_percent"` // 折扣百分比。
+	DiscountValue   float64 `json:"discount_value"`   // 折扣金额。
+}
+
+// 货件佣金。
+type PostingV1GetFbpPostingResponsePostingFinancialDataProductsPostingCommission struct {
+	Amount  float64 `json:"amount"`  // 金额。
+	Payout  float64 `json:"payout"`  // 付款。
+	Percent float64 `json:"percent"` // 佣金比例。
+}
+
+// 退货佣金。
+type PostingV1GetFbpPostingResponsePostingFinancialDataProductsReturnCommission struct {
+	Amount  float64 `json:"amount"`  // 金额。
+	Payout  float64 `json:"payout"`  // 付款。
+	Percent float64 `json:"percent"` // 佣金比例。
+}
+
+type PostingV1GetFbpPostingResponsePostingFinancialDataProducts struct {
+	Actions              []PostingV1GetFbpPostingResponsePostingFinancialDataProductsActions         `json:"actions"` // 促销活动列表。
+	CommissionsPrice     MoneyMoneyComissions                                                        `json:"commissions_price"`
+	CustomerPrice        MoneyMoneyCustomerPrice                                                     `json:"customer_price"`
+	OldPrice             float64                                                                     `json:"old_price"` // 折扣前的价格。商品卡上会以划线价显示。
+	PostingCommission    PostingV1GetFbpPostingResponsePostingFinancialDataProductsPostingCommission `json:"posting_commission"`
+	Quantity             int64                                                                       `json:"quantity"` // 货件中的商品数量。
+	ReturnCommission     PostingV1GetFbpPostingResponsePostingFinancialDataProductsReturnCommission  `json:"return_commission"`
+	SellerPrice          MoneyMoneySellerPrice                                                       `json:"seller_price"`
+	SKU                  int64                                                                       `json:"sku"`                    // 商品在Ozon系统中的标识符——SKU。
+	TotalDiscountPercent float64                                                                     `json:"total_discount_percent"` // 折扣百分比。
+	TotalDiscountValue   float64                                                                     `json:"total_discount_value"`   // 折扣金额。
+}
+
+// 分析数据。
+type PostingV1GetFbpPostingResponsePostingAnalyticsData struct {
+	City              string `json:"city"`                // 配送城市。
+	DeliveryDateBegin string `json:"delivery_date_begin"` // 配送开始日期和时间。
+	DeliveryDateEnd   string `json:"delivery_date_end"`   // 配送结束日期和时间。
+	DeliveryType      string `json:"delivery_type"`       // 配送方法。
+	Region            string `json:"region"`              // 配送地区。
+	WarehouseID       int64  `json:"warehouse_id"`        // 仓库标识符。
+}
+
+// 取消信息。
+type PostingV1GetFbpPostingResponsePostingCancellation struct {
+	CancelReason          string `json:"cancel_reason"`          // 取消原因。
+	CancelReasonID        int64  `json:"cancel_reason_id"`       // 货件取消原因标识符。
+	CancellationInitiator string `json:"cancellation_initiator"` // 取消发起人。
+	CancellationType      string `json:"cancellation_type"`      // 取消类型。
+}
+
+// 财务数据。
+type PostingV1GetFbpPostingResponsePostingFinancialData struct {
+	ClusterFrom    string                                                       `json:"cluster_from"`    // 订单发出地区代码。
+	ClusterTo      string                                                       `json:"cluster_to"`      // 订单配送地区代码。
+	DeliveryAmount float64                                                      `json:"delivery_amount"` // 配送费用。
+	Products       []PostingV1GetFbpPostingResponsePostingFinancialDataProducts `json:"products"`        // 订单中的商品列表。
+}
+
+type PostingV1GetFbpPostingResponsePostingProducts struct {
+	HasIMEI                bool             `json:"has_imei"` // 如果有IMEI，则为`true`。
+	MarketplaceSellerPrice MoneyMoneyFBPget `json:"marketplace_seller_price"`
+	Name                   string           `json:"name"`       // 商品名称。
+	OfferID                string           `json:"offer_id"`   // 商品在卖家系统中的标识符——货号。
+	Quantity               int32            `json:"quantity"`   // 商品数量。
+	SKU                    int64            `json:"sku"`        // 商品在Ozon系统中的标识符——SKU。
+	WeightMax              float64          `json:"weight_max"` // 单件商品最大重量。
+}
+
+// 货件信息。
+type PostingV1GetFbpPostingResponsePosting struct {
+	AnalyticsData PostingV1GetFbpPostingResponsePostingAnalyticsData `json:"analytics_data"`
+	Cancellation  PostingV1GetFbpPostingResponsePostingCancellation  `json:"cancellation"`
+	FinancialData PostingV1GetFbpPostingResponsePostingFinancialData `json:"financial_data"`
+	InProcessAt   string                                             `json:"in_process_at"`   // 货件开始处理的日期和时间。
+	OrderDate     string                                             `json:"order_date"`      // 订单的创建日期。
+	OrderID       int64                                              `json:"order_id"`        // 该货件所属订单的标识符。
+	OrderNumber   string                                             `json:"order_number"`    // 该货件所属订单的编号。
+	PostingNumber string                                             `json:"posting_number"`  // 货件标识符。
+	Products      []PostingV1GetFbpPostingResponsePostingProducts    `json:"products"`        // 货件中商品列表。
+	Status        int64                                              `json:"status"`          // 货件状态。
+	Substatus     string                                             `json:"substatus"`       // 货件子状态。
+	TPLProviderID int64                                              `json:"tpl_provider_id"` // 配送服务商标识符。
+}
+
+type PostingV1GetFbpPostingRequest struct {
+	PostingNumber string `json:"posting_number"` // 货件标识符。
+}
+
+type PostingV1GetFbpPostingResponse struct {
+	Posting PostingV1GetFbpPostingResponsePosting `json:"posting"`
+}
+
+type ReportV1CreateCompanyFinanceRealizationPostingReportRequest struct {
+	Month int32 `json:"month"` // 月份。
+	Year  int32 `json:"year"`  // 年份。
+}
+
+type ReportV1CreateCompanyFinanceRealizationPostingReportResponse struct {
+	Code string `json:"code"` // 报告的唯一标识符。使用方法[/v1/report/info](#operation/ReportAPI_ReportInfo)获取报告。
+}
