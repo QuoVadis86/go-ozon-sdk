@@ -6,7 +6,7 @@
 
 [📖 中文文档](README_CN.md)
 
-A Go client library for the [Ozon Seller API](https://docs.ozon.ru/api/seller/).  
+**go-ozon-sdk** is a Go client library for the [Ozon Seller API](https://docs.ozon.ru/api/seller/) — Ozon marketplace API for products, FBO/FBS orders, prices, stocks, warehouses, finance and reviews.  
 Covers **263 API endpoints** across **22 service modules** with **1180 generated types**.
 
 ## Features
