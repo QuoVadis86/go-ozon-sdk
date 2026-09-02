@@ -1,3 +1,12 @@
+// Package ozon provides a Go client for the Ozon Seller API
+// (Ozon marketplace API for sellers).
+//
+// Create a client with ozon.NewClient(clientID, apiKey, nil). Typed service
+// modules cover products, FBO/FBS orders, prices, stocks, warehouses,
+// finance, reviews and more:
+//
+//	cl := ozon.NewClient("id", "key", nil)
+//	resp, err := cl.Product.GetProductList(ctx, &product.V3GetProductListRequest{})
 package ozon
 
 import (
