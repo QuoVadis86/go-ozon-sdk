@@ -6,7 +6,7 @@
 
 [English Documentation](README.md)
 
-Ozon Seller API 的 Go 语言客户端库。  
+**go-ozon-sdk** 是 [Ozon Seller API](https://docs.ozon.ru/api/seller/) 的 Go 语言客户端库——俄罗斯电商平台 Ozon 的卖家 API，覆盖商品、FBO/FBS 订单、价格、库存、仓库、财务与评价。  
 覆盖 **263 个 API 端点**，**22 个服务模块**，**1180 个生成类型**。
 
 ## 特性
