@@ -1,0 +1,14 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Ozon Seller API Go SDK",
+  "description": "Go client for the Ozon Seller API covering 263 API endpoints across 22 service modules with 1180 generated types: products, FBO/FBS orders, prices, stocks, warehouses, finance, reviews.",
+  "folders": ["."],
+  "excludeFolders": ["origin"],
+  "excludeFiles": ["README_CN.md", "LICENSE", ".env.example", "gen.go", "integration_test.go"],
+  "rules": [
+    "Use context.Context for all API calls",
+    "Handle *transport.APIError for non-2xx responses via errors.As",
+    "Import sub-packages directly, e.g. github.com/QuoVadis86/go-ozon-sdk/product",
+    "Construct services with ozon.NewClient(clientID, apiKey, nil)"
+  ]
+}
