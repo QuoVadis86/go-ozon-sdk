@@ -570,6 +570,7 @@ type GetProductAttributesResponseImage struct {
 	Default  bool   `json:"default"`
 	FileName string `json:"file_name"`
 	Index    int64  `json:"index"`
+	URL      string `json:"url,omitempty"` // 图片条目为 URL 字符串时的链接。
 }
 
 type V4GetProductAttributesV4ResponseResult struct {
