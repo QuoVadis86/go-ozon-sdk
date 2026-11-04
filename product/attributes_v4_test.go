@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -73,6 +74,28 @@ func TestGetProductAttributesV4_DecodesResponseVariants(t *testing.T) {
 			}
 			if result.Images[0].Default != tt.wantImage.Default || result.Images[0].FileName != tt.wantImage.FileName || result.Images[0].Index != tt.wantImage.Index {
 				t.Errorf("image = %+v, want %+v", result.Images[0], tt.wantImage)
+			}
+		})
+	}
+}
+
+func TestGetProductAttributesV4Response_DecodesTotalVariants(t *testing.T) {
+	tests := []struct {
+		name string
+		body string
+	}{
+		{name: "numeric total", body: `{"total":211,"result":[]}`},
+		{name: "string total", body: `{"total":"211","result":[]}`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var response V4GetProductAttributesV4Response
+			if err := json.Unmarshal([]byte(tt.body), &response); err != nil {
+				t.Fatalf("decode response: %v", err)
+			}
+			if response.Total != "211" {
+				t.Errorf("Total = %q, want %q", response.Total, "211")
 			}
 		})
 	}
