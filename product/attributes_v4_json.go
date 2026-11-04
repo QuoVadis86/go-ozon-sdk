@@ -30,16 +30,32 @@ func (result *V4GetProductAttributesV4ResponseResult) UnmarshalJSON(data []byte)
 	if err := json.Unmarshal(data, &decoded); err != nil {
 		return err
 	}
-	if len(decoded.SKU) == 0 {
-		return nil
-	}
-	if decoded.SKU[0] == '"' {
-		return json.Unmarshal(decoded.SKU, &result.SKU)
-	}
-	var sku json.Number
-	if err := json.Unmarshal(decoded.SKU, &sku); err != nil {
+	return unmarshalStringOrNumber(decoded.SKU, &result.SKU)
+}
+
+func (response *V4GetProductAttributesV4Response) UnmarshalJSON(data []byte) error {
+	type responseAlias V4GetProductAttributesV4Response
+	decoded := struct {
+		Total json.RawMessage `json:"total"`
+		*responseAlias
+	}{responseAlias: (*responseAlias)(response)}
+	if err := json.Unmarshal(data, &decoded); err != nil {
 		return err
 	}
-	result.SKU = sku.String()
+	return unmarshalStringOrNumber(decoded.Total, &response.Total)
+}
+
+func unmarshalStringOrNumber(data json.RawMessage, value *string) error {
+	if len(data) == 0 {
+		return nil
+	}
+	if data[0] == '"' {
+		return json.Unmarshal(data, value)
+	}
+	var number json.Number
+	if err := json.Unmarshal(data, &number); err != nil {
+		return err
+	}
+	*value = number.String()
 	return nil
 }
