@@ -1118,18 +1118,21 @@ func main() {
 		ml = append(ml, fmt.Sprintf("import (%s)", imports), "")
 		ml = append(ml, "type Service struct { Client *transport.Client }", "")
 		for _, m := range methods {
-			if m.Deprecated {
-				depMsg := "use " + m.ReplaceWith + " instead"
-				if m.ReplaceWith == "" {
-					depMsg = "this method is deprecated and will be removed"
-				}
-				ml = append(ml, fmt.Sprintf("// Deprecated: %s", sanitizeComment(depMsg)))
-			}
 			if m.Summary != "" {
 				ml = append(ml, fmt.Sprintf("// %s", sanitizeComment(m.Summary)))
 			}
 			for _, note := range m.Notes {
 				ml = append(ml, fmt.Sprintf("// Note: %s", note))
+			}
+			if m.Deprecated {
+				depMsg := "use " + m.ReplaceWith + " instead"
+				if m.ReplaceWith == "" {
+					depMsg = "this method is deprecated and will be removed"
+				}
+				if m.Summary != "" || len(m.Notes) != 0 {
+					ml = append(ml, "//")
+				}
+				ml = append(ml, fmt.Sprintf("// Deprecated: %s", sanitizeComment(depMsg)))
 			}
 			fn := fmt.Sprintf("func (s *Service) %s(ctx context.Context", m.Name)
 			if m.ReqT != "" {

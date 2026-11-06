@@ -72,9 +72,10 @@ func (s *Service) GetProductList(ctx context.Context, req *V3GetProductListReque
 	return &resp, nil
 }
 
-// Deprecated: use /v2/product/pictures/import instead
 // 上传或更新商品图片
 // Note: 该方法对每分钟和每天的商品操作数量有限制
+//
+// Deprecated: use /v2/product/pictures/import instead
 func (s *Service) ProductImportPictures(ctx context.Context, req *V1ProductImportPicturesRequest) (*V1ProductInfoPicturesResponse, error) {
 	var resp V1ProductInfoPicturesResponse
 	err := s.Client.Post(ctx, "/v1/product/pictures/import", req, &resp)

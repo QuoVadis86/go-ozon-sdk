@@ -70,6 +70,7 @@ type V3GetProductAttributesV3Response struct {
 }
 
 // GetProductAttributesV3 is retained for callers using the retired v3 API.
+//
 // Deprecated: use GetProductAttributesV4.
 func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
 	var resp V3GetProductAttributesV3Response
