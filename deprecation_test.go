@@ -21,6 +21,10 @@ func TestDeprecatedMethodsHaveGoDocNotices(t *testing.T) {
 			"PromosProductsDeactivate", "TaskList",
 		},
 		"review/service.go": {"ReviewList"},
+		"returns/legacy_rfbs.go": {
+			"ReturnsRfbsVerifyV2", "ReturnsRfbsReturnMoneyV2", "ReturnsRfbsCompensateV2",
+			"ReturnsRfbsRejectV2", "ReturnsRfbsReceiveReturnV2",
+		},
 	}
 	for path, names := range methods {
 		file, err := parser.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
