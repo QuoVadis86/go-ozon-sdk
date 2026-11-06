@@ -22,6 +22,7 @@ const (
 	HeaderContentType = "application/json"
 	HeaderClientID    = "Client-Id"
 	HeaderAPIKey      = "Api-Key"
+	HeaderLanguage    = "x-o3-language"
 
 	// Common error codes (applies to all endpoints)
 	ErrCircleIsOpen         = "Circle is open"
@@ -65,17 +66,23 @@ type Client struct {
 	baseURL    string
 	clientID   string
 	apiKey     string
+	language   Language
 }
 
 type Options struct {
 	BaseURL    string
 	Timeout    time.Duration
 	HTTPClient *http.Client
+
+	// Language selects the x-o3-language value for every request.
+	// LanguageDefault omits the header.
+	Language Language
 }
 
 func New(clientID, apiKey string, opts *Options) *Client {
 	baseURL := DefaultBaseURL
 	timeout := DefaultTimeout
+	language := LanguageDefault
 	if opts != nil {
 		if opts.BaseURL != "" {
 			baseURL = opts.BaseURL
@@ -83,6 +90,7 @@ func New(clientID, apiKey string, opts *Options) *Client {
 		if opts.Timeout > 0 {
 			timeout = opts.Timeout
 		}
+		language = opts.Language
 	}
 	hc := &http.Client{
 		Timeout: timeout,
@@ -95,7 +103,7 @@ func New(clientID, apiKey string, opts *Options) *Client {
 	if opts != nil && opts.HTTPClient != nil {
 		hc = opts.HTTPClient
 	}
-	return &Client{httpClient: hc, baseURL: baseURL, clientID: clientID, apiKey: apiKey}
+	return &Client{httpClient: hc, baseURL: baseURL, clientID: clientID, apiKey: apiKey, language: language}
 }
 
 type APIError struct {
@@ -143,6 +151,13 @@ func (c *Client) doRequest(ctx context.Context, method, path string, reqBody, re
 	req.Header.Set("Content-Type", HeaderContentType)
 	req.Header.Set(HeaderClientID, c.clientID)
 	req.Header.Set(HeaderAPIKey, c.apiKey)
+	languageHeader, err := c.language.headerValue()
+	if err != nil {
+		return err
+	}
+	if languageHeader != "" {
+		req.Header.Set(HeaderLanguage, languageHeader)
+	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("ozon: do request: %w", err)

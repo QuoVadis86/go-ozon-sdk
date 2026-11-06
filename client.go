@@ -34,6 +34,15 @@ import (
 )
 
 type ClientOptions = transport.Options
+type Language = transport.Language
+
+const (
+	LanguageDefault = transport.LanguageDefault
+	LanguageRU      = transport.LanguageRU
+	LanguageEN      = transport.LanguageEN
+	LanguageTR      = transport.LanguageTR
+	LanguageZHHans  = transport.LanguageZHHans
+)
 
 type Client struct {
 	Barcode   *barcode.Service

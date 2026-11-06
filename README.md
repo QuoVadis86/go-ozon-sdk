@@ -52,6 +52,20 @@ func main() {
 }
 ```
 
+## Response Language
+
+Set `ClientOptions.Language` to send `x-o3-language` on every request:
+
+```go
+client := ozon.NewClient("your-client-id", "your-api-key", &ozon.ClientOptions{
+    Language: ozon.LanguageZHHans,
+})
+```
+
+The available constants are `LanguageDefault`, `LanguageRU`, `LanguageEN`, `LanguageTR`, and `LanguageZHHans`. `LanguageDefault` omits the header. The SDK maps `LanguageZHHans` to the exact header value `zh-Hans`; the category API's `LanguageLanguageZHHans` is a separate request-body enum and cannot be used as this option.
+
+On `/v3/product/info/list`, this header can localize attribute names such as `items[].errors[].texts.attribute_name`. Error messages in `texts.message` may still be English or Russian. Handle errors using structured fields such as `errors[].code` and `attribute_id`.
+
 ## API Coverage
 
 | Service | Endpoints | Description |
