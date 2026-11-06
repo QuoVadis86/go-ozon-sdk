@@ -10,6 +10,8 @@
 package ozon
 
 import (
+	"context"
+
 	"github.com/QuoVadis86/go-ozon-sdk/barcode"
 	"github.com/QuoVadis86/go-ozon-sdk/beta"
 	"github.com/QuoVadis86/go-ozon-sdk/category"
@@ -43,6 +45,11 @@ const (
 	LanguageTR      = transport.LanguageTR
 	LanguageZHHans  = transport.LanguageZHHans
 )
+
+// WithLanguage overrides the client's default response language for calls using ctx.
+func WithLanguage(ctx context.Context, language Language) context.Context {
+	return transport.WithLanguage(ctx, language)
+}
 
 type Client struct {
 	Barcode   *barcode.Service

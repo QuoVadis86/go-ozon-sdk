@@ -54,15 +54,17 @@ func main() {
 
 ## Response Language
 
-Set `ClientOptions.Language` to send `x-o3-language` on every request:
+Use `WithLanguage` to send `x-o3-language` only for selected calls on the same client:
 
 ```go
-client := ozon.NewClient("your-client-id", "your-api-key", &ozon.ClientOptions{
-    Language: ozon.LanguageZHHans,
-})
+client := ozon.NewClient("your-client-id", "your-api-key", nil)
+zhCtx := ozon.WithLanguage(ctx, ozon.LanguageZHHans)
+resp, err := client.Product.GetProductInfoList(zhCtx, req)
 ```
 
-The available constants are `LanguageDefault`, `LanguageRU`, `LanguageEN`, `LanguageTR`, and `LanguageZHHans`. `LanguageDefault` omits the header. The SDK maps `LanguageZHHans` to the exact header value `zh-Hans`; the category API's `LanguageLanguageZHHans` is a separate request-body enum and cannot be used as this option.
+Calls using the original `ctx` remain unchanged. `ClientOptions.Language` can still set a client default; `WithLanguage` overrides it for calls using the derived context. `WithLanguage(ctx, ozon.LanguageDefault)` omits the header even when a client default is set.
+
+The available constants are `LanguageDefault`, `LanguageRU`, `LanguageEN`, `LanguageTR`, and `LanguageZHHans`. The SDK maps `LanguageZHHans` to the exact header value `zh-Hans`; the category API's `LanguageLanguageZHHans` is a separate request-body enum and cannot be used here.
 
 On `/v3/product/info/list`, this header can localize attribute names such as `items[].errors[].texts.attribute_name`. Error messages in `texts.message` may still be English or Russian. Handle errors using structured fields such as `errors[].code` and `attribute_id`.
 
