@@ -7,6 +7,7 @@ import (
 
 type Service struct{ Client *transport.Client }
 
+// Deprecated: use /v2/actions/products/deactivate instead
 // 从活动中删除商品
 func (s *Service) PromosProductsDeactivate(ctx context.Context, req *SellerApiProductIDsV1Request) (*SellerApiProductV1ResponseDeactivate, error) {
 	var resp SellerApiProductV1ResponseDeactivate
@@ -45,6 +46,7 @@ func (s *Service) SellerActionsUpdateMultiLevelDiscount(ctx context.Context, req
 	return nil
 }
 
+// Deprecated: use /v2/actions/auto-add/products/candidates instead
 // 获取可自动添加到促销活动中的商品列表
 func (s *Service) ActionsAutoAddProductsCandidates(ctx context.Context, req *ActionsV1ActionsAutoAddProductsCandidatesRequest) (*ActionsV1ActionsAutoAddProductsCandidatesResponse, error) {
 	var resp ActionsV1ActionsAutoAddProductsCandidatesResponse
@@ -64,6 +66,7 @@ func (s *Service) SellerActionsProductsDelete(ctx context.Context, req *V1Seller
 	return nil
 }
 
+// Deprecated: use /v2/actions/auto-add/products/list instead
 // 获取促销活动自动添加列表中的商品列表
 func (s *Service) ActionsAutoAddProductsList(ctx context.Context, req *ActionsV1ActionsAutoAddProductsListRequest) (*ActionsV1ActionsAutoAddProductsListResponse, error) {
 	var resp ActionsV1ActionsAutoAddProductsListResponse
@@ -102,6 +105,7 @@ func (s *Service) SellerActionsUpdateDiscountWithCondition(ctx context.Context, 
 	return nil
 }
 
+// Deprecated: use /v1/actions/products/update instead
 // 在促销活动中增加一个商品
 func (s *Service) PromosProductsActivate(ctx context.Context, req *SellerApiActivateProductV1Request) (*SellerApiProductV1Response, error) {
 	var resp SellerApiProductV1Response
@@ -132,6 +136,7 @@ func (s *Service) TaskList(ctx context.Context, req *V1GetDiscountTaskListReques
 	return &resp, nil
 }
 
+// Deprecated: use /v2/actions/products instead
 // 参与 活动的商品列表
 func (s *Service) PromosProducts(ctx context.Context, req *SellerApiGetSellerProductV1Request) (*SellerApiGetSellerProductV1Response, error) {
 	var resp SellerApiGetSellerProductV1Response
@@ -142,6 +147,7 @@ func (s *Service) PromosProducts(ctx context.Context, req *SellerApiGetSellerPro
 	return &resp, nil
 }
 
+// Deprecated: use /v2/actions/auto-add/products/delete instead
 // 从促销活动自动添加列表中删除商品
 func (s *Service) ActionsAutoAddProductsDelete(ctx context.Context, req *ActionsV1ActionsAutoAddProductsDeleteRequest) (*ActionsV1ActionsAutoAddProductsDeleteResponse, error) {
 	var resp ActionsV1ActionsAutoAddProductsDeleteResponse
@@ -161,6 +167,7 @@ func (s *Service) SellerActionsChangeActivity(ctx context.Context, req *V1Seller
 	return nil
 }
 
+// Deprecated: use /v2/actions/candidates instead
 // 可用的促销商品清单
 func (s *Service) PromosCandidates(ctx context.Context, req *SellerApiGetSellerProductV1Request) (*SellerApiGetSellerProductV1Response, error) {
 	var resp SellerApiGetSellerProductV1Response
@@ -249,6 +256,7 @@ func (s *Service) SellerActionsList(ctx context.Context, req *V1SellerActionsLis
 	return &resp, nil
 }
 
+// Deprecated: use /v2/actions/auto-add/products/update instead
 // 在促销活动自动添加列表中添加或更新商品
 func (s *Service) ActionsAutoAddProductsUpdate(ctx context.Context, req *ActionsV1ActionsAutoAddProductsUpdateRequest) (*ActionsV1ActionsAutoAddProductsUpdateResponse, error) {
 	var resp ActionsV1ActionsAutoAddProductsUpdateResponse
@@ -293,6 +301,86 @@ func (s *Service) SellerActionsProductsCandidates(ctx context.Context, req *V1Se
 func (s *Service) SellerActionsCreateVoucher(ctx context.Context, req *V1SellerActionsCreateVoucherRequest) (*V1SellerActionsCreateVoucherResponse, error) {
 	var resp V1SellerActionsCreateVoucherResponse
 	err := s.Client.Post(ctx, "/v1/seller-actions/create/voucher", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取可自动添加到促销活动中的商品列表
+func (s *Service) ActionsAutoAddProductsCandidatesV2(ctx context.Context, req *ActionsV2ActionsAutoAddProductsCandidatesRequest) (*ActionsV2ActionsAutoAddProductsCandidatesResponse, error) {
+	var resp ActionsV2ActionsAutoAddProductsCandidatesResponse
+	err := s.Client.Post(ctx, "/v2/actions/auto-add/products/candidates", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 从促销活动自动添加列表中删除商品
+func (s *Service) ActionsAutoAddProductsDeleteV2(ctx context.Context, req *ActionsV2ActionsAutoAddProductsDeleteRequest) (*ActionsV2ActionsAutoAddProductsDeleteResponse, error) {
+	var resp ActionsV2ActionsAutoAddProductsDeleteResponse
+	err := s.Client.Post(ctx, "/v2/actions/auto-add/products/delete", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取促销活动自动添加列表中的商品列表
+func (s *Service) ActionsAutoAddProductsListV2(ctx context.Context, req *ActionsV2ActionsAutoAddProductsListRequest) (*ActionsV2ActionsAutoAddProductsListResponse, error) {
+	var resp ActionsV2ActionsAutoAddProductsListResponse
+	err := s.Client.Post(ctx, "/v2/actions/auto-add/products/list", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 在促销活动自动添加列表中添加或更新商品
+func (s *Service) ActionsAutoAddProductsUpdateV2(ctx context.Context, req *ActionsV2ActionsAutoAddProductsUpdateRequest) (*ActionsV2ActionsAutoAddProductsUpdateResponse, error) {
+	var resp ActionsV2ActionsAutoAddProductsUpdateResponse
+	err := s.Client.Post(ctx, "/v2/actions/auto-add/products/update", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 可用的促销商品清单
+func (s *Service) ActionsCandidates(ctx context.Context, req *ActionsV2ActionsCandidatesRequest) (*ActionsV2ActionsCandidatesResponse, error) {
+	var resp ActionsV2ActionsCandidatesResponse
+	err := s.Client.Post(ctx, "/v2/actions/candidates", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取参与活动的商品列表
+func (s *Service) ActionsProducts(ctx context.Context, req *ActionsV2ActionsProductsRequest) (*ActionsV2ActionsProductsResponse, error) {
+	var resp ActionsV2ActionsProductsResponse
+	err := s.Client.Post(ctx, "/v2/actions/products", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 从活动中删除商品
+func (s *Service) ActionsProductsDeactivate(ctx context.Context, req *ActionsV2ActionsProductsDeactivateRequest) (*ActionsV2ActionsProductsDeactivateResponse, error) {
+	var resp ActionsV2ActionsProductsDeactivateResponse
+	err := s.Client.Post(ctx, "/v2/actions/products/deactivate", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 将商品加入促销活动或更新商品
+func (s *Service) ActionsProductsUpdate(ctx context.Context, req *ActionsV1ActionsProductsUpdateRequest) (*ActionsV1ActionsProductsUpdateResponse, error) {
+	var resp ActionsV1ActionsProductsUpdateResponse
+	err := s.Client.Post(ctx, "/v1/actions/products/update", req, &resp)
 	if err != nil {
 		return nil, err
 	}

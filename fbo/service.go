@@ -476,3 +476,13 @@ func (s *Service) FbpDraftDirectRegistrate(ctx context.Context, req *V1FbpDraftD
 	}
 	return &resp, nil
 }
+
+// 更新第三方物流公司配送信息
+func (s *Service) FbpOrderDirectTplDlvEdit(ctx context.Context, req *FBPV1FbpOrderDirectTplDlvEditRequest) (*FBPV1FbpOrderDirectTplDlvEditResponse, error) {
+	var resp FBPV1FbpOrderDirectTplDlvEditResponse
+	err := s.Client.Post(ctx, "/v1/fbp/order/direct/tpl-dlv/edit", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}

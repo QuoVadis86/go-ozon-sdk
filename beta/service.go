@@ -27,15 +27,6 @@ func (s *Service) ProductInfoWarehouseStocks(ctx context.Context, req *V1Product
 	return &resp, nil
 }
 
-// 检查并保存份数数据
-func (s *Service) FbsPostingProductExemplarSetV6(ctx context.Context, req *V6FbsPostingProductExemplarSetV6Request) error {
-	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/set", req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // 获取按数量折扣信息
 func (s *Service) GetProductStairwayDiscountByQuantity(ctx context.Context, req *V1GetProductStairwayDiscountByQuantityRequest) (*V1GetProductStairwayDiscountByQuantityResponse, error) {
 	var resp V1GetProductStairwayDiscountByQuantityResponse
@@ -96,26 +87,6 @@ func (s *Service) GetFinanceAccrualTypes(ctx context.Context) (*V1GetFinanceAccr
 	return &resp, nil
 }
 
-// 获取已创建样件数据
-func (s *Service) FbsPostingProductExemplarCreateOrGetV6(ctx context.Context, req *V6FbsPostingProductExemplarCreateOrGetV6Request) (*V6FbsPostingProductExemplarCreateOrGetV6Response, error) {
-	var resp V6FbsPostingProductExemplarCreateOrGetV6Response
-	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/create-or-get", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 获取样件添加状态
-func (s *Service) FbsPostingProductExemplarStatusV5(ctx context.Context, req *V5FbsPostingProductExemplarStatusV5Request) (*V5FbsPostingProductExemplarStatusV5Response, error) {
-	var resp V5FbsPostingProductExemplarStatusV5Response
-	err := s.Client.Post(ctx, "/v5/fbs/posting/product/exemplar/status", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 获取折扣申请列表
 func (s *Service) GetDiscountTaskListV2(ctx context.Context, req *V2GetDiscountTaskListV2Request) (*V2GetDiscountTaskListV2Response, error) {
 	var resp V2GetDiscountTaskListV2Response
@@ -146,29 +117,10 @@ func (s *Service) GetFinanceBalanceV1(ctx context.Context, req *V1GetFinanceBala
 	return &resp, nil
 }
 
-// 更新实例数据
-func (s *Service) FbsPostingProductExemplarUpdate(ctx context.Context, req *V1FbsPostingProductExemplarUpdateRequest) error {
-	err := s.Client.Post(ctx, "/v1/fbs/posting/product/exemplar/update", req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // 新增了用于设置商品在Ozon和Ozon Select橱窗可见性的Beta方法。
 func (s *Service) ProductVisibilitySet(ctx context.Context, req *V1ProductVisibilitySetRequest) (*V1ProductVisibilitySetResponse, error) {
 	var resp V1ProductVisibilitySetResponse
 	err := s.Client.Post(ctx, "/v1/product/visibility/set", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 标志代码验证
-func (s *Service) FbsPostingProductExemplarValidateV5(ctx context.Context, req *V5FbsPostingProductExemplarValidateV5Request) (*V5FbsPostingProductExemplarValidateV5Response, error) {
-	var resp V5FbsPostingProductExemplarValidateV5Response
-	err := s.Client.Post(ctx, "/v5/fbs/posting/product/exemplar/validate", req, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -186,9 +138,39 @@ func (s *Service) GetFbpPosting(ctx context.Context, req *PostingV1GetFbpPosting
 }
 
 // 获取每订单商品销售报告
-func (s *Service) CreateCompanyFinanceRealizationPostingReport(ctx context.Context, req *ReportV1CreateCompanyFinanceRealizationPostingReportRequest) (*ReportV1CreateCompanyFinanceRealizationPostingReportResponse, error) {
-	var resp ReportV1CreateCompanyFinanceRealizationPostingReportResponse
+func (s *Service) CreateCompanyFinanceRealizationPostingReport(ctx context.Context, req *V1CreateCompanyFinanceRealizationPostingReportRequest) (*V1CreateCompanyFinanceRealizationPostingReportResponse, error) {
+	var resp V1CreateCompanyFinanceRealizationPostingReportResponse
 	err := s.Client.Post(ctx, "/v1/report/realization/posting/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 通过标签上的条形码获取退货箱信息
+func (s *Service) BoxGetByBarcode(ctx context.Context, req *ReturnV1BoxGetByBarcodeRequest) (*ReturnV1BoxGetByBarcodeResponse, error) {
+	var resp ReturnV1BoxGetByBarcodeResponse
+	err := s.Client.Post(ctx, "/v1/return/box/get-by-barcode", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取依赖特征
+func (s *Service) DescriptionCategoryDependentAttributes(ctx context.Context, req *DescriptionV1DescriptionCategoryDependentAttributesRequest) (*DescriptionV1DescriptionCategoryDependentAttributesResponse, error) {
+	var resp DescriptionV1DescriptionCategoryDependentAttributesResponse
+	err := s.Client.Post(ctx, "/v1/description-category/dependent-attributes", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取子特征的可能值
+func (s *Service) DescriptionCategoryDependentAttributesValues(ctx context.Context, req *DescriptionV1DescriptionCategoryDependentAttributesValuesRequest) (*DescriptionV1DescriptionCategoryDependentAttributesValuesResponse, error) {
+	var resp DescriptionV1DescriptionCategoryDependentAttributesValuesResponse
+	err := s.Client.Post(ctx, "/v1/description-category/dependent-attributes/values", req, &resp)
 	if err != nil {
 		return nil, err
 	}

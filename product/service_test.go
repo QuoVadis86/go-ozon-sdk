@@ -27,16 +27,6 @@ func TestProductUpdateAttributes(t *testing.T) {
 	_ = resp
 }
 
-func TestGetProductAttributesV3(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.GetProductAttributesV3(ctx, &V3GetProductAttributesV3Request{})
-	if err != nil {
-		t.Fatalf("GetProductAttributesV3() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestProductArchive(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -213,6 +203,16 @@ func TestImportProductsV3(t *testing.T) {
 	resp, err := svc.ImportProductsV3(ctx, &V3ImportProductsRequest{})
 	if err != nil {
 		t.Fatalf("ImportProductsV3() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestProductImportPicturesV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ProductImportPicturesV2(ctx, &V2ProductImportPicturesV2Request{})
+	if err != nil {
+		t.Fatalf("ProductImportPicturesV2() error: %v", err)
 	}
 	_ = resp
 }

@@ -440,7 +440,7 @@ type V1GetDiscountTaskListRequest struct {
 }
 
 type ActionsV1ActionsAutoAddProductsUpdateRequestToUpdate struct {
-	ActionPrice float64 `json:"action_price"` // 商品的促销价格。
+	ActionPrice float64 `json:"action_price"` // 商品的促销价格。如果您传入非整数，价格将向上取整。
 	Currency    string  `json:"currency"`     // 价格货币。
 	ProductID   int64   `json:"product_id"`   // 需要添加或更新的商品ID。
 	Quantity    int64   `json:"quantity"`     // 促销活动中的商品数量。
@@ -461,13 +461,11 @@ type SellerApiProductV1ResponseResult struct {
 	Rejected   []SellerApiProductV1ResponseProduct `json:"rejected"`    // 无法添加到促销活动中的商品列表。
 }
 
-// 货币： - `RUB`——俄罗斯卢布； - `BYN`——白俄罗斯卢布； - `KZT`——坚戈； - `EUR`——欧元； - `USD`——美元； - `CNY`——人民币。
-// Currency is provided by the enum package.
-
 type V1SellerActionsProductsAddRequestProduct struct {
 	Currency        enum.CurrencyCode `json:"currency"`
-	DiscountPercent float64           `json:"discount_percent"` // 百分比折扣值。如果促销活动机制为"折扣"，请传入该参数。
+	DiscountPercent float64           `json:"discount_percent"` // 百分比折扣值。如果您选择了“折扣”或“促销码折扣”促销活动机制，并且在[/v1/seller-actions/list](#operation/SellerActionsList)方法中获得了`actions.action_paramete...
 	SKU             int64             `json:"sku"`              // Ozon系统中的商品标识符——SKU。
+	ActionPrice     float64           `json:"action_price"`     // 商品的促销价格。如果您传入非整数，价格将向上取整。
 }
 
 type V1GetDiscountTaskListResponseTask struct {
@@ -695,16 +693,6 @@ type V1SellerActionsUpdateMultiLevelDiscountRequestActionParameters struct {
 	Title                  string                                                                `json:"title"`                     // 促销活动名称。
 }
 
-// Status values
-type Status string
-
-const (
-	StatusActive  Status = "ACTIVE"  // 活跃；
-	StatusEnded   Status = "ENDED"   // 已结束；
-	StatusPlanned Status = "PLANNED" // 已计划；
-	StatusPaused  Status = "PAUSED"  // 已暂停
-)
-
 // ActionType values
 type ActionType string
 
@@ -716,6 +704,16 @@ const (
 	ActionTypeIndividualDiscountBYProducts ActionType = "INDIVIDUAL_DISCOUNT_BY_PRODUCTS" // 卖家积分；
 	ActionTypeOzonAccountDiscount          ActionType = "OZON_ACCOUNT_DISCOUNT"           // Ozon银行卡专享额外折扣；
 	ActionTypeMultiLevelDiscountONAmount   ActionType = "MULTI_LEVEL_DISCOUNT_ON_AMOUNT"  // 多级满额折扣
+)
+
+// Status values
+type Status string
+
+const (
+	StatusActive  Status = "ACTIVE"  // 活跃；
+	StatusEnded   Status = "ENDED"   // 已结束；
+	StatusPlanned Status = "PLANNED" // 已计划；
+	StatusPaused  Status = "PAUSED"  // 已暂停
 )
 
 type V1SellerActionsListRequest struct {
@@ -780,4 +778,338 @@ type SellerApiProductV1Response struct {
 
 type V1SellerActionsVoucherGetResponse struct {
 	File string `json:"file"` // 促销码CSV文件链接。
+}
+
+type ActionsV1ActionsProductsUpdateRequest struct {
+	ActionID int64                                          `json:"action_id"` // 促销活动标识符。可通过方法[/v1/actions](#operation/Promos)获取。
+	Products []ActionsV1ActionsProductsUpdateRequestProduct `json:"products"`  // 商品列表。
+}
+
+type ActionsV1ActionsProductsUpdateRequestProduct struct {
+	ActionPrice MoneyMoneyActionPrice `json:"action_price"`
+	ProductID   int64                 `json:"product_id"` // Ozon系统中的商品标识符——`product_id`。
+	Stock       int64                 `json:"stock"`      // “促销码”促销活动中的商品件数。请勿为“弹性提升”和“最大提升”促销活动传递该参数。
+}
+
+type ActionsV1ActionsProductsUpdateResponse struct {
+	ActiveProductIds      []string                                         `json:"active_product_ids"`      // 已加入促销活动的商品ID列表。
+	DeactivatedProductIds []string                                         `json:"deactivated_product_ids"` // 已移出促销活动的商品ID列表。
+	Rejected              []ActionsV1ActionsProductsUpdateResponseRejected `json:"rejected"`                // 未能加入促销活动的商品列表。
+	Warnings              []ActionsV1ActionsProductsUpdateResponseWarning  `json:"warnings"`                // 关于商品被移出促销活动的原因信息。
+}
+
+type ActionsV1ActionsProductsUpdateResponseRejected struct {
+	ProductID int64  `json:"product_id"` // Ozon系统中的商品标识符——`product_id`。
+	Reason    string `json:"reason"`     // 商品未加入促销活动的原因。
+}
+
+type ActionsV1ActionsProductsUpdateResponseWarning struct {
+	ProductID int64  `json:"product_id"` // Ozon系统中的商品标识符——`product_id`。
+	Reason    string `json:"reason"`     // 商品被移出促销活动的原因。
+}
+
+type ActionsV2ActionsAutoAddProductsCandidatesRequest struct {
+	ActionID    int64  `json:"action_id"`     // 促销活动标识符。
+	AutoAddDate string `json:"auto_add_date"` // 方法[/v1/actions](#operation/Promos)响应中`result.auto_add_dates`参数里的商品自动添加到促销活动中的日期和时间。
+	Limit       int64  `json:"limit"`         // 响应中返回的值数量。
+	Offset      int64  `json:"offset"`        // 在响应中将被跳过的项目数量。在响应中将被跳过的项目数量。
+}
+
+type ActionsV2ActionsAutoAddProductsCandidatesResponse struct {
+	Products []ActionsV2ActionsAutoAddProductsCandidatesResponseProducts `json:"products"` // 可用于自动添加到促销活动中的商品列表。
+	Total    int64                                                       `json:"total"`    // 商品数量。
+}
+
+// 网站上的商品价格。
+type ActionsV2ActionsAutoAddProductsCandidatesResponseProductWebsitePrices struct {
+	Price          MoneyMoneyWebsitePrices `json:"price"`
+	PricesBySchema map[string]any          `json:"prices_by_schema"` // 按各配送方案计算的商品价格。
+}
+
+type ActionsV2ActionsAutoAddProductsCandidatesResponseProducts struct {
+	ActionPriceToAutoAdd     MoneyMoneyActionPriceToAutoAdd                                        `json:"action_price_to_auto_add"`
+	BasePrice                MoneyMoneyBasePrice                                                   `json:"base_price"`
+	Currency                 string                                                                `json:"currency"`                     // 在响应中将被跳过的项目数量。
+	HasExpiredMinSellerPrice bool                                                                  `json:"has_expired_min_seller_price"` // 如果促销活动的限制已到期，则为`true`。
+	ID                       int64                                                                 `json:"id"`                           // Ozon系统中的商品标识符——`product_id`。
+	IsManuallyAdded          bool                                                                  `json:"is_manually_added"`            // 如果商品是手动添加的，则为`true`。
+	MarketplaceSellerPrice   MoneyMoneyFBPget                                                      `json:"marketplace_seller_price"`
+	MaxDiscountPrice         MoneyMoneyMaxDiscountPrice                                            `json:"max_discount_price"`
+	MinActionQuantity        int64                                                                 `json:"min_action_quantity"` // “库存折扣”促销活动类型中的最低商品数量。
+	MinSellerPrice           MoneyMoneyMinSellerPrice                                              `json:"min_seller_price"`
+	Name                     string                                                                `json:"name"`     // 商品名称。
+	OfferID                  string                                                                `json:"offer_id"` // 卖家系统中的商品标识符——货号。
+	Price                    MoneyMoneyPrice                                                       `json:"price"`
+	QuantityToAutoAdd        int64                                                                 `json:"quantity_to_auto_add"` // 促销活动中的商品数量。
+	SKU                      int64                                                                 `json:"sku"`                  // Ozon系统中的商品标识符——SKU。
+	WebsitePrices            ActionsV2ActionsAutoAddProductsCandidatesResponseProductWebsitePrices `json:"website_prices"`
+	WillBeQuarantined        bool                                                                  `json:"will_be_quarantined"` // 如果商品在自动添加后进入价格冻结，则为`true`。
+}
+
+type ActionsV2ActionsAutoAddProductsDeleteRequest struct {
+	ActionID    int64    `json:"action_id"`     // 促销活动标识符。
+	AutoAddDate string   `json:"auto_add_date"` // 方法[/v1/actions](#operation/Promos)响应中`result.auto_add_dates`参数里的商品自动添加到促销活动中的日期和时间。
+	ProductIds  []string `json:"product_ids"`   // Ozon系统中的商品标识符，即`product_id`。
+}
+
+type ActionsV2ActionsAutoAddProductsDeleteResponse struct {
+	ProductIds []string `json:"product_ids"` // 已从自动添加中删除的商品ID。
+}
+
+type ActionsV2ActionsAutoAddProductsListRequest struct {
+	ActionID    int64  `json:"action_id"`     // 促销活动标识符。
+	AutoAddDate string `json:"auto_add_date"` // 方法[/v1/actions](#operation/Promos)响应中`result.auto_add_dates`参数里的商品自动添加到促销活动中的日期和时间。
+	Limit       int64  `json:"limit"`         // 响应中返回的值数量。
+	Offset      int64  `json:"offset"`        // 在响应中将被跳过的项目数量。 例如，如果`offset = 10`，响应将从第11个找到的元素开始。
+}
+
+type ActionsV2ActionsAutoAddProductsListResponse struct {
+	Products []ActionsV2ActionsAutoAddProductsListResponseProduct `json:"products"` // 启用自动添加的商品列表。
+	Total    int64                                                `json:"total"`    // 商品数量。
+}
+
+type ActionsV2ActionsAutoAddProductsListResponseProduct struct {
+	ActionPriceToAutoAdd     MoneyMoneyActionPriceToAutoAdd                                         `json:"action_price_to_auto_add"`
+	AddMode                  bool                                                                   `json:"add_mode"` // 如果商品是手动添加的，则为`true`。
+	BasePrice                MoneyMoneyBasePrice                                                    `json:"base_price"`
+	Currency                 string                                                                 `json:"currency"`                     // 价格货币。
+	HasExpiredMinSellerPrice bool                                                                   `json:"has_expired_min_seller_price"` // 如果促销活动的限制已到期，则为`true`。
+	MarketplaceSellerPrice   MoneyMoneyFBPget                                                       `json:"marketplace_seller_price"`
+	MaxDiscountPrice         MoneyMoneyMaxDiscountPrice                                             `json:"max_discount_price"`
+	MinActionQuantity        int64                                                                  `json:"min_action_quantity"` // “库存折扣”促销活动类型中的最低商品数量。
+	MinSellerPrice           MoneyMoneyMinSellerPrice                                               `json:"min_seller_price"`
+	Name                     string                                                                 `json:"name"`     // 商品名称。
+	OfferID                  string                                                                 `json:"offer_id"` // 卖家系统中的商品标识符——货号。
+	Price                    MoneyMoneyPrice                                                        `json:"price"`
+	ProductID                int64                                                                  `json:"product_id"`           // Ozon系统中的商品标识符——`product_id`。
+	QuantityToAutoAdd        int64                                                                  `json:"quantity_to_auto_add"` // 促销活动中的商品数量。
+	SKU                      int64                                                                  `json:"sku"`                  // Ozon系统中的商品标识符——SKU。
+	WebsitePrices            ActionsV2ActionsAutoAddProductsListResponseProductProductWebsitePrices `json:"website_prices"`
+	WillBeQuarantined        bool                                                                   `json:"will_be_quarantined"` // 如果商品在自动添加后进入价格冻结，则为`true`。
+}
+
+// 网站上的商品价格。
+type ActionsV2ActionsAutoAddProductsListResponseProductProductWebsitePrices struct {
+	Price          MoneyMoneyWebsitePrices `json:"price"`
+	PricesBySchema map[string]any          `json:"prices_by_schema"` // 按各配送方案计算的商品价格。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateRequest struct {
+	ActionID    int64                                                           `json:"action_id"`     // 促销活动标识符。
+	AutoAddDate string                                                          `json:"auto_add_date"` // 方法[/v1/actions](#operation/Promos)响应中`result.auto_add_dates`参数里的商品自动添加到促销活动中的日期和时间。
+	Products    []ActionsV2ActionsAutoAddProductsUpdateRequestProductToActivate `json:"products"`      // 需要添加到自动添加中或在自动添加中更新的商品列表。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateRequestProductToActivate struct {
+	ActionPrice MoneyMoneyAutoaddActionPrice `json:"action_price"`
+	ID          int64                        `json:"id"`    // 商品标识符。
+	Stock       int64                        `json:"stock"` // “促销码”促销活动中的商品件数。请勿为“弹性提升”和“最大提升”促销活动传递该参数。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateResponse struct {
+	BelowMinPrice     []ActionsV2ActionsAutoAddProductsUpdateResponseBelowMinPrice     `json:"below_min_price"`     // 价格低于最低价格的商品列表。
+	DeactivatedIds    []string                                                         `json:"deactivated_ids"`     // 已移出促销活动的商品ID。
+	ExtremelyLowPrice []ActionsV2ActionsAutoAddProductsUpdateResponseExtremelyLowPrice `json:"extremely_low_price"` // 折扣幅度超过70%的商品列表。
+	FailedPrice       []ActionsV2ActionsAutoAddProductsUpdateResponseFailedPrice       `json:"failed_price"`        // 未通过价格校验的商品列表。
+	ProductIds        []string                                                         `json:"product_ids"`         // 已成功添加或更新的商品ID。
+	Rejected          []ActionsV2ActionsAutoAddProductsUpdateResponseRejected          `json:"rejected"`            // 未能添加或更新的商品ID。
+	Warnings          []ActionsV2ActionsAutoAddProductsUpdateResponseWarningInfo       `json:"warnings"`            // 商品警告列表。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateResponseBelowMinPrice struct {
+	Key   int64   `json:"key"`   // Ozon系统中的商品标识符——`product_id`。
+	Value float64 `json:"value"` // 商品价格。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateResponseExtremelyLowPrice struct {
+	Key   int64   `json:"key"`   // Ozon系统中的商品标识符——`product_id`。
+	Value float64 `json:"value"` // 商品价格。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateResponseFailedPrice struct {
+	Key   int64   `json:"key"`   // Ozon系统中的商品标识符——`product_id`。
+	Value float64 `json:"value"` // 问题价格的值： - 商品自动加入促销活动的最高价格，前提是商品价格超过该值； -- 如果商品折扣超过95%，则为折扣95%后的价格。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateResponseRejected struct {
+	ProductID int64  `json:"product_id"` // Ozon系统中的商品标识符——`product_id`。
+	Reason    string `json:"reason"`     // 未能添加或更新商品的原因。
+}
+
+type ActionsV2ActionsAutoAddProductsUpdateResponseWarningInfo struct {
+	ProductID int64  `json:"product_id"` // Ozon系统中的商品标识符——`product_id`。
+	Reason    string `json:"reason"`     // 警告。
+}
+
+type ActionsV2ActionsCandidatesRequest struct {
+	ActionID int64  `json:"action_id"` // 促销活动标识符。可通过方法[/v1/actions](#operation/Promos)获取。
+	LastID   string `json:"last_id"`   // 页面上最后一个商品的标识符。如果是首次请求，请将该字段留空。
+	Limit    int64  `json:"limit"`     // 每页显示的数量。
+}
+
+type ActionsV2ActionsCandidatesResponse struct {
+	LastID   string                                      `json:"last_id"`  // 页面上最后一个商品的标识符。要获取下一个批次的数据，请在下一个请求的`last_id`参数中传递上次获取的值。
+	Products []ActionsV2ActionsCandidatesResponseProduct `json:"products"` // 商品列表。
+	Total    int64                                       `json:"total"`    // 可用于该促销活动的商品总数。
+}
+
+type ActionsV2ActionsCandidatesResponseProduct struct {
+	ActionPrice               MoneyMoneyActionPriceToAutoAdd                                `json:"action_price"`
+	AlertMaxActionPrice       MoneyMoneyAlertMaxActionPrice                                 `json:"alert_max_action_price"`
+	AlertMaxActionPriceFailed bool                                                          `json:"alert_max_action_price_failed"` // 如果商品价格高于推荐价格，则为`true`。 该商品可能会被移出促销活动。
+	CurrentBoost              float64                                                       `json:"current_boost"`                 // 商品提升幅度。
+	ID                        int64                                                         `json:"id"`                            // Ozon系统中的商品标识符——`product_id`。
+	IsQuarantined             bool                                                          `json:"is_quarantined"`                // 如果商品处于价格冻结中，则为`true`。
+	MarketplaceSellerPrice    MoneyMoneyFBPget                                              `json:"marketplace_seller_price"`
+	MaxActionPrice            MoneyMoneyMaxActionPrice                                      `json:"max_action_price"`
+	MaxBoost                  float64                                                       `json:"max_boost"` // 最大提升幅度（%）。
+	MinBoost                  float64                                                       `json:"min_boost"` // 最小提升幅度（%）。
+	MinSellerPrice            MoneyMoneyMinSellerPrice                                      `json:"min_seller_price"`
+	MinStock                  int64                                                         `json:"min_stock"` // “库存折扣”促销活动类型中的最低商品数量。
+	Price                     MoneyMoneyPrice                                               `json:"price"`
+	PriceMaxElastic           MoneyMoneyPriceMaxElastic                                     `json:"price_max_elastic"`
+	PriceMinElastic           MoneyMoneyPriceMinElastic                                     `json:"price_min_elastic"`
+	RecommendedStock          int64                                                         `json:"recommended_stock"` // 建议参与促销活动的商品数量。
+	WebsitePrices             ActionsV2ActionsCandidatesResponseProductProductWebsitePrices `json:"website_prices"`
+}
+
+// 网站上的商品价格。
+type ActionsV2ActionsCandidatesResponseProductProductWebsitePrices struct {
+	Price          MoneyMoneyWebsitePrices `json:"price"`
+	PricesBySchema map[string]any          `json:"prices_by_schema"` // 按各配送方案计算的商品价格。
+}
+
+type ActionsV2ActionsProductsDeactivateRequest struct {
+	ActionID   int64    `json:"action_id"`   // 促销活动标识符。可通过方法[/v1/actions](#operation/Promos)获取。
+	ProductIds []string `json:"product_ids"` // Ozon系统中的商品标识符，即`product_id`。
+}
+
+type ActionsV2ActionsProductsDeactivateResponse struct {
+	ProductIds []string `json:"product_ids"` // 已移出促销活动的商品ID列表。
+}
+
+type ActionsV2ActionsProductsRequest struct {
+	ActionID int64  `json:"action_id"` // 促销活动标识符。可通过方法[/v1/actions](#operation/Promos)获取。
+	LastID   string `json:"last_id"`   // 页面上最后一个商品的标识符。如果是首次请求，请将该字段留空。
+	Limit    int64  `json:"limit"`     // K每页显示的数量。
+}
+
+type ActionsV2ActionsProductsResponse struct {
+	LastID   string                                    `json:"last_id"`  // 页面上最后一个商品的标识符。要获取下一个批次的数据，请在下一个请求的`last_id`参数中传递上次获取的值。
+	Products []ActionsV2ActionsProductsResponseProduct `json:"products"` // 商品列表。
+	Total    int64                                     `json:"total"`    // 促销活动中的商品数量。
+}
+
+type ActionsV2ActionsProductsResponseProduct struct {
+	ActionPrice               MoneyMoneyActionPriceToAutoAdd                              `json:"action_price"`
+	AddMode                   ActionsV2ActionsProductsResponseProductAddMode              `json:"add_mode"`
+	AlertMaxActionPrice       MoneyMoneyAlertMaxActionPrice                               `json:"alert_max_action_price"`
+	AlertMaxActionPriceFailed bool                                                        `json:"alert_max_action_price_failed"` // 如果商品价格高于推荐价格，则为`true`。 该商品可能会被移出促销活动。
+	CurrentBoost              float64                                                     `json:"current_boost"`                 // 商品提升幅度。
+	ID                        int64                                                       `json:"id"`                            // Ozon系统中的商品标识符——`product_id`。
+	IsQuarantined             bool                                                        `json:"is_quarantined"`                // 如果商品处于价格冻结中，则为`true`。
+	MarketplaceSellerPrice    MoneyMoneyFBPget                                            `json:"marketplace_seller_price"`
+	MaxActionPrice            MoneyMoneyMaxActionPrice                                    `json:"max_action_price"`
+	MaxBoost                  float64                                                     `json:"max_boost"` // 最大提升幅度（%）。
+	MinBoost                  float64                                                     `json:"min_boost"` // 最小提升幅度（%）。
+	MinSellerPrice            MoneyMoneyMinSellerPrice                                    `json:"min_seller_price"`
+	MinStock                  int64                                                       `json:"min_stock"` // “库存折扣”促销活动类型中的最低商品数量。
+	Price                     MoneyMoneyPrice                                             `json:"price"`
+	PriceMaxElastic           MoneyMoneyPriceMaxElastic                                   `json:"price_max_elastic"`
+	PriceMinElastic           MoneyMoneyPriceMinElastic                                   `json:"price_min_elastic"`
+	RecommendedStock          int64                                                       `json:"recommended_stock"` // 建议参与促销活动的商品数量。
+	Stock                     int64                                                       `json:"stock"`             // “库存折扣”类促销活动中的商品件数。
+	WebsitePrices             ActionsV2ActionsProductsResponseProductProductWebsitePrices `json:"website_prices"`
+}
+
+// 商品加入促销活动的方式： - `AUTO`——自动； - `SELLER`——由卖家手动操作。
+type ActionsV2ActionsProductsResponseProductAddMode string
+
+const (
+	ActionsV2ActionsProductsResponseProductAddModeSeller ActionsV2ActionsProductsResponseProductAddMode = "SELLER"
+	ActionsV2ActionsProductsResponseProductAddModeAuto   ActionsV2ActionsProductsResponseProductAddMode = "AUTO"
+)
+
+// 网站上的商品价格。
+type ActionsV2ActionsProductsResponseProductProductWebsitePrices struct {
+	Price          MoneyMoneyWebsitePrices `json:"price"`
+	PricesBySchema map[string]any          `json:"prices_by_schema"` // 按各配送方案计算的商品价格。
+}
+
+// 商品的最高价格。 如果您在“促销码”促销活动之外添加商品，我们将更改商品卡片中的最高价格，即使该价格此前已设置。 如果该值小于或等于“弹性提升”或“最大提升”促销活动的限额，我们会将商品加入促销活动；如果大于限额，则将商品移出促销活动。 如...
+type MoneyMoneyActionPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 商品的促销价格。
+type MoneyMoneyActionPriceToAutoAdd struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 该促销活动的商品建议价格。
+type MoneyMoneyAlertMaxActionPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 商品的最高价格。 我们将在`auto_add_date`日期更改商品卡片中的最高价格，即使该最高价格此前已设置。 如果该值小于或等于“弹性提升”或“最大提升”促销活动的限额，我们会将商品加入促销活动；如果大于限额，则将商品移出促销活动。 如...
+type MoneyMoneyAutoaddActionPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 商品折扣前价格。
+type MoneyMoneyBasePrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 计入促销活动后的商品价格，不包括由Ozon承担费用的促销活动。
+type MoneyMoneyFBPget struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 该促销活动的商品最高价格。
+type MoneyMoneyMaxActionPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 商品可自动添加到促销活动中的最高价格。
+type MoneyMoneyMaxDiscountPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 应用促销活动后的商品最低价格。
+type MoneyMoneyMinSellerPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 商品无折扣价格。
+type MoneyMoneyPrice struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 最高提升价格。
+type MoneyMoneyPriceMaxElastic struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 最小提升幅度对应的商品价格。
+type MoneyMoneyPriceMinElastic struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
+}
+
+// 网站上各配送方案的最低平均价格。
+type MoneyMoneyWebsitePrices struct {
+	Amount   string `json:"amount"`   // 金额。
+	Currency string `json:"currency"` // 货币单位。
 }

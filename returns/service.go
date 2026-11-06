@@ -7,46 +7,6 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// 批准退货申请
-func (s *Service) ReturnsRfbsVerifyV2(ctx context.Context, req *V2ReturnsRfbsVerifyRequest) (*V1Empty, error) {
-	var resp V1Empty
-	err := s.Client.Post(ctx, "/v2/returns/rfbs/verify", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 向买家退款
-func (s *Service) ReturnsRfbsReturnMoneyV2(ctx context.Context, req *V2ReturnsRfbsReturnMoneyRequest) (*V1Empty, error) {
-	var resp V1Empty
-	err := s.Client.Post(ctx, "/v2/returns/rfbs/return-money", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 退还部分商品金额
-func (s *Service) ReturnsRfbsCompensateV2(ctx context.Context, req *V2ReturnsRfbsCompensateRequest) (*V1Empty, error) {
-	var resp V1Empty
-	err := s.Client.Post(ctx, "/v2/returns/rfbs/compensate", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
-// 拒绝退货申请
-func (s *Service) ReturnsRfbsRejectV2(ctx context.Context, req *V2ReturnsRfbsRejectRequest) (*V1Empty, error) {
-	var resp V1Empty
-	err := s.Client.Post(ctx, "/v2/returns/rfbs/reject", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 拒绝 rFBS 取消申请
 func (s *Service) ConditionalCancellationRejectV2(ctx context.Context) error {
 	err := s.Client.Post(ctx, "/v2/conditional-cancellation/reject", nil, nil)
@@ -112,14 +72,4 @@ func (s *Service) ConditionalCancellationApproveV2(ctx context.Context) error {
 		return err
 	}
 	return nil
-}
-
-// 确认收到待检查商品
-func (s *Service) ReturnsRfbsReceiveReturnV2(ctx context.Context, req *V2ReturnsRfbsReceiveReturnRequest) (*V1Empty, error) {
-	var resp V1Empty
-	err := s.Client.Post(ctx, "/v2/returns/rfbs/receive-return", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
 }

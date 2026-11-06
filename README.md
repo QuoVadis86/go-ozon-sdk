@@ -7,7 +7,7 @@
 [📖 中文文档](README_CN.md)
 
 **go-ozon-sdk** is a Go client library for the [Ozon Seller API](https://docs.ozon.ru/api/seller/) — Ozon marketplace API for products, FBO/FBS orders, prices, stocks, warehouses, finance and reviews.  
-Covers **263 API endpoints** across **22 service modules** with **1180 generated types**.
+Covers **277 API endpoints** across **20 service modules** with **1284 Swagger schemas**.
 
 ## Features
 
@@ -76,23 +76,26 @@ On `/v3/product/info/list`, this header can localize attribute names such as `it
 | [Category](./category/service.go) | 4 | Category tree, attributes, values |
 | [Product](./product/service.go) | 20 | Create, update, list, archive products |
 | [Prices](./prices/service.go) | 10 | Prices, stocks, discounts |
-| [Barcode](./barcode/service.go) | 2 | Generate and bind barcodes |
+| [Barcode](./barcode/service.go) | 3 | Generate and bind barcodes |
 | [Warehouse](./warehouse/service.go) | 18 | Warehouse management, delivery methods |
-| [FBS](./fbs/service.go) | 33 | FBS orders, shipments, marks, delivery |
-| [FBO](./fbo/service.go) | 47 | FBO orders, supply requests, FBP drafts |
+| [FBS](./fbs/service.go) | 42 | FBS orders, shipments, marks, delivery |
+| [FBO](./fbo/service.go) | 48 | FBO orders, supply requests, FBP drafts |
 | [Finance](./finance/service.go) | 6 | Financial reports, transactions |
-| [Promo](./promo/service.go) | 30 | Promotions, seller actions, pricing strategies |
+| [Promo](./promo/service.go) | 38 | Promotions, seller actions, pricing strategies |
 | [Pricing](./pricing/service.go) | 12 | Pricing strategies, competitors |
 | [Report](./report/service.go) | 8 | Report generation and management |
 | [Review](./review/service.go) | 16 | Reviews, questions and answers |
 | [Chat](./chat/service.go) | 6 | Customer chats |
-| [Notification](./notification/service.go) | - | Push notification configuration |
-| [Returns](./returns/service.go) | 12 | Returns management (FBO, FBS, rFBS) |
+| [Returns](./returns/service.go) | 7 | Returns management (FBO, FBS, rFBS) |
 | [Pass](./pass/service.go) | 8 | Access passes |
 | [Rating](./rating/service.go) | 2 | Seller rating |
 | [Delivery](./delivery/service.go) | 2 | Delivery methods, polygons |
 | [Beta](./beta/service.go) | 17 | Beta methods, analytics, visibility |
 | [Premium](./premium/service.go) | 7 | Premium analytics, chat, finance |
+
+## Regenerating the SDK
+
+Save the latest Ozon Swagger JSON to `origin/swagger.json`, then run `go run gen.go`. The generator keeps the existing order of methods, types, and fields; new entries are appended in name order. Running it again with the same Swagger should leave the generated files unchanged.
 
 ## Examples
 

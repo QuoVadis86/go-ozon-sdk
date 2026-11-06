@@ -289,3 +289,83 @@ func TestSellerActionsCreateVoucher(t *testing.T) {
 	}
 	_ = resp
 }
+
+func TestActionsAutoAddProductsCandidatesV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsAutoAddProductsCandidatesV2(ctx, &ActionsV2ActionsAutoAddProductsCandidatesRequest{})
+	if err != nil {
+		t.Fatalf("ActionsAutoAddProductsCandidatesV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsAutoAddProductsDeleteV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsAutoAddProductsDeleteV2(ctx, &ActionsV2ActionsAutoAddProductsDeleteRequest{})
+	if err != nil {
+		t.Fatalf("ActionsAutoAddProductsDeleteV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsAutoAddProductsListV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsAutoAddProductsListV2(ctx, &ActionsV2ActionsAutoAddProductsListRequest{})
+	if err != nil {
+		t.Fatalf("ActionsAutoAddProductsListV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsAutoAddProductsUpdateV2(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsAutoAddProductsUpdateV2(ctx, &ActionsV2ActionsAutoAddProductsUpdateRequest{})
+	if err != nil {
+		t.Fatalf("ActionsAutoAddProductsUpdateV2() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsCandidates(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsCandidates(ctx, &ActionsV2ActionsCandidatesRequest{})
+	if err != nil {
+		t.Fatalf("ActionsCandidates() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsProducts(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsProducts(ctx, &ActionsV2ActionsProductsRequest{})
+	if err != nil {
+		t.Fatalf("ActionsProducts() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsProductsDeactivate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsProductsDeactivate(ctx, &ActionsV2ActionsProductsDeactivateRequest{})
+	if err != nil {
+		t.Fatalf("ActionsProductsDeactivate() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestActionsProductsUpdate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.ActionsProductsUpdate(ctx, &ActionsV1ActionsProductsUpdateRequest{})
+	if err != nil {
+		t.Fatalf("ActionsProductsUpdate() error: %v", err)
+	}
+	_ = resp
+}

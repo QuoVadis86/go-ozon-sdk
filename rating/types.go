@@ -37,15 +37,6 @@ type V1ListFBSRatingIndexPostingsV1Request struct {
 	Limit  int64                                     `json:"limit"` // 返回结果中的数值数量。
 }
 
-// DeliverySchema values
-type DeliverySchema string
-
-const (
-	DeliverySchemaFBS   DeliverySchema = "FBS"
-	DeliverySchemaRFBS  DeliverySchema = "rFBS"
-	DeliverySchemaErFBS DeliverySchema = "erFBS"
-)
-
 // ChargePriceCurrencyCode values
 type ChargePriceCurrencyCode string
 
@@ -68,6 +59,15 @@ const (
 	ProductPriceCurrencyCodeEUR ProductPriceCurrencyCode = "EUR" // 欧元
 	ProductPriceCurrencyCodeUSD ProductPriceCurrencyCode = "USD" // 美元
 	ProductPriceCurrencyCodeCNY ProductPriceCurrencyCode = "CNY" // 人民币
+)
+
+// DeliverySchema values
+type DeliverySchema string
+
+const (
+	DeliverySchemaFBS   DeliverySchema = "FBS"
+	DeliverySchemaRFBS  DeliverySchema = "rFBS"
+	DeliverySchemaErFBS DeliverySchema = "erFBS"
 )
 
 type ListFBSRatingIndexPostingsV1ResponseError struct {

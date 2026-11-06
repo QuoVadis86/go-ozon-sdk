@@ -37,13 +37,6 @@ func TestProductInfoWarehouseStocks(t *testing.T) {
 	_ = resp
 }
 
-func TestFbsPostingProductExemplarSetV6(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.FbsPostingProductExemplarSetV6(ctx, &V6FbsPostingProductExemplarSetV6Request{})
-	_ = err
-}
-
 func TestGetProductStairwayDiscountByQuantity(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -104,26 +97,6 @@ func TestGetFinanceAccrualTypes(t *testing.T) {
 	_ = resp
 }
 
-func TestFbsPostingProductExemplarCreateOrGetV6(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.FbsPostingProductExemplarCreateOrGetV6(ctx, &V6FbsPostingProductExemplarCreateOrGetV6Request{})
-	if err != nil {
-		t.Fatalf("FbsPostingProductExemplarCreateOrGetV6() error: %v", err)
-	}
-	_ = resp
-}
-
-func TestFbsPostingProductExemplarStatusV5(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	resp, err := svc.FbsPostingProductExemplarStatusV5(ctx, &V5FbsPostingProductExemplarStatusV5Request{})
-	if err != nil {
-		t.Fatalf("FbsPostingProductExemplarStatusV5() error: %v", err)
-	}
-	_ = resp
-}
-
 func TestGetDiscountTaskListV2(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -154,13 +127,6 @@ func TestGetFinanceBalanceV1(t *testing.T) {
 	_ = resp
 }
 
-func TestFbsPostingProductExemplarUpdate(t *testing.T) {
-	cl := skipNoCreds(t)
-	svc := &Service{Client: cl}
-	err := svc.FbsPostingProductExemplarUpdate(ctx, &V1FbsPostingProductExemplarUpdateRequest{})
-	_ = err
-}
-
 func TestProductVisibilitySet(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
@@ -171,12 +137,52 @@ func TestProductVisibilitySet(t *testing.T) {
 	_ = resp
 }
 
-func TestFbsPostingProductExemplarValidateV5(t *testing.T) {
+func TestGetFbpPosting(t *testing.T) {
 	cl := skipNoCreds(t)
 	svc := &Service{Client: cl}
-	resp, err := svc.FbsPostingProductExemplarValidateV5(ctx, &V5FbsPostingProductExemplarValidateV5Request{})
+	resp, err := svc.GetFbpPosting(ctx, &PostingV1GetFbpPostingRequest{})
 	if err != nil {
-		t.Fatalf("FbsPostingProductExemplarValidateV5() error: %v", err)
+		t.Fatalf("GetFbpPosting() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCreateCompanyFinanceRealizationPostingReport(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CreateCompanyFinanceRealizationPostingReport(ctx, &V1CreateCompanyFinanceRealizationPostingReportRequest{})
+	if err != nil {
+		t.Fatalf("CreateCompanyFinanceRealizationPostingReport() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestBoxGetByBarcode(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.BoxGetByBarcode(ctx, &ReturnV1BoxGetByBarcodeRequest{})
+	if err != nil {
+		t.Fatalf("BoxGetByBarcode() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestDescriptionCategoryDependentAttributes(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.DescriptionCategoryDependentAttributes(ctx, &DescriptionV1DescriptionCategoryDependentAttributesRequest{})
+	if err != nil {
+		t.Fatalf("DescriptionCategoryDependentAttributes() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestDescriptionCategoryDependentAttributesValues(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.DescriptionCategoryDependentAttributesValues(ctx, &DescriptionV1DescriptionCategoryDependentAttributesValuesRequest{})
+	if err != nil {
+		t.Fatalf("DescriptionCategoryDependentAttributesValues() error: %v", err)
 	}
 	_ = resp
 }

@@ -233,14 +233,15 @@ const (
 )
 
 type Report struct {
-	Params     map[string]any `json:"params"`      // 一个数组，包含卖家创建报告时指定的过滤器。
-	ReportType ReportType     `json:"report_type"` // 报告类型： - `SELLER_PRODUCTS` — 商品报告， - `SELLER_STOCK` — 商品库存报告， - `SELLER_RETURNS` — 退货报告， - `SELLER_POSTINGS` — 发货报告， - `S...
-	Status     Status         `json:"status"`      // 报告生成状态： - `waiting`—在等待队列中待处理， - `processing`—正在处理， - `success`—报告成功生成， - `failed` — 报告生成错误。
-	Code       string         `json:"code"`        // 报告的唯一识别码。要获取报告，请将此值传递到方法 [/v1/report/info](#operation/ReportAPI_ReportInfo)。
-	CreatedAt  string         `json:"created_at"`  // 报告创建日期。
-	Error      string         `json:"error"`       // 生成报告时的错误代码。
-	ExpiresAt  string         `json:"expires_at"`  // 报告链接的有效日期和时间。 如果报告生成于 2025 年 10 月 14 日之前，该字段将为空。
-	File       string         `json:"file"`        // XLSX文件的链接。 `SELLER_RETURNS` 类型的报告，链接有效期为5分钟。
+	Params         map[string]any                   `json:"params"`          // 一个数组，包含卖家创建报告时指定的过滤器。
+	ReportType     ReportType                       `json:"report_type"`     // 报告类型： - `SELLER_PRODUCTS` — 商品报告， - `SELLER_STOCK` — 商品库存报告， - `SELLER_RETURNS` — 退货报告， - `SELLER_POSTINGS` — 发货报告， - `S...
+	Status         Status                           `json:"status"`          // 报告生成状态： - `waiting`—在等待队列中待处理， - `processing`—正在处理， - `success`—报告成功生成， - `failed` — 报告生成错误。
+	Code           string                           `json:"code"`            // 报告的唯一识别码。要获取报告，请将此值传递到方法 [/v1/report/info](#operation/ReportAPI_ReportInfo)。
+	CreatedAt      string                           `json:"created_at"`      // 报告创建日期。
+	Error          string                           `json:"error"`           // 生成报告时的错误代码。
+	ExpiresAt      string                           `json:"expires_at"`      // 报告链接的有效日期和时间。 如果报告生成于 2025 年 10 月 14 日之前，该字段将为空。
+	File           string                           `json:"file"`            // XLSX文件的链接。 `SELLER_RETURNS` 类型的报告，链接有效期为5分钟。
+	AdditionalData []CommonReportAdditionalDataItem `json:"additional_data"` // 附加参数。
 }
 
 type CreateReportResponse struct {
@@ -263,14 +264,15 @@ type ReportListResponse struct {
 
 // 关于报告的信息。
 type Reportinfo struct {
-	Code       string         `json:"code"`        // 报告的唯一识别码。
-	CreatedAt  string         `json:"created_at"`  // 报告创建日期。
-	Error      string         `json:"error"`       // 生成报告时的错误代码。
-	ExpiresAt  string         `json:"expires_at"`  // 报告链接的有效日期和时间。 如果报告生成于 2025 年 10 月 14 日之前，该字段将为空。
-	File       string         `json:"file"`        // XLSX文件的链接。 `SELLER_RETURNS` 类型的报告，链接有效期为5分钟。
-	Params     map[string]any `json:"params"`      // 一个数组，包含卖家创建报告时指定的过滤器。
-	ReportType ReportType     `json:"report_type"` // 报告类型： - `SELLER_PRODUCTS` — 商品报告， - `SELLER_STOCK` — 商品库存报告， - `SELLER_RETURNS` — 退货报告， - `SELLER_POSTINGS` — 发货报告， - `S...
-	Status     Status         `json:"status"`      // 报告生成状态： - `waiting`—在等待队列中待处理， - `processing`—正在处理， - `success`， - `failed`。
+	Code           string                           `json:"code"`            // 报告的唯一识别码。
+	CreatedAt      string                           `json:"created_at"`      // 报告创建日期。
+	Error          string                           `json:"error"`           // 生成报告时的错误代码。
+	ExpiresAt      string                           `json:"expires_at"`      // 报告链接的有效日期和时间。 如果报告生成于 2025 年 10 月 14 日之前，该字段将为空。
+	File           string                           `json:"file"`            // XLSX文件的链接。 `SELLER_RETURNS` 类型的报告，链接有效期为5分钟。
+	Params         map[string]any                   `json:"params"`          // 一个数组，包含卖家创建报告时指定的过滤器。
+	ReportType     ReportType                       `json:"report_type"`     // 报告类型： - `SELLER_PRODUCTS` — 商品报告， - `SELLER_STOCK` — 商品库存报告， - `SELLER_RETURNS` — 退货报告， - `SELLER_POSTINGS` — 发货报告， - `S...
+	Status         Status                           `json:"status"`          // 报告生成状态： - `waiting`—在等待队列中待处理， - `processing`—正在处理， - `success`， - `failed`。
+	AdditionalData []CommonReportAdditionalDataItem `json:"additional_data"` // 附加参数。
 }
 
 // 报告期限。
@@ -334,3 +336,8 @@ type V1CreateStockByWarehouseReportRequest struct {
 }
 
 type CreateDiscountedRequest any
+
+type CommonReportAdditionalDataItem struct {
+	Key   string `json:"key"`   // 附加参数的键。
+	Value string `json:"value"` // 附加参数的值。
+}

@@ -7,7 +7,7 @@
 [English Documentation](README.md)
 
 **go-ozon-sdk** 是 [Ozon Seller API](https://docs.ozon.ru/api/seller/) 的 Go 语言客户端库——俄罗斯电商平台 Ozon 的卖家 API，覆盖商品、FBO/FBS 订单、价格、库存、仓库、财务与评价。  
-覆盖 **263 个 API 端点**，**22 个服务模块**，**1180 个生成类型**。
+覆盖 **277 个 API 端点**，**20 个服务模块**，**1284 个 Swagger 模型**。
 
 ## 特性
 
@@ -76,23 +76,26 @@ resp, err := client.Product.GetProductInfoList(zhCtx, req)
 | [Category](./category/service.go) | 4 | 类目树、属性、属性值 |
 | [Product](./product/service.go) | 20 | 创建、更新、列出、归档商品 |
 | [Prices](./prices/service.go) | 10 | 价格、库存、折扣 |
-| [Barcode](./barcode/service.go) | 2 | 生成和绑定条形码 |
+| [Barcode](./barcode/service.go) | 3 | 生成和绑定条形码 |
 | [Warehouse](./warehouse/service.go) | 18 | 仓库管理、配送方式 |
-| [FBS](./fbs/service.go) | 33 | FBS 订单、发货、标签、配送 |
-| [FBO](./fbo/service.go) | 47 | FBO 订单、供应请求、FBP 草稿 |
+| [FBS](./fbs/service.go) | 42 | FBS 订单、发货、标签、配送 |
+| [FBO](./fbo/service.go) | 48 | FBO 订单、供应请求、FBP 草稿 |
 | [Finance](./finance/service.go) | 6 | 财务报表、交易 |
-| [Promo](./promo/service.go) | 30 | 促销活动、卖家活动、定价策略 |
+| [Promo](./promo/service.go) | 38 | 促销活动、卖家活动、定价策略 |
 | [Pricing](./pricing/service.go) | 12 | 定价策略、竞争对手 |
 | [Report](./report/service.go) | 8 | 报告生成与管理 |
 | [Review](./review/service.go) | 16 | 评价、问答 |
 | [Chat](./chat/service.go) | 6 | 客户聊天 |
-| [Notification](./notification/service.go) | - | 推送通知配置 |
-| [Returns](./returns/service.go) | 12 | 退货管理（FBO、FBS、rFBS） |
+| [Returns](./returns/service.go) | 7 | 退货管理（FBO、FBS、rFBS） |
 | [Pass](./pass/service.go) | 8 | 通行证 |
 | [Rating](./rating/service.go) | 2 | 卖家评级 |
 | [Delivery](./delivery/service.go) | 2 | 配送方式、配送区域 |
 | [Beta](./beta/service.go) | 17 | 测试方法、分析、可见性 |
 | [Premium](./premium/service.go) | 7 | 高级分析、聊天、财务 |
+
+## 重新生成 SDK
+
+将最新 Ozon Swagger JSON 保存为 `origin/swagger.json`，然后运行 `go run gen.go`。生成器保留已有方法、类型和字段的顺序，新内容按名称排序并追加。同一份 Swagger 再运行一次，生成文件应保持不变。
 
 ## 示例
 

@@ -235,6 +235,24 @@ const (
 	SellerServiceanalyticsDimensionDescriptionType  SellerServiceanalyticsDimension = "descriptionType"
 )
 
+// Dimension values
+type Dimension string
+
+const (
+	DimensionUnknownDimension Dimension = "unknownDimension" // 未知商品标识符；
+	DimensionSku              Dimension = "sku"              // 商品标识符；
+	DimensionSpu              Dimension = "spu"              // 商品标识符 — 统一商品卡片；
+	DimensionDay              Dimension = "day"              // 日；
+	DimensionWeek             Dimension = "week"             // 星期；
+	DimensionMonth            Dimension = "month"            // 月
+	DimensionYear             Dimension = "year"             // 年；
+	DimensionCategory1        Dimension = "category1"        // 一级类别；
+	DimensionCategory2        Dimension = "category2"        // 二级类别；
+	DimensionBrand            Dimension = "brand"            // 品牌；
+	DimensionModelID          Dimension = "modelID"          // 型号；
+	DimensionDescriptionType  Dimension = "descriptionType"  // 商品类型
+)
+
 // Metrics values
 type Metrics string
 
@@ -258,24 +276,6 @@ const (
 	MetricsCancellations     Metrics = "cancellations"       // 取消的商品
 	MetricsDeliveredUnits    Metrics = "delivered_units"     // 交付的商品
 	MetricsPositionCategory  Metrics = "position_category"   // 在搜索和类别中的的位置
-)
-
-// Dimension values
-type Dimension string
-
-const (
-	DimensionUnknownDimension Dimension = "unknownDimension" // 未知商品标识符；
-	DimensionSku              Dimension = "sku"              // 商品标识符；
-	DimensionSpu              Dimension = "spu"              // 商品标识符 — 统一商品卡片；
-	DimensionDay              Dimension = "day"              // 日；
-	DimensionWeek             Dimension = "week"             // 星期；
-	DimensionMonth            Dimension = "month"            // 月
-	DimensionYear             Dimension = "year"             // 年；
-	DimensionCategory1        Dimension = "category1"        // 一级类别；
-	DimensionCategory2        Dimension = "category2"        // 二级类别；
-	DimensionBrand            Dimension = "brand"            // 品牌；
-	DimensionModelID          Dimension = "modelID"          // 型号；
-	DimensionDescriptionType  Dimension = "descriptionType"  // 商品类型
 )
 
 type AnalyticsAnalyticsGetDataRequest struct {
@@ -343,19 +343,20 @@ type V1SearchQueriesTextResponse struct {
 	Total         string                                   `json:"total"`          // 搜索查询总数。
 }
 
-// 网站上的商品价格。
+// 买家看到的价格。
 type MoneyMoneyCustomerPrice struct {
 	Amount   string `json:"amount"`   // 金额。
 	Currency string `json:"currency"` // 货币单位。
 }
 
 type V1ProductPricesDetailsResponsePrice struct {
-	Price           MoneyMoney                                      `json:"price"`
-	PriceIndexes    []V1ProductPricesDetailsResponsePricePriceIndex `json:"price_indexes"` // 价格指数。
-	SKU             int64                                           `json:"sku"`           // Ozon 系统中的商品标识符——SKU。
-	CustomerPrice   MoneyMoneyCustomerPrice                         `json:"customer_price"`
-	DiscountPercent float64                                         `json:"discount_percent"` // 由 Ozon 承担的折扣比例。
-	OfferID         string                                          `json:"offer_id"`         // 卖家系统中的商品标识符（商品货号）。
+	Price           MoneyMoney                                       `json:"price"`
+	PriceIndexes    []V1ProductPricesDetailsResponsePricePriceIndex  `json:"price_indexes"` // 商品价格指数。
+	SKU             int64                                            `json:"sku"`           // Ozon 系统中的商品标识符——SKU。
+	CustomerPrice   MoneyMoneyCustomerPrice                          `json:"customer_price"`
+	DiscountPercent float64                                          `json:"discount_percent"` // 由 Ozon 承担的折扣比例。
+	OfferID         string                                           `json:"offer_id"`         // 卖家系统中的商品标识符（商品货号）。
+	WeightIndex     []V1ProductPricesDetailsResponsePriceWeightIndex `json:"weight_index"`     // 加权平均价格指数。如果`weight_index = null`，则表示未能获取该指数。
 }
 
 type V1SearchQueriesTopRequest struct {
@@ -425,4 +426,11 @@ type V1SearchQueriesTopResponse struct {
 // 查询结果。
 type GetRealizationReportByDayResponse struct {
 	Rows []GetRealizationReportByDayResponseRow `json:"rows"` // 报告表格。
+}
+
+type V1ProductPricesDetailsResponsePriceWeightIndex struct {
+	SelfWbIndex              float64      `json:"self_wb_index"`                // Wildberries上的价格指数。
+	SelfWbMinCompetitorPrice []MoneyMoney `json:"self_wb_min_competitor_price"` // 最低价格。
+	SelfWbURL                string       `json:"self_wb_url"`                  // Wildberries上按平均价格销售的商品的链接。
+	WeightPercent            float64      `json:"weight_percent"`               // 商品价格对商品总指数的影响系数。
 }

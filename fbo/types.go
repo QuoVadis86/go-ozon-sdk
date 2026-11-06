@@ -39,14 +39,16 @@ type PostingV1PostingFbpListResponsePostingsFinancialDataProductsActions struct 
 }
 
 type PostingV1PostingFbpListResponsePostingsFinancialDataProducts struct {
-	Price                   float64                                                               `json:"price"`                     // 计入促销活动后的商品价格，不包括由Ozon承担费用的促销活动。
-	ProductID               int64                                                                 `json:"product_id"`                // Ozon系统中的商品标识符，即SKU。
-	Quantity                int64                                                                 `json:"quantity"`                  // 商品数量。
-	TotalDiscountPercent    float64                                                               `json:"total_discount_percent"`    // 折扣百分比。
-	TotalDiscountValue      float64                                                               `json:"total_discount_value"`      // 折扣金额。
-	Actions                 []PostingV1PostingFbpListResponsePostingsFinancialDataProductsActions `json:"actions"`                   // 促销活动列表。
-	CommissionsCurrencyCode string                                                                `json:"commissions_currency_code"` // 佣金货币代码。
-	OldPrice                float64                                                               `json:"old_price"`                 // 折扣前的价格。商品卡上会以划线价显示。
+	Price                   float64                                                                      `json:"price"`                     // 计入促销活动后的商品价格，不包括由Ozon承担费用的促销活动。
+	ProductID               int64                                                                        `json:"product_id"`                // Ozon系统中的商品标识符，即SKU。
+	Quantity                int64                                                                        `json:"quantity"`                  // 商品数量。
+	TotalDiscountPercent    float64                                                                      `json:"total_discount_percent"`    // 折扣百分比。
+	TotalDiscountValue      float64                                                                      `json:"total_discount_value"`      // 折扣金额。
+	Actions                 []PostingV1PostingFbpListResponsePostingsFinancialDataProductsActions        `json:"actions"`                   // 促销活动列表。
+	CommissionsCurrencyCode string                                                                       `json:"commissions_currency_code"` // 佣金货币代码。
+	OldPrice                float64                                                                      `json:"old_price"`                 // 折扣前的价格。商品卡上会以划线价显示。
+	PostingCommission       PostingV1PostingFbpListResponsePostingsFinancialDataProductsCommission       `json:"posting_commission"`
+	ReturnCommission        PostingV1PostingFbpListResponsePostingsFinancialDataProductsReturnCommission `json:"return_commission"`
 }
 
 // 生成状态： - `STATE_TYPE_UNSPECIFIED` ——未定义； - `IN_PROGRESS` ——进行中； - `FINISHED` ——成功完成； - `FAILED` ——错误。
@@ -217,7 +219,7 @@ type V1FbpOrderPickUpCancelResponse struct {
 	RowVersion int64                  `json:"row_version"` // 草稿的当前版本标识符。
 }
 
-// 配送详情。
+// Detali doctavki.
 type V1FbpDraftPickupDlvEditRequestDeliveryDetails struct {
 	Address     string `json:"address"`      // 地址。
 	Comment     string `json:"comment"`      // 备注。
@@ -609,7 +611,7 @@ type V1FbpDraftPickupDlvEditResponse struct {
 	RowVersion int64 `json:"row_version"` // 草稿的当前版本标识符。
 }
 
-// 网站上的商品价格。
+// 买家看到的价格。
 type MoneyMoneyCustomerPrice struct {
 	Amount   string `json:"amount"`   // 金额。
 	Currency string `json:"currency"` // 货币单位。
@@ -1567,4 +1569,74 @@ type V1FbpDraftPickUpProductValidateRequest struct {
 
 type V1FbpDraftDropOffDlvEditResponse struct {
 	RowVersion int64 `json:"row_version"` // 草稿的当前版本标识符。
+}
+
+type FBPV1FbpOrderDirectTplDlvEditRequest struct {
+	RowVersion           int64  `json:"row_version"`            // 草稿的当前版本标识符。
+	SupplyID             string `json:"supply_id"`              // 交货申请标识符。
+	TrackingNumber       string `json:"tracking_number"`        // 货件追踪号码。
+	TransportCompanyName string `json:"transport_company_name"` // 物流公司名称。
+}
+
+type FBPV1FbpOrderDirectTplDlvEditResponse struct {
+	Error      FBPV1OrderValidationError `json:"error"`
+	IsError    bool                      `json:"is_error"`    // `true`，前提是有错误。
+	RowVersion int64                     `json:"row_version"` // 草稿的当前版本标识符。
+}
+
+// 错误信息。
+type FBPV1OrderValidationError struct {
+	OrderErrors []FBPV1OrderValidationErrorErrorType `json:"order_errors"` // 错误类型： - `DELIVERY_DRIVER_NAME_LENGTH_MAXIMUM_REACHED`——司机姓名长度超出上限； - `DELIVERY_VEHICLE_GENRE_LENGTH_MAXIMUM_REACHED`——车辆...
+}
+
+type FBPV1OrderValidationErrorErrorType string
+
+const (
+	FBPV1OrderValidationErrorErrorTypeDeliveryDriverNameLengthMaximumReached               FBPV1OrderValidationErrorErrorType = "DELIVERY_DRIVER_NAME_LENGTH_MAXIMUM_REACHED"
+	FBPV1OrderValidationErrorErrorTypeDeliveryVehicleGenreLengthMaximumReached             FBPV1OrderValidationErrorErrorType = "DELIVERY_VEHICLE_GENRE_LENGTH_MAXIMUM_REACHED"
+	FBPV1OrderValidationErrorErrorTypeDeliveryVehicleRegistrationPlateLengthMaximumReached FBPV1OrderValidationErrorErrorType = "DELIVERY_VEHICLE_REGISTRATION_PLATE_LENGTH_MAXIMUM_REACHED"
+	FBPV1OrderValidationErrorErrorTypeDeliveryTPLNameLengthMaximumReached                  FBPV1OrderValidationErrorErrorType = "DELIVERY_TPL_NAME_LENGTH_MAXIMUM_REACHED"
+	FBPV1OrderValidationErrorErrorTypeDeliveryTrackingNumberLengthMaximumReached           FBPV1OrderValidationErrorErrorType = "DELIVERY_TRACKING_NUMBER_LENGTH_MAXIMUM_REACHED"
+	FBPV1OrderValidationErrorErrorTypeDeliveryDriverNameEmpty                              FBPV1OrderValidationErrorErrorType = "DELIVERY_DRIVER_NAME_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDeliveryVehicleGenreEmpty                            FBPV1OrderValidationErrorErrorType = "DELIVERY_VEHICLE_GENRE_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDeliveryVehicleRegistrationPlateEmpty                FBPV1OrderValidationErrorErrorType = "DELIVERY_VEHICLE_REGISTRATION_PLATE_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDeliveryTPLNameEmpty                                 FBPV1OrderValidationErrorErrorType = "DELIVERY_TPL_NAME_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDeliveryTrackingNumberEmpty                          FBPV1OrderValidationErrorErrorType = "DELIVERY_TRACKING_NUMBER_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDeliveryBYSellerEmpty                                FBPV1OrderValidationErrorErrorType = "DELIVERY_BY_SELLER_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDeliveryBYTPLEmpty                                   FBPV1OrderValidationErrorErrorType = "DELIVERY_BY_TPL_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeReceiveDateNOTSET                                    FBPV1OrderValidationErrorErrorType = "RECEIVE_DATE_NOT_SET"
+	FBPV1OrderValidationErrorErrorTypeSupplyTypeNOTSupported                               FBPV1OrderValidationErrorErrorType = "SUPPLY_TYPE_NOT_SUPPORTED"
+	FBPV1OrderValidationErrorErrorTypeInvalidBusinessFlow                                  FBPV1OrderValidationErrorErrorType = "INVALID_BUSINESS_FLOW"
+	FBPV1OrderValidationErrorErrorTypeOrderLocked                                          FBPV1OrderValidationErrorErrorType = "ORDER_LOCKED"
+	FBPV1OrderValidationErrorErrorTypeInvalidTimeslot                                      FBPV1OrderValidationErrorErrorType = "INVALID_TIMESLOT"
+	FBPV1OrderValidationErrorErrorTypeDropOFFDetailsEmpty                                  FBPV1OrderValidationErrorErrorType = "DROP_OFF_DETAILS_EMPTY"
+	FBPV1OrderValidationErrorErrorTypePickUPAddressISEmpty                                 FBPV1OrderValidationErrorErrorType = "PICK_UP_ADDRESS_IS_EMPTY"
+	FBPV1OrderValidationErrorErrorTypePickUPSenderNameISEmpty                              FBPV1OrderValidationErrorErrorType = "PICK_UP_SENDER_NAME_IS_EMPTY"
+	FBPV1OrderValidationErrorErrorTypePickUPSenderPhoneISEmpty                             FBPV1OrderValidationErrorErrorType = "PICK_UP_SENDER_PHONE_IS_EMPTY"
+	FBPV1OrderValidationErrorErrorTypePickUPAddressISTOOLarge                              FBPV1OrderValidationErrorErrorType = "PICK_UP_ADDRESS_IS_TOO_LARGE"
+	FBPV1OrderValidationErrorErrorTypePickUPSenderNameISTOOLarge                           FBPV1OrderValidationErrorErrorType = "PICK_UP_SENDER_NAME_IS_TOO_LARGE"
+	FBPV1OrderValidationErrorErrorTypePickUPSenderPhoneISTOOLarge                          FBPV1OrderValidationErrorErrorType = "PICK_UP_SENDER_PHONE_IS_TOO_LARGE"
+	FBPV1OrderValidationErrorErrorTypePickUPCommentISTOOLarge                              FBPV1OrderValidationErrorErrorType = "PICK_UP_COMMENT_IS_TOO_LARGE"
+	FBPV1OrderValidationErrorErrorTypePickUPDetailsEmpty                                   FBPV1OrderValidationErrorErrorType = "PICK_UP_DETAILS_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeDropOFFAddressNOTSET                                 FBPV1OrderValidationErrorErrorType = "DROP_OFF_ADDRESS_NOT_SET"
+	FBPV1OrderValidationErrorErrorTypeInvalidDeclineReasonFORWarehouseType                 FBPV1OrderValidationErrorErrorType = "INVALID_DECLINE_REASON_FOR_WAREHOUSE_TYPE"
+	FBPV1OrderValidationErrorErrorTypePickUPSenderPhoneHASNOTAllowedChars                  FBPV1OrderValidationErrorErrorType = "PICK_UP_SENDER_PHONE_HAS_NOT_ALLOWED_CHARS"
+	FBPV1OrderValidationErrorErrorTypeTimeslotEmpty                                        FBPV1OrderValidationErrorErrorType = "TIMESLOT_EMPTY"
+	FBPV1OrderValidationErrorErrorTypeTimeslotExpired                                      FBPV1OrderValidationErrorErrorType = "TIMESLOT_EXPIRED"
+	FBPV1OrderValidationErrorErrorTypeBundleUpdateAlreadyINProgress                        FBPV1OrderValidationErrorErrorType = "BUNDLE_UPDATE_ALREADY_IN_PROGRESS"
+	FBPV1OrderValidationErrorErrorTypeInvalidState                                         FBPV1OrderValidationErrorErrorType = "INVALID_STATE"
+)
+
+// 货件佣金。
+type PostingV1PostingFbpListResponsePostingsFinancialDataProductsCommission struct {
+	Amount  float64 `json:"amount"`  // 金额。
+	Payout  float64 `json:"payout"`  // 付款。
+	Percent float64 `json:"percent"` // 佣金比例。
+}
+
+// 退货佣金。
+type PostingV1PostingFbpListResponsePostingsFinancialDataProductsReturnCommission struct {
+	Amount  float64 `json:"amount"`  // 金额。
+	Payout  float64 `json:"payout"`  // 付款。
+	Percent float64 `json:"percent"` // 佣金比例。
 }

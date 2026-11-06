@@ -486,3 +486,13 @@ func TestFbpDraftDirectRegistrate(t *testing.T) {
 	}
 	_ = resp
 }
+
+func TestFbpOrderDirectTplDlvEdit(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.FbpOrderDirectTplDlvEdit(ctx, &FBPV1FbpOrderDirectTplDlvEditRequest{})
+	if err != nil {
+		t.Fatalf("FbpOrderDirectTplDlvEdit() error: %v", err)
+	}
+	_ = resp
+}

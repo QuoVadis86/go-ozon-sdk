@@ -29,6 +29,9 @@ type SellerAPIArrivalPassCreateRequestArrivalPass struct {
 	WithReturns         bool   `json:"with_returns"`          // 如果要运出退货，则为`true`。 默认值为`false`。
 	DriverName          string `json:"driver_name"`           // 司机的姓名。
 	DriverPhone         string `json:"driver_phone"`          // 司机的电话号码。
+	ArrivalTime         string `json:"arrival_time"`          // 入场时间，UTC格式。 此时通行证将开始生效。
+	TrackingNumber      string `json:"tracking_number"`       // 运送至分拣中心的追踪号码。
+	TrackingURL         string `json:"tracking_url"`          // 用于追踪货件的承运商网站链接。
 }
 
 type SellerAPIArrivalPassCreateRequest struct {
@@ -86,6 +89,9 @@ type SellerAPIArrivalPassUpdateRequestArrivalPass struct {
 	VehicleLicensePlate string `json:"vehicle_license_plate"` // 车辆牌照号码。
 	VehicleModel        string `json:"vehicle_model"`         // 车辆型号。
 	WithReturns         bool   `json:"with_returns"`          // 如果要运出退货，则为`true`。 默认值为`false`。
+	ArrivalTime         string `json:"arrival_time"`          // 入场时间，UTC格式。 此时通行证将开始生效。
+	TrackingNumber      string `json:"tracking_number"`       // 运送至分拣中心的追踪号码。
+	TrackingURL         string `json:"tracking_url"`          // 用于追踪货件的承运商网站链接。
 }
 
 type SellerAPIArrivalPassUpdateRequest struct {

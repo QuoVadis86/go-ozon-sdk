@@ -25,13 +25,16 @@ const (
 type InfoChatType string
 
 const (
-	InfoChatTypeUnspecified                 InfoChatType = "UNSPECIFIED"
-	InfoChatTypeSellerSupport               InfoChatType = "SELLER_SUPPORT"
-	InfoChatTypeBuyerSeller                 InfoChatType = "BUYER_SELLER"
-	InfoChatTypeBuyerSellerSelect           InfoChatType = "BUYER_SELLER_SELECT"
-	InfoChatTypeSellerAPIUpdates            InfoChatType = "SELLER_API_UPDATES"
-	InfoChatTypeSellerAPINotifications      InfoChatType = "SELLER_API_NOTIFICATIONS"
-	InfoChatTypeSellerNotificationLogistics InfoChatType = "SELLER_NOTIFICATION_LOGISTICS"
+	InfoChatTypeUnspecified                     InfoChatType = "UNSPECIFIED"
+	InfoChatTypeSellerSupport                   InfoChatType = "SELLER_SUPPORT"
+	InfoChatTypeBuyerSeller                     InfoChatType = "BUYER_SELLER"
+	InfoChatTypeBuyerSellerSelect               InfoChatType = "BUYER_SELLER_SELECT"
+	InfoChatTypeSellerAPIUpdates                InfoChatType = "SELLER_API_UPDATES"
+	InfoChatTypeSellerAPINotifications          InfoChatType = "SELLER_API_NOTIFICATIONS"
+	InfoChatTypeSellerNotificationLogistics     InfoChatType = "SELLER_NOTIFICATION_LOGISTICS"
+	InfoChatTypeSellerNotificationUpdateContent InfoChatType = "SELLER_NOTIFICATION_UPDATE_CONTENT"
+	InfoChatTypeSellerPersonalManagerUnityCRM   InfoChatType = "SELLER_PERSONAL_MANAGER_UNITY_CRM"
+	InfoChatTypeSellerBusinessDevelopmentGroup  InfoChatType = "SELLER_BUSINESS_DEVELOPMENT_GROUP"
 )
 
 // 聊天信息。
@@ -66,18 +69,9 @@ type V2ChatReadResponse struct {
 }
 
 // 按聊天过滤。
-// ChatStatus values
-type ChatStatus string
-
-const (
-	ChatStatusAll    ChatStatus = "All"    // 所有聊天
-	ChatStatusOpened ChatStatus = "Opened" // 开放的聊天
-	ChatStatusClosed ChatStatus = "Closed" // 不开放的聊天
-)
-
 type V3ChatListRequestFilter struct {
-	ChatStatus ChatStatus `json:"chat_status"` // 按聊天状态过滤： - `All` — 所有聊天。 - `Opened` — 开放的聊天。 - `Closed` — 不开放的聊天。 默认值：`All`。
-	UnreadOnly bool       `json:"unread_only"` // 按有未读信息的聊天过滤。
+	ChatStatus V3ChatListRequestFilterChatStatus `json:"chat_status"`
+	UnreadOnly bool                              `json:"unread_only"` // 按有未读信息的聊天过滤。
 }
 
 type V3Chat struct {
@@ -176,3 +170,12 @@ type V3ChatHistoryRequest struct {
 	FromMessageID int64                `json:"from_message_id"` // 从该信息开始整理聊天记录的消息识别码。默认为从最后一条可见信息。 当 `direction = Forward` 时，`from_message_id` 参数为必填。
 	Limit         int64                `json:"limit"`           // 答复的信息数量。默认设置为50。最大值是1000。
 }
+
+// 按聊天状态过滤： - `All` — 所有聊天。 - `Opened` — 开放的聊天。 - `Closed` — 不开放的聊天。
+type V3ChatListRequestFilterChatStatus string
+
+const (
+	V3ChatListRequestFilterChatStatusALL    V3ChatListRequestFilterChatStatus = "ALL"
+	V3ChatListRequestFilterChatStatusOpened V3ChatListRequestFilterChatStatus = "OPENED"
+	V3ChatListRequestFilterChatStatusClosed V3ChatListRequestFilterChatStatus = "CLOSED"
+)
