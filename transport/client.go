@@ -66,7 +66,7 @@ type Client struct {
 	baseURL    string
 	clientID   string
 	apiKey     string
-	language   string
+	language   Language
 }
 
 type Options struct {
@@ -74,15 +74,15 @@ type Options struct {
 	Timeout    time.Duration
 	HTTPClient *http.Client
 
-	// Language is sent as x-o3-language on every request when set.
-	// Use "zh-Hans" for Simplified Chinese, not the category API value "ZH_HANS".
-	Language string
+	// Language selects the x-o3-language value for every request.
+	// LanguageDefault omits the header.
+	Language Language
 }
 
 func New(clientID, apiKey string, opts *Options) *Client {
 	baseURL := DefaultBaseURL
 	timeout := DefaultTimeout
-	language := ""
+	language := LanguageDefault
 	if opts != nil {
 		if opts.BaseURL != "" {
 			baseURL = opts.BaseURL
@@ -151,8 +151,12 @@ func (c *Client) doRequest(ctx context.Context, method, path string, reqBody, re
 	req.Header.Set("Content-Type", HeaderContentType)
 	req.Header.Set(HeaderClientID, c.clientID)
 	req.Header.Set(HeaderAPIKey, c.apiKey)
-	if c.language != "" {
-		req.Header.Set(HeaderLanguage, c.language)
+	languageHeader, err := c.language.headerValue()
+	if err != nil {
+		return err
+	}
+	if languageHeader != "" {
+		req.Header.Set(HeaderLanguage, languageHeader)
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

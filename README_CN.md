@@ -58,11 +58,11 @@ func main() {
 
 ```go
 client := ozon.NewClient("your-client-id", "your-api-key", &ozon.ClientOptions{
-    Language: "zh-Hans",
+    Language: ozon.LanguageZHHans,
 })
 ```
 
-不设置 `Language` 时，SDK 不发送该请求头。简体中文请使用请求头值 `zh-Hans`；类目接口的 `LanguageLanguageZHHans` 枚举值是 `ZH_HANS`，属于请求体参数，不能原样用作此请求头的中文值。
+可选常量为 `LanguageDefault`、`LanguageRU`、`LanguageEN`、`LanguageTR`、`LanguageZHHans`。默认值不发送请求头。SDK 会将 `LanguageZHHans` 映射为准确的请求头值 `zh-Hans`；类目接口的 `LanguageLanguageZHHans` 是独立的请求体枚举，不能用于此选项。
 
 在 `/v3/product/info/list` 的实测中，该请求头可将 `items[].errors[].texts.attribute_name` 等属性名称本地化，但 `texts.message` 中的错误正文仍可能是英文或俄文。处理错误时应依据 `errors[].code`、`attribute_id` 等结构化字段。
 
