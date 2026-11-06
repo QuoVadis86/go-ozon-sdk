@@ -5,13 +5,121 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 )
+
+func sortedKeys[V any](items map[string]V) []string {
+	keys := make([]string, 0, len(items))
+	for key := range items {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+// orderedKeys retains the order already published in generated Go code and
+// appends keys introduced by a newer Swagger in lexical order.
+func orderedKeys[V any](items map[string]V, existing []string) []string {
+	keys := make([]string, 0, len(items))
+	seen := make(map[string]bool, len(items))
+	for _, key := range existing {
+		if _, ok := items[key]; ok && !seen[key] {
+			keys = append(keys, key)
+			seen[key] = true
+		}
+	}
+	for _, key := range sortedKeys(items) {
+		if !seen[key] {
+			keys = append(keys, key)
+		}
+	}
+	return keys
+}
+
+type generatedLayout struct {
+	types   []string
+	fields  map[string][]string
+	methods []string
+}
+
+func readGeneratedLayout(dir string) generatedLayout {
+	layout := generatedLayout{fields: map[string][]string{}}
+	for _, fileName := range []string{"types.go", "service.go"} {
+		file, err := parser.ParseFile(token.NewFileSet(), filepath.Join(dir, fileName), nil, 0)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			panic(err)
+		}
+		for _, decl := range file.Decls {
+			switch node := decl.(type) {
+			case *ast.GenDecl:
+				if fileName != "types.go" || node.Tok != token.TYPE {
+					continue
+				}
+				for _, spec := range node.Specs {
+					typ := spec.(*ast.TypeSpec)
+					layout.types = append(layout.types, typ.Name.Name)
+					body, ok := typ.Type.(*ast.StructType)
+					if !ok {
+						continue
+					}
+					for _, field := range body.Fields.List {
+						if field.Tag == nil {
+							continue
+						}
+						tag, err := strconv.Unquote(field.Tag.Value)
+						if err != nil {
+							panic(err)
+						}
+						name := strings.Split(reflect.StructTag(tag).Get("json"), ",")[0]
+						if name == "type_" {
+							name = "type"
+						}
+						if name != "" && name != "-" {
+							layout.fields[typ.Name.Name] = append(layout.fields[typ.Name.Name], name)
+						}
+					}
+				}
+			case *ast.FuncDecl:
+				if fileName == "service.go" && node.Recv != nil {
+					layout.methods = append(layout.methods, node.Name.Name)
+				}
+			}
+		}
+	}
+	return layout
+}
+
+func orderByExisting[T any](items []T, name func(T) string, existing []string) {
+	rank := make(map[string]int, len(existing))
+	for i, key := range existing {
+		rank[key] = i
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		a, aFound := rank[name(items[i])]
+		b, bFound := rank[name(items[j])]
+		if aFound && bFound {
+			return a < b
+		}
+		if aFound != bFound {
+			return aFound
+		}
+		return name(items[i]) < name(items[j])
+	})
+}
 
 var (
 	camelRe = regexp.MustCompile(`[._\-/]`)
@@ -451,7 +559,13 @@ var sharedEnumTypes = map[string]string{
 	"DimensionUnit": "enum.DimensionUnit",
 }
 
-func appendType(out *[]string, name string, s Schema, cache map[string]string, schemas map[string]Schema) {
+func appendType(out *[]string, name string, s Schema, cache map[string]string, schemas map[string]Schema, fieldOrder []string) {
+	if len(s.Properties) == 0 && s.Type == "string" {
+		if _, shared := sharedEnumTypes[name]; shared {
+			allGeneratedTypes[name] = true
+			return
+		}
+	}
 	if s.Description != "" {
 		*out = append(*out, fmt.Sprintf("// %s", sanitizeComment(s.Description)))
 	}
@@ -469,13 +583,6 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 			}
 			*out = append(*out, fmt.Sprintf("type %s []%s", name, itemType))
 		case "string":
-			if _, ok := sharedEnumTypes[name]; ok {
-				needsEnumImport = true
-				allGeneratedTypes[name] = true
-				*out = append(*out, fmt.Sprintf("// %s is provided by the enum package.", name))
-				*out = append(*out, "")
-				return
-			}
 			*out = append(*out, fmt.Sprintf("type %s string", name))
 			if len(s.Enum) > 0 {
 				*out = append(*out, "const (")
@@ -535,7 +642,8 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		valueDescs []string
 	}
 	var enums []enumDef
-	for pn, pv := range s.Properties {
+	for _, pn := range orderedKeys(s.Properties, fieldOrder) {
+		pv := s.Properties[pn]
 		pvMap, _ := pv.(map[string]interface{})
 		if pvMap == nil {
 			continue
@@ -593,7 +701,8 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 	}
 	allGeneratedTypes[name] = true
 	*out = append(*out, fmt.Sprintf("type %s struct {", name))
-	for pn, pv := range s.Properties {
+	for _, pn := range orderedKeys(s.Properties, fieldOrder) {
+		pv := s.Properties[pn]
 		pvMap, _ := pv.(map[string]interface{})
 		if pvMap == nil {
 			continue
@@ -626,6 +735,12 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		}
 		*out = append(*out, line)
 	}
+	// The documented object schema is also returned as a URL string by Ozon.
+	if name == "GetProductAttributesResponseImage" {
+		if _, hasURL := s.Properties["url"]; !hasURL {
+			*out = append(*out, "\tURL string `json:\"url,omitempty\"` // URL string returned in images.")
+		}
+	}
 	*out = append(*out, "}", "")
 }
 
@@ -651,8 +766,20 @@ func main() {
 	}
 	cache := map[string]string{}
 	nameCollisions := map[string]string{}
+	// Keep names already exposed by the SDK when a schema name and its trimmed
+	// form collide. The order of Swagger keys must not decide public Go names.
+	stableSchemaNames := map[string]string{
+		"FirstMileTypeEnum": "FirstMileTypeEnum",
+		"RatingStatusEnum":  "StatusEnum",
+		"StatusEnum":        "Status",
+	}
 	svcPrefixes := []string{"product", "finance", "warehouse", "seller", "fbs", "fbo", "promo", "beta", "premium", "pass", "returns", "review", "chat", "barcode", "rating", "delivery", "report", "category", "certificate"}
-	for n := range comps.Schemas {
+	for _, n := range sortedKeys(comps.Schemas) {
+		if stable, ok := stableSchemaNames[n]; ok {
+			cache[n] = stable
+			nameCollisions[stable] = n
+			continue
+		}
 		stripped := n
 		lower := strings.ToLower(n)
 		for _, p := range svcPrefixes {
@@ -734,8 +861,10 @@ func main() {
 	dirDirectTypes := map[string]map[string]bool{}
 	methodNames := map[string]bool{}
 
-	for path, items := range paths {
-		for httpM, raw := range items {
+	for _, path := range sortedKeys(paths) {
+		items := paths[path]
+		for _, httpM := range sortedKeys(items) {
+			raw := items[httpM]
 			var item struct {
 				Summary     string                     `json:"summary"`
 				Description string                     `json:"description"`
@@ -756,6 +885,10 @@ func main() {
 			if dir == "" {
 				continue
 			}
+			// The retired v3 attributes API is maintained in product/attributes_v3_compat.go.
+			if dir == "product" && item.OperationID == "ProductAPI_GetProductAttributesV3" {
+				continue
+			}
 			if dirDirectTypes[dir] == nil {
 				dirDirectTypes[dir] = map[string]bool{}
 			}
@@ -770,7 +903,8 @@ func main() {
 					} `json:"content"`
 				}
 				json.Unmarshal(*item.RequestBody, &rb)
-				for _, c := range rb.Content {
+				for _, contentType := range sortedKeys(rb.Content) {
+					c := rb.Content[contentType]
 					if c.Schema.Ref != "" {
 						sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
 						reqT = cache[sname]
@@ -789,7 +923,8 @@ func main() {
 					} `json:"content"`
 				}
 				json.Unmarshal(r, &rb)
-				for _, c := range rb.Content {
+				for _, contentType := range sortedKeys(rb.Content) {
+					c := rb.Content[contentType]
 					if c.Schema.Ref != "" {
 						sname := strings.TrimPrefix(c.Schema.Ref, "#/components/schemas/")
 						respT = cache[sname]
@@ -894,9 +1029,13 @@ func main() {
 				notes = notes[:3]
 			}
 
+			methodPath := path
+			if dir == "review" && name == "TopSku" {
+				methodPath = "/v1/question/top-sku"
+			}
 			dirMethods[dir] = append(dirMethods[dir], Method{
 				Dir: dir, Name: name, HTTPM: strings.ToUpper(httpM),
-				Path: path, ReqT: reqT, RespT: respT,
+				Path: methodPath, ReqT: reqT, RespT: respT,
 				Summary: item.Summary, Deprecated: item.Deprecated,
 				ReplaceWith: replaceWith, Notes: notes,
 			})
@@ -904,7 +1043,8 @@ func main() {
 	}
 
 	dirAllTypes := map[string]map[string]bool{}
-	for dir, direct := range dirDirectTypes {
+	for _, dir := range sortedKeys(dirDirectTypes) {
+		direct := dirDirectTypes[dir]
 		visited := map[string]bool{}
 		var visit func(string)
 		visit = func(sname string) {
@@ -912,62 +1052,56 @@ func main() {
 				return
 			}
 			visited[sname] = true
-			for dep := range depOf[sname] {
+			for _, dep := range sortedKeys(depOf[sname]) {
 				visit(dep)
 			}
 		}
-		for s := range direct {
+		for _, s := range sortedKeys(direct) {
 			visit(s)
 		}
 		dirAllTypes[dir] = visited
 	}
 
-	for dir, methods := range dirMethods {
+	for _, dir := range sortedKeys(dirMethods) {
+		methods := dirMethods[dir]
 		dp := filepath.Join(dir)
 		os.MkdirAll(dp, 0755)
+		layout := readGeneratedLayout(dp)
+		orderByExisting(methods, func(m Method) string { return m.Name }, layout.methods)
 
 		dlines := []string{fmt.Sprintf("package %s", dir), ""}
 		typeCount := 0
 		dirGenned := map[string]bool{}
-		dirInProg := map[string]bool{}
 		dirGoNames := map[string]string{}
 		enumTypeGenerated = map[string]bool{}
 		allGeneratedTypes = map[string]bool{}
 		enumNameUsed = map[string]string{}
 		needsEnumImport = false
 
-		var writeType func(string)
-		writeType = func(sname string) {
-			if dirGenned[sname] || dirInProg[sname] {
+		writeType := func(sname string) {
+			if dirGenned[sname] {
 				return
 			}
-			dirInProg[sname] = true
 			s, ok := schemas[sname]
 			if !ok {
-				dirInProg[sname] = false
 				return
 			}
 			gn := cache[sname]
 			if prev, exists := dirGoNames[gn]; exists && prev != sname {
-				dirInProg[sname] = false
 				dirGenned[sname] = true
 				return
 			}
 			dirGoNames[gn] = sname
-			for dep := range depOf[sname] {
-				if dep != sname {
-					writeType(dep)
-				}
-			}
-			dirInProg[sname] = false
 			dirGenned[sname] = true
 			if dirAllTypes[dir][sname] {
-				appendType(&dlines, gn, s, cache, schemas)
+				appendType(&dlines, gn, s, cache, schemas, layout.fields[gn])
 				typeCount++
 			}
 		}
 
-		for t := range dirAllTypes[dir] {
+		types := sortedKeys(dirAllTypes[dir])
+		orderByExisting(types, func(sname string) string { return cache[sname] }, layout.types)
+		for _, t := range types {
 			writeType(t)
 		}
 

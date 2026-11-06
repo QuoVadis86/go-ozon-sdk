@@ -1,9 +1,5 @@
 package beta
 
-type V1FbsPostingProductExemplarUpdateRequest struct {
-	PostingNumber string `json:"posting_number"` // 发货号。
-}
-
 type V1ProductFbsSplit struct {
 	ProductID int64 `json:"product_id"` // Ozon系统中的商品标识符 — SKU。
 	Quantity  int64 `json:"quantity"`   // 数量。
@@ -59,16 +55,6 @@ type DescriptionCategoryTipsResponseResult struct {
 	TypeID    int64    `json:"type_id"`    // 商品类型标识符。
 }
 
-// 卖家设置的可见性取值： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示； - `OZON_SELECT`——在Select和Ozon展示。
-type V1ProductVisibilitySetResponseItemsSellerItemPlacementEnum string
-
-const (
-	V1ProductVisibilitySetResponseItemsSellerItemPlacementEnumUnspecified V1ProductVisibilitySetResponseItemsSellerItemPlacementEnum = "UNSPECIFIED"
-	V1ProductVisibilitySetResponseItemsSellerItemPlacementEnumOzon        V1ProductVisibilitySetResponseItemsSellerItemPlacementEnum = "OZON"
-	V1ProductVisibilitySetResponseItemsSellerItemPlacementEnumSelect      V1ProductVisibilitySetResponseItemsSellerItemPlacementEnum = "SELECT"
-	V1ProductVisibilitySetResponseItemsSellerItemPlacementEnumOzonSelect  V1ProductVisibilitySetResponseItemsSellerItemPlacementEnum = "OZON_SELECT"
-)
-
 // 其他服务的应计金额。
 type V1GetFinanceBalanceV1ResponseServicesMoney struct {
 	CurrencyCode string  `json:"currency_code"` // 货币单位。
@@ -81,10 +67,10 @@ type MoneyMoneyAccrued struct {
 	Amount   string `json:"amount"`   // 金额。数值可以为负数。
 }
 
-// 单价。
+// 计入Ozon折扣后的卖家价格。
 type MoneyMoneySellerPrice struct {
 	Currency string `json:"currency"` // 货币单位。
-	Amount   string `json:"amount"`   // 金额。如果计入的是销售佣金，数值可以为负数。
+	Amount   string `json:"amount"`   // 金额。
 }
 
 type V1GetFinanceAccrualPostingsResponsePostingAccrualsAccrual struct {
@@ -110,46 +96,6 @@ type V1GetFinanceBalanceV1Request struct {
 	DateTo   string `json:"date_to"`   // 报告期结束日期，格式为 `YYYY-MM-DD`。`date_from` 与 `date_to` 之间的最⻓间隔为30 天。
 }
 
-// MarkType values
-type MarkType string
-
-const (
-	MarkTypeMandatoryMark MarkType = "mandatory_mark" // “诚实标志”（Chestny ZNAK）强制性标志；
-	MarkTypeJwUin         MarkType = "jw_uin"         // 珠宝制品的唯 一 识别编号；
-	MarkTypeImei          MarkType = "imei"           // 移动设备 IMEI
-)
-
-type V5FbsPostingProductExemplarValidateV5ResponseProductExemplarMark struct {
-	Errors   []string `json:"errors"`    // 检查控制识别码及其他标识时出现的错误。
-	Mark     string   `json:"mark"`      // 标志代码的值。
-	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
-	Valid    bool     `json:"valid"`     // 检查结果： 若控制识别码及其他标识符合要求，则为`true`。
-}
-
-type V5FbsPostingProductExemplarValidateV5ResponseProductExemplar struct {
-	Errors []string                                                           `json:"errors"` // 样件验证错误。
-	GTD    string                                                             `json:"gtd"`    // 货运报关单号码（Cargo Customs Declaration)。
-	Marks  []V5FbsPostingProductExemplarValidateV5ResponseProductExemplarMark `json:"marks"`  // 检查控制识别码及其他标识时出现的错误。
-	Rnpt   string                                                             `json:"rnpt"`   // 商品批次注册号 (Product Batch Registration Number)。
-	Valid  bool                                                               `json:"valid"`  // 验证结果。如果样件代码都符合要求，那么结果将为 `true`。
-}
-
-type V5FbsPostingProductExemplarValidateV5ResponseProduct struct {
-	Exemplars []V5FbsPostingProductExemplarValidateV5ResponseProductExemplar `json:"exemplars"`  // 副本信息。
-	ProductID int64                                                          `json:"product_id"` // Ozon系统中的商品ID — SKU。
-	Valid     bool                                                           `json:"valid"`      // 验证结果。如果所有样件的代码都符合要求，那么结果将为 `true`。
-	Error     string                                                         `json:"error"`      // 错误代码。
-}
-
-// 按数量折扣变更状态。可能的取值： - `ERROR`——修改折扣时出错。请再次调用方法 [/v1/product/stairway-discount/by-quantity/set](#operation/ProductAPI_SetPro...
-type Status string
-
-const (
-	StatusINProcess Status = "IN_PROCESS"
-	StatusError     Status = "ERROR"
-	StatusSuccess   Status = "SUCCESS"
-)
-
 type V1GetProductStairwayDiscountByQuantityResponseStairwaysStairwayStep struct {
 	Discount int64 `json:"discount"` // 折扣百分比。
 	Quantity int64 `json:"quantity"` // 订单中用于应用折扣的商品数量。
@@ -170,7 +116,7 @@ type V1GetProductStairwayDiscountByQuantityResponseStairways struct {
 
 type V1GetFinanceAccrualByDayResponseAccrualPostingProductDeliveryService struct {
 	Accrued MoneyMoneyAccrued `json:"accrued"`
-	TypeID  int32             `json:"type_id"`
+	TypeID  int32             `json:"type_id"` // 应计类型标识符。请使用[/v1/finance/accrual/types](#operation/GetFinanceAccrualTypes)方法获取参数值。
 }
 
 // 服务应计总金额。
@@ -181,20 +127,19 @@ type MoneyMoneyTotalAccrued struct {
 
 // 配送相关应计项目。
 type V1GetFinanceAccrualByDayResponseAccrualPostingProductDelivery struct {
-	Services     []V1GetFinanceAccrualByDayResponseAccrualPostingProductDeliveryService `json:"services"` // 其他服务相关应计项目。
+	Services     []V1GetFinanceAccrualByDayResponseAccrualPostingProductDeliveryService `json:"services"` // 配送服务应计费用。
 	TotalAccrued MoneyMoneyTotalAccrued                                                 `json:"total_accrued"`
 }
 
-type V5FbsPostingProductExemplarStatusV5Request struct {
-	PostingNumber string `json:"posting_number"` // 发货号。
-}
-
+// 商品展示在哪些橱窗中： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示； - `OZON_SELECT`——在Select和Ozon展示； - `NONE`—...
 type V1ProductVisibilitySetResponseItemsShowcasesVisibility string
 
 const (
 	V1ProductVisibilitySetResponseItemsShowcasesVisibilityUnspecified V1ProductVisibilitySetResponseItemsShowcasesVisibility = "UNSPECIFIED"
 	V1ProductVisibilitySetResponseItemsShowcasesVisibilityOzon        V1ProductVisibilitySetResponseItemsShowcasesVisibility = "OZON"
 	V1ProductVisibilitySetResponseItemsShowcasesVisibilitySelect      V1ProductVisibilitySetResponseItemsShowcasesVisibility = "SELECT"
+	V1ProductVisibilitySetResponseItemsShowcasesVisibilityOzonSelect  V1ProductVisibilitySetResponseItemsShowcasesVisibility = "OZON_SELECT"
+	V1ProductVisibilitySetResponseItemsShowcasesVisibilityNone        V1ProductVisibilitySetResponseItemsShowcasesVisibility = "NONE"
 )
 
 type V1ProductVisibilitySetResponseItemsErrors struct {
@@ -212,40 +157,6 @@ type MoneyMoneyBonus struct {
 	Currency string `json:"currency"` // 货币单位。
 }
 
-// CheckStatus values
-type CheckStatus string
-
-const (
-	CheckStatusProcessing CheckStatus = "processing" // 正在检查中；
-	CheckStatusFailed     CheckStatus = "failed"     // 系统未能成功处理请求；
-	CheckStatusPassed     CheckStatus = "passed"     // 订单已准备好进行备货
-)
-
-type V5FbsPostingProductExemplarStatusV5ResponseProductExemplarMark struct {
-	Mark        string      `json:"mark"`         // 标志代码的值。
-	MarkType    MarkType    `json:"mark_type"`    // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
-	CheckStatus CheckStatus `json:"check_status"` // 检查状态： - `processing`——正在检查中； - `failed`——系统未能成功处理请求； - `passed`——订单已准备好进行备货。
-	ErrorCodes  []string    `json:"error_codes"`  // 检查控制识别码及其他标识时出现的错误。
-}
-
-type V5FbsPostingProductExemplarStatusV5ResponseProductExemplar struct {
-	ExemplarID      int64                                                            `json:"exemplar_id"`       // 样件识别码。
-	GTD             string                                                           `json:"gtd"`               // 货运报关单号码（Cargo Customs Declaration)。
-	GTDCheckStatus  string                                                           `json:"gtd_check_status"`  // 货物报关验证状态。
-	GTDErrorCodes   []string                                                         `json:"gtd_error_codes"`   // 货物报关验证错误代码。
-	RnptErrorCodes  []string                                                         `json:"rnpt_error_codes"`  // 商品批次注册编号验证错误代码。
-	IsGTDAbsent     bool                                                             `json:"is_gtd_absent"`     // 这说明没有输入货物报关单号。
-	IsRnptAbsent    bool                                                             `json:"is_rnpt_absent"`    // 不需要指出商品批次注册号(Product Batch Registration Number)的标志。
-	Marks           []V5FbsPostingProductExemplarStatusV5ResponseProductExemplarMark `json:"marks"`             // 单个商品实例中的控制识别码及其他标识列表。
-	Rnpt            string                                                           `json:"rnpt"`              // 商品批次注册号 (Product Batch Registration Number)。
-	RnptCheckStatus string                                                           `json:"rnpt_check_status"` // 商品批次注册编号验证状态。
-}
-
-type V5FbsPostingProductExemplarStatusV5ResponseProduct struct {
-	Exemplars []V5FbsPostingProductExemplarStatusV5ResponseProductExemplar `json:"exemplars"`  // 副本信息。
-	ProductID int64                                                        `json:"product_id"` // Ozon系统中的商品ID — SKU。
-}
-
 type V1PostingFbsSplitResponsePosting struct {
 	PostingNumber string              `json:"posting_number"` // 货件编号。
 	Products      []V1ProductFbsSplit `json:"products"`       // 货件中的商品列表。
@@ -255,10 +166,6 @@ type V1PostingFbsSplitResponsePosting struct {
 type V1GetFinanceBalanceV1ResponsePaymentsMoney struct {
 	CurrencyCode string  `json:"currency_code"` // 货币单位。
 	Value        float64 `json:"value"`         // 金额。
-}
-
-type V5FbsPostingProductExemplarValidateV5Response struct {
-	Products []V5FbsPostingProductExemplarValidateV5ResponseProduct `json:"products"` // 商品清单。
 }
 
 // 商品展示在哪些橱窗中： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示； - `OZON_SELECT`——在Select和Ozon展示； - `NONE`—...
@@ -281,32 +188,6 @@ type V1ProductVisibilityInfoResponse struct {
 	Items []V1ProductVisibilityInfoResponseItem `json:"items"` // 商品列表。
 }
 
-type ExemplarMark struct {
-	Mark     string   `json:"mark"`      // 标志代码的值。
-	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
-}
-
-type Exemplar struct {
-	GTD          string         `json:"gtd"`            // 货运报关单号码（Cargo Customs Declaration)。
-	IsGTDAbsent  bool           `json:"is_gtd_absent"`  // 不需要指出货运报关单（Cargo Customs Declaration）号码的标志。
-	IsRnptAbsent bool           `json:"is_rnpt_absent"` // 不需要指出商品批次注册号(Product Batch Registration Number)的标志。
-	Marks        []ExemplarMark `json:"marks"`          // 单个商品实例中的控制识别码及其他标识列表。
-	Rnpt         string         `json:"rnpt"`           // 商品批次注册号 (Product Batch Registration Number)。
-	ExemplarID   int64          `json:"exemplar_id"`    // 样件识别码。
-}
-
-type PostingProductExemplarCreateOrGetV6ResponseProduct struct {
-	IsRnptNeeded            bool       `json:"is_rnpt_needed"`             // 说明需要递交商品批次号码。
-	Exemplars               []Exemplar `json:"exemplars"`                  // 副本信息。
-	IsGTDNeeded             bool       `json:"is_gtd_needed"`              // 说明需要递交产品和货件的货物报关单号码。
-	IsMandatoryMarkNeeded   bool       `json:"is_mandatory_mark_needed"`   // 说明需要将标志递交给“诚实标志”。
-	ProductID               int64      `json:"product_id"`                 // Ozon系统中的商品ID — SKU。
-	Quantity                int32      `json:"quantity"`                   // 样件数量。
-	HasImei                 bool       `json:"has_imei"`                   // 存在 IMEI。 若存在 IMEI，则为`true`。
-	IsJwUinNeeded           bool       `json:"is_jw_uin_needed"`           // 是否需要提供珠宝制品的唯一识别编号。
-	IsMandatoryMarkPossible bool       `json:"is_mandatory_mark_possible"` // 是否可以填写“诚实标志”（Chestny ZNAK）信息。
-}
-
 type ErrorData struct {
 	Value   string `json:"value"`   // 出现错误字段的值。
 	Code    string `json:"code"`    // 代码。
@@ -327,32 +208,13 @@ type V1SetProductStairwayDiscountByQuantityResponse struct {
 }
 
 type V1GetFinanceAccrualByDayRequest struct {
-	Date   string `json:"date"`    // 应计日期。最早可查询日期为2022年1月1日。
-	LastID string `json:"last_id"` // 页面上最后一个值的标识符。首次请求请留空。 要获取后续值，请指定上一次请求响应中的 `last_id`。
+	Date   string `json:"date"`    // 应计日期。最早可查询日期为2022年1月1日。 如果您指定`last_id`，请传递上一个请求中的`date`值。
+	LastID string `json:"last_id"` // 页面上最后一个值的标识符。首次请求请留空。 要获取后续值，请指定上一次请求响应中的 `last_id`。 标识符的有效期为15分钟。
 }
 
 type V1GetFinanceAccrualByDayResponseAccrualItemFeesItemFeeFee struct {
-	TypeID  int32             `json:"type_id"` // 应计类型标识符。可通过方法[/v1/finance/accrual/types](#operation/GetFinanceAccrualTypes)获取。
+	TypeID  int32             `json:"type_id"` // 应计类型标识符。请使用[/v1/finance/accrual/types](#operation/GetFinanceAccrualTypes)方法获取参数值。
 	Accrued MoneyMoneyAccrued `json:"accrued"`
-}
-
-type ExemplarsMarks struct {
-	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
-	Mark     string   `json:"mark"`      // 标志代码的值。
-}
-
-type PostingProductExemplarSetV6RequestExemplars struct {
-	IsRnptAbsent bool             `json:"is_rnpt_absent"` // 不需要指出商品批次注册号(Product Batch Registration Number)的标志。
-	Marks        []ExemplarsMarks `json:"marks"`          // 单个商品实例中的控制识别码及其他标识列表。
-	Rnpt         string           `json:"rnpt"`           // 商品批次注册号 (Product Batch Registration Number)。
-	ExemplarID   int64            `json:"exemplar_id"`    // 样件识别码。
-	GTD          string           `json:"gtd"`            // 货运报关单号码（Cargo Customs Declaration)。
-	IsGTDAbsent  bool             `json:"is_gtd_absent"`  // 不需要指出货运报关单（Cargo Customs Declaration）号码的标志。
-}
-
-type PostingProductExemplarSetV6RequestProducts struct {
-	ProductID int64                                         `json:"product_id"` // Ozon系统中的商品ID — SKU。
-	Exemplars []PostingProductExemplarSetV6RequestExemplars `json:"exemplars"`  // 副本信息。
 }
 
 // 销售金额。
@@ -413,31 +275,6 @@ type V1SetProductStairwayDiscountByQuantityRequest struct {
 	SuppressWarnings bool                                                     `json:"suppress_warnings"` // 传递 `true` 可忽略警告并设置折扣。
 }
 
-type V5FbsPostingProductExemplarValidateV5RequestProductExemplarMark struct {
-	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
-	Mark     string   `json:"mark"`      // 标志代码的值。
-}
-
-type V5FbsPostingProductExemplarValidateV5RequestProductExemplar struct {
-	GTD   string                                                            `json:"gtd"`   // 货运报关单号码（Cargo Customs Declaration)。
-	Marks []V5FbsPostingProductExemplarValidateV5RequestProductExemplarMark `json:"marks"` // 单个商品实例中的控制识别码及其他标识列表。
-	Rnpt  string                                                            `json:"rnpt"`  // 商品批次注册号 (Product Batch Registration Number)。
-}
-
-type V5FbsPostingProductExemplarValidateV5RequestProduct struct {
-	Exemplars []V5FbsPostingProductExemplarValidateV5RequestProductExemplar `json:"exemplars"`  // 副本信息。
-	ProductID int64                                                         `json:"product_id"` // Ozon系统中的商品ID — SKU。
-}
-
-type V5FbsPostingProductExemplarValidateV5Request struct {
-	PostingNumber string                                                `json:"posting_number"` // 发货号。
-	Products      []V5FbsPostingProductExemplarValidateV5RequestProduct `json:"products"`       // 商品清单。
-}
-
-type V6FbsPostingProductExemplarCreateOrGetV6Request struct {
-	PostingNumber string `json:"posting_number"` // 发货号。
-}
-
 // 按价目表计算的佣金。
 type MoneyMoneySaleCommission struct {
 	Amount   string `json:"amount"`   // 金额。数值可以为负数。
@@ -493,12 +330,6 @@ type V1GetFinanceAccrualByDayResponseAccrualPosting struct {
 	Products       []V1GetFinanceAccrualByDayResponseAccrualPostingProduct `json:"products"`        // 货件中的商品数据。
 }
 
-type V5FbsPostingProductExemplarStatusV5Response struct {
-	Status        Status                                               `json:"status"`         // 所有样件和备货可用性的验证状态： - `ship_available`——可以备货， - `ship_not_available`——无法备货， - `validation_in_process`——样件正在验证中， - `update_a...
-	PostingNumber string                                               `json:"posting_number"` // 发货号。
-	Products      []V5FbsPostingProductExemplarStatusV5ResponseProduct `json:"products"`       // 商品清单。
-}
-
 type V1ProductVisibilityInfoRequest struct {
 	Skus []string `json:"skus"` // Ozon系统中的商品标识符—— SKU。
 }
@@ -523,7 +354,7 @@ type V1GetFinanceAccrualByDayResponseAccrualItemFees struct {
 	Fees []V1GetFinanceAccrualByDayResponseAccrualItemFeesItemFee `json:"fees"` // 某一商品的应计项目。
 }
 
-// 商品投放平台： - `OZON`——仅在Ozon； - `SELECT`——仅在Select； - `OZON_SELECT`——在Select和Ozon。
+// 商品投放平台： - `OZON`——仅在Ozon。 - `SELECT`——仅在Select。 <br> [在卖家知识库中了解更多关于Ozon Select的信息](https://seller-edu.ozon.ru/libra/ozon...
 type V1ProductVisibilitySetRequestItemPlacementPlacement string
 
 const (
@@ -588,28 +419,25 @@ type V1ProductInfoWarehouseStocksRequest struct {
 	Cursor      string `json:"cursor"`       // 用于选择下一批数据的指针。
 }
 
-type V6FbsPostingProductExemplarCreateOrGetV6Response struct {
-	Products      []PostingProductExemplarCreateOrGetV6ResponseProduct `json:"products"`       // 商品清单。
-	MultiBoxQty   int32                                                `json:"multi_box_qty"`  // 商品包装的箱子数量。
-	PostingNumber string                                               `json:"posting_number"` // 发货号。
-}
-
+// 卖家设置的可见性取值： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示； - `OZON_SELECT`——在Select和Ozon展示。
 type V1ProductVisibilitySetResponseItemsSellerItemPlacement string
 
 const (
 	V1ProductVisibilitySetResponseItemsSellerItemPlacementUnspecified V1ProductVisibilitySetResponseItemsSellerItemPlacement = "UNSPECIFIED"
 	V1ProductVisibilitySetResponseItemsSellerItemPlacementOzon        V1ProductVisibilitySetResponseItemsSellerItemPlacement = "OZON"
 	V1ProductVisibilitySetResponseItemsSellerItemPlacementSelect      V1ProductVisibilitySetResponseItemsSellerItemPlacement = "SELECT"
+	V1ProductVisibilitySetResponseItemsSellerItemPlacementOzonSelect  V1ProductVisibilitySetResponseItemsSellerItemPlacement = "OZON_SELECT"
 )
 
-// 应计类型： - `UNSPECIFIED`——未指定； - `POSTING`——按货件计算的应计项目； - `ITEM`——按商品计算的应计项目； - `NON_ITEM`——不关联商品的卖家层面应计项目。
+// 应计类型： - `UNSPECIFIED`——未指定； - `POSTING`——按货件计算的应计项目； - `ITEM`——按商品计算的应计项目； - `NON_ITEM`——不关联商品的卖家层面应计项目； - `CONTAINER_FE...
 type V1GetFinanceAccrualByDayResponseAccrualAccruedCategory string
 
 const (
-	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryUnspecified V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "UNSPECIFIED"
-	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryPosting     V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "POSTING"
-	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryItem        V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "ITEM"
-	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryNONItem     V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "NON_ITEM"
+	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryUnspecified   V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "UNSPECIFIED"
+	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryPosting       V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "POSTING"
+	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryItem          V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "ITEM"
+	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryNONItem       V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "NON_ITEM"
+	V1GetFinanceAccrualByDayResponseAccrualAccruedCategoryContainerFees V1GetFinanceAccrualByDayResponseAccrualAccruedCategory = "CONTAINER_FEES"
 )
 
 // 不关联商品的卖家层面应计项目。
@@ -633,11 +461,12 @@ type V1GetFinanceAccrualByDayResponseAccrual struct {
 	Date            string                                                 `json:"date"` // 应计日期。
 	ItemFees        V1GetFinanceAccrualByDayResponseAccrualItemFees        `json:"item_fees"`
 	NonItemFee      V1GetFinanceAccrualByDayResponseAccrualNonItemFee      `json:"non_item_fee"`
+	ContainerFees   V1GetFinanceAccrualByDayResponseAccrualContainerFees   `json:"container_fees"`
 }
 
 type V1GetFinanceAccrualByDayResponse struct {
-	Accruals []V1GetFinanceAccrualByDayResponseAccrual `json:"accruals"` // 应计项目列表。
-	LastID   string                                    `json:"last_id"`  // 页面中最后一个值的标识符。
+	Accruals []V1GetFinanceAccrualByDayResponseAccrual `json:"accruals"` // 货件的应计项目列表。
+	LastID   string                                    `json:"last_id"`  // 页面中最后一个值的标识符。 标识符的有效期为15分钟。
 }
 
 type V1ProductVisibilitySetRequestItemPlacement struct {
@@ -648,17 +477,6 @@ type V1ProductVisibilitySetRequestItemPlacement struct {
 type V1ProductVisibilitySetRequest struct {
 	ItemPlacement []V1ProductVisibilitySetRequestItemPlacement `json:"item_placement"` // 商品可见性信息。
 }
-
-// 商品展示在哪些橱窗中： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示； - `OZON_SELECT`——在Select和Ozon展示； - `NONE`—...
-type V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum string
-
-const (
-	V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnumUnspecified V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum = "UNSPECIFIED"
-	V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnumOzon        V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum = "OZON"
-	V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnumSelect      V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum = "SELECT"
-	V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnumOzonSelect  V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum = "OZON_SELECT"
-	V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnumNone        V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum = "NONE"
-)
 
 // 商品在Ozon Select上的销售权限： - `UNSPECIFIED`——未指定； - `RESTRICTED`——商品不可销售； - `ALLOWED`——商品可以销售。
 type V1ProductVisibilitySetResponseItemsSelectPermission string
@@ -688,13 +506,13 @@ const (
 )
 
 type V1ProductVisibilitySetResponseItems struct {
-	SellerItemPlacementList []V1ProductVisibilitySetResponseItemsSellerItemPlacement   `json:"seller_item_placement_list"` // 卖家设置的可见性取值列表： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示。
-	ShowcasesVisibility     V1ProductVisibilitySetResponseItemsShowcasesVisibilityEnum `json:"showcases_visibility"`
-	ShowcasesVisibilityList []V1ProductVisibilitySetResponseItemsShowcasesVisibility   `json:"showcases_visibility_list"` // 商品展示所在的橱窗列表： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示。
-	SKU                     int64                                                      `json:"sku"`                       // Ozon系统中的商品标识符——SKU。
-	Warnings                []string                                                   `json:"warnings"`                  // 警告。
-	SelectPermission        V1ProductVisibilitySetResponseItemsSelectPermission        `json:"select_permission"`
-	SellerItemPlacement     V1ProductVisibilitySetResponseItemsSellerItemPlacementEnum `json:"seller_item_placement"`
+	SellerItemPlacementList []V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnum `json:"seller_item_placement_list"` // 卖家设置的可见性取值列表： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示。
+	ShowcasesVisibility     V1ProductVisibilitySetResponseItemsShowcasesVisibility           `json:"showcases_visibility"`
+	ShowcasesVisibilityList []V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnum `json:"showcases_visibility_list"` // 商品展示所在的橱窗列表： - `UNSPECIFIED`——未指定； - `OZON`——仅在Ozon展示； - `SELECT`——仅在Select展示。
+	SKU                     int64                                                            `json:"sku"`                       // Ozon系统中的商品标识符——SKU。
+	Warnings                []string                                                         `json:"warnings"`                  // 警告。
+	SelectPermission        V1ProductVisibilitySetResponseItemsSelectPermission              `json:"select_permission"`
+	SellerItemPlacement     V1ProductVisibilitySetResponseItemsSellerItemPlacement           `json:"seller_item_placement"`
 }
 
 type V1PostingFbsSplitResponse struct {
@@ -730,12 +548,6 @@ type V1GetFinanceAccrualTypesResponseAccrualType struct {
 	Name        string `json:"name"`        // 应计项目名称。
 	Description string `json:"description"` // 应计项目说明。
 	ID          int32  `json:"id"`          // 应计项目标识符。
-}
-
-type V6FbsPostingProductExemplarSetV6Request struct {
-	MultiBoxQty   int32                                        `json:"multi_box_qty"`  // 商品包装的箱子数量。
-	PostingNumber string                                       `json:"posting_number"` // 发货号。
-	Products      []PostingProductExemplarSetV6RequestProducts `json:"products"`       // 商品清单。
 }
 
 type V1DescriptionCategoryTipsRequest struct {
@@ -791,7 +603,7 @@ type V2GetDiscountTaskListV2Request struct {
 	Status V2GetDiscountTaskListV2RequestDiscountTaskStatus `json:"status"`
 }
 
-// 网站上的商品价格。
+// 买家看到的价格。
 type MoneyMoneyCustomerPrice struct {
 	Amount   string `json:"amount"`   // 金额。
 	Currency string `json:"currency"` // 货币单位。
@@ -874,7 +686,7 @@ type PostingV1GetFbpPostingResponsePostingFinancialData struct {
 }
 
 type PostingV1GetFbpPostingResponsePostingProducts struct {
-	HasIMEI                bool             `json:"has_imei"` // 如果有IMEI，则为`true`。
+	HasImei                bool             `json:"has_imei"` // 如果有IMEI，则为`true`。
 	MarketplaceSellerPrice MoneyMoneyFBPget `json:"marketplace_seller_price"`
 	Name                   string           `json:"name"`       // 商品名称。
 	OfferID                string           `json:"offer_id"`   // 商品在卖家系统中的标识符——货号。
@@ -907,11 +719,196 @@ type PostingV1GetFbpPostingResponse struct {
 	Posting PostingV1GetFbpPostingResponsePosting `json:"posting"`
 }
 
-type ReportV1CreateCompanyFinanceRealizationPostingReportRequest struct {
+type DescriptionV1DescriptionCategoryDependentAttributesRequest struct {
+	DescriptionCategoryID int64 `json:"description_category_id"` // 类目标识符，来自[/v1/description-category/tree](#operation/DescriptionCategoryAPI_GetTree)方法。
+	TypeID                int64 `json:"type_id"`                 // 商品类型标识符，来自[/v1/description-category/tree](#operation/DescriptionCategoryAPI_GetTree)方法。
+}
+
+type DescriptionV1DescriptionCategoryDependentAttributesResponse struct {
+	Result []DescriptionV1DescriptionCategoryDependentAttributesResponseDependentAttributes `json:"result"` // 依赖特征的信息。
+}
+
+type DescriptionV1DescriptionCategoryDependentAttributesResponseDependentAttributes struct {
+	ChildAttributeID  int64 `json:"child_attribute_id"`  // 子特征的标识符。
+	ParentAttributeID int64 `json:"parent_attribute_id"` // 父特征的标识符。
+}
+
+type DescriptionV1DescriptionCategoryDependentAttributesValuesRequest struct {
+	ChildAttributeID      int64  `json:"child_attribute_id"`      // 子特征的标识符。
+	Cursor                string `json:"cursor"`                  // 用于选择下一批数据的指针。
+	DescriptionCategoryID int64  `json:"description_category_id"` // 类目标识符，来自[/v1/description-category/tree](#operation/DescriptionCategoryAPI_GetTree)方法。
+	Limit                 int64  `json:"limit"`                   // 响应中的值数量。
+	ParentAttributeID     int64  `json:"parent_attribute_id"`     // 父特征的标识符。
+	TypeID                int64  `json:"type_id"`                 // 商品类型标识符，来自[/v1/description-category/tree](#operation/DescriptionCategoryAPI_GetTree)方法。
+}
+
+type DescriptionV1DescriptionCategoryDependentAttributesValuesResponse struct {
+	Cursor string                                                                                             `json:"cursor"` // 用于选择下一批数据的指针。
+	Result []DescriptionV1DescriptionCategoryDependentAttributesValuesResponseDependentAttributesValuesResult `json:"result"` // 依赖特征的信息。
+}
+
+type DescriptionV1DescriptionCategoryDependentAttributesValuesResponseDependentAttributesValuesResult struct {
+	Children      []DescriptionV1DescriptionCategoryDependentAttributesValuesResponseDependentAttributesValuesResultChildrenValue `json:"children"`        // 子特征的信息。
+	ParentValue   string                                                                                                          `json:"parent_value"`    // 父特征的值。
+	ParentValueID int64                                                                                                           `json:"parent_value_id"` // 父特征值的标识符。
+}
+
+type DescriptionV1DescriptionCategoryDependentAttributesValuesResponseDependentAttributesValuesResultChildrenValue struct {
+	ChildValue   string `json:"child_value"`    // 子特征的值。
+	ChildValueID int64  `json:"child_value_id"` // 子特征值的标识符。
+}
+
+type ReturnV1BoxGetByBarcodeRequest struct {
+	Barcode int64 `json:"barcode"` // 退货标签上的条形码为`lozon_id`。
+}
+
+type ReturnV1BoxGetByBarcodeResponse struct {
+	BoxBarcode           string                                              `json:"box_barcode"`  // 箱子条形码。
+	BoxID                int64                                               `json:"box_id"`       // 箱子ID。
+	CargoBoxID           string                                              `json:"cargo_box_id"` // 货物ID。
+	DestinationWarehouse ReturnV1BoxGetByBarcodeResponseDestinationWarehouse `json:"destination_warehouse"`
+	Dimensions           ReturnV1BoxGetByBarcodeResponseDimensions           `json:"dimensions"`
+	LabelBarcode         int64                                               `json:"label_barcode"` // 退货标签条形码。如果为`0`，则表示未能获取条形码。
+	ReturnType           ReturnV1BoxGetByBarcodeResponseReturnType           `json:"return_type"`
+	State                ReturnV1BoxGetByBarcodeResponseState                `json:"state"`
+	SupplyID             int64                                               `json:"supply_id"` // 交货标识符。
+	Type                 ReturnV1BoxGetByBarcodeResponseType                 `json:"type_"`
+	UpdatedAt            string                                              `json:"updated_at"` // 最后更新日期。
+	UtilizationReason    ReturnV1BoxGetByBarcodeResponseUtilizationReason    `json:"utilization_reason"`
+	VolumeInLitres       float64                                             `json:"volume_in_litres"` // 箱子体积，单位为升。
+	Warehouse            ReturnV1BoxGetByBarcodeResponseWarehouse            `json:"warehouse"`
+	Weight               int32                                               `json:"weight"` // 箱子重量，单位为克。
+}
+
+// 目的地仓库。
+type ReturnV1BoxGetByBarcodeResponseDestinationWarehouse struct {
+	ID   int64                                                   `json:"id"`   // 仓库标识符。
+	Name string                                                  `json:"name"` // 仓库名称。
+	Type ReturnV1BoxGetByBarcodeResponseDestinationWarehouseType `json:"type_"`
+}
+
+// 仓库类型： - `UNSPECIFIED`——未指定； - `SELLER_WAREHOUSE`——卖方仓库； - `OZON_WAREHOUSE`——Ozon仓库。
+type ReturnV1BoxGetByBarcodeResponseDestinationWarehouseType string
+
+const (
+	ReturnV1BoxGetByBarcodeResponseDestinationWarehouseTypeUnspecified     ReturnV1BoxGetByBarcodeResponseDestinationWarehouseType = "UNSPECIFIED"
+	ReturnV1BoxGetByBarcodeResponseDestinationWarehouseTypeSellerWarehouse ReturnV1BoxGetByBarcodeResponseDestinationWarehouseType = "SELLER_WAREHOUSE"
+	ReturnV1BoxGetByBarcodeResponseDestinationWarehouseTypeOzonWarehouse   ReturnV1BoxGetByBarcodeResponseDestinationWarehouseType = "OZON_WAREHOUSE"
+)
+
+// 箱子尺寸，单位为厘米。
+type ReturnV1BoxGetByBarcodeResponseDimensions struct {
+	Height int32 `json:"height"` // 高度.
+	Length int32 `json:"length"` // 长度.
+	Width  int32 `json:"width"`  // 宽度.
+}
+
+// 退货类型： - `UNSPECIFIED`——未指定； - `SUPPLY_RETURN`——交货退回； - `STOCK_RETURN`——库存退回。
+type ReturnV1BoxGetByBarcodeResponseReturnType string
+
+const (
+	ReturnV1BoxGetByBarcodeResponseReturnTypeUnspecified  ReturnV1BoxGetByBarcodeResponseReturnType = "UNSPECIFIED"
+	ReturnV1BoxGetByBarcodeResponseReturnTypeSupplyReturn ReturnV1BoxGetByBarcodeResponseReturnType = "SUPPLY_RETURN"
+	ReturnV1BoxGetByBarcodeResponseReturnTypeStockReturn  ReturnV1BoxGetByBarcodeResponseReturnType = "STOCK_RETURN"
+)
+
+// 箱子状态： - `UNSPECIFIED`——未指定； - `IN_STORAGE`——可运出； - `CONFIRMED`——已添加到运出申请或可运出； - `APPROVAL`、`BLOCKED`、`PROCESSING`、`NOT_S...
+type ReturnV1BoxGetByBarcodeResponseState string
+
+const (
+	ReturnV1BoxGetByBarcodeResponseStateUnspecified           ReturnV1BoxGetByBarcodeResponseState = "UNSPECIFIED"
+	ReturnV1BoxGetByBarcodeResponseStateINStorage             ReturnV1BoxGetByBarcodeResponseState = "IN_STORAGE"
+	ReturnV1BoxGetByBarcodeResponseStateConfirmed             ReturnV1BoxGetByBarcodeResponseState = "CONFIRMED"
+	ReturnV1BoxGetByBarcodeResponseStateApproval              ReturnV1BoxGetByBarcodeResponseState = "APPROVAL"
+	ReturnV1BoxGetByBarcodeResponseStateBlocked               ReturnV1BoxGetByBarcodeResponseState = "BLOCKED"
+	ReturnV1BoxGetByBarcodeResponseStateProcessing            ReturnV1BoxGetByBarcodeResponseState = "PROCESSING"
+	ReturnV1BoxGetByBarcodeResponseStateRemoved               ReturnV1BoxGetByBarcodeResponseState = "REMOVED"
+	ReturnV1BoxGetByBarcodeResponseStateShipped               ReturnV1BoxGetByBarcodeResponseState = "SHIPPED"
+	ReturnV1BoxGetByBarcodeResponseStateCompensated           ReturnV1BoxGetByBarcodeResponseState = "COMPENSATED"
+	ReturnV1BoxGetByBarcodeResponseStateUtilized              ReturnV1BoxGetByBarcodeResponseState = "UTILIZED"
+	ReturnV1BoxGetByBarcodeResponseStateLoaded                ReturnV1BoxGetByBarcodeResponseState = "LOADED"
+	ReturnV1BoxGetByBarcodeResponseStateNOTShipped            ReturnV1BoxGetByBarcodeResponseState = "NOT_SHIPPED"
+	ReturnV1BoxGetByBarcodeResponseStateLostINTransit         ReturnV1BoxGetByBarcodeResponseState = "LOST_IN_TRANSIT"
+	ReturnV1BoxGetByBarcodeResponseStateReadyFORDelivery      ReturnV1BoxGetByBarcodeResponseState = "READY_FOR_DELIVERY"
+	ReturnV1BoxGetByBarcodeResponseStateGivenOUT              ReturnV1BoxGetByBarcodeResponseState = "GIVEN_OUT"
+	ReturnV1BoxGetByBarcodeResponseStateDeliveryAttemptFailed ReturnV1BoxGetByBarcodeResponseState = "DELIVERY_ATTEMPT_FAILED"
+	ReturnV1BoxGetByBarcodeResponseStateDelivered             ReturnV1BoxGetByBarcodeResponseState = "DELIVERED"
+	ReturnV1BoxGetByBarcodeResponseStateDeliveryCancelled     ReturnV1BoxGetByBarcodeResponseState = "DELIVERY_CANCELLED"
+	ReturnV1BoxGetByBarcodeResponseStateUtilizing             ReturnV1BoxGetByBarcodeResponseState = "UTILIZING"
+	ReturnV1BoxGetByBarcodeResponseStateStoredATDeliveryPoint ReturnV1BoxGetByBarcodeResponseState = "STORED_AT_DELIVERY_POINT"
+	ReturnV1BoxGetByBarcodeResponseStateLost                  ReturnV1BoxGetByBarcodeResponseState = "LOST"
+	ReturnV1BoxGetByBarcodeResponseStateUnpacked              ReturnV1BoxGetByBarcodeResponseState = "UNPACKED"
+)
+
+// 盒子类型： - `UNSPECIFIED`——未指定； - `SUPPLY_SURPLUS`——超额商品； - `SUPPLY_DEFECT`——残次品； - `STOCK`——库存。
+type ReturnV1BoxGetByBarcodeResponseType string
+
+const (
+	ReturnV1BoxGetByBarcodeResponseTypeUnspecified   ReturnV1BoxGetByBarcodeResponseType = "UNSPECIFIED"
+	ReturnV1BoxGetByBarcodeResponseTypeSupplySurplus ReturnV1BoxGetByBarcodeResponseType = "SUPPLY_SURPLUS"
+	ReturnV1BoxGetByBarcodeResponseTypeSupplyDefect  ReturnV1BoxGetByBarcodeResponseType = "SUPPLY_DEFECT"
+	ReturnV1BoxGetByBarcodeResponseTypeStock         ReturnV1BoxGetByBarcodeResponseType = "STOCK"
+)
+
+// 销毁原因： - `UNSPECIFIED`——未指定； - `SELLER_DEMAND`——您已预订销毁； - `EXPIRATION`——商品已过保质期； - `DEFECT_1P`——残次品； - `COMPENSATED_BOX_W...
+type ReturnV1BoxGetByBarcodeResponseUtilizationReason string
+
+const (
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonUnspecified            ReturnV1BoxGetByBarcodeResponseUtilizationReason = "UNSPECIFIED"
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonSellerDemand           ReturnV1BoxGetByBarcodeResponseUtilizationReason = "SELLER_DEMAND"
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonExpiration             ReturnV1BoxGetByBarcodeResponseUtilizationReason = "EXPIRATION"
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonDefect1P               ReturnV1BoxGetByBarcodeResponseUtilizationReason = "DEFECT_1P"
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonCompensatedBOXWASFound ReturnV1BoxGetByBarcodeResponseUtilizationReason = "COMPENSATED_BOX_WAS_FOUND"
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonStorageFault           ReturnV1BoxGetByBarcodeResponseUtilizationReason = "STORAGE_FAULT"
+	ReturnV1BoxGetByBarcodeResponseUtilizationReasonStorageRulesViolation  ReturnV1BoxGetByBarcodeResponseUtilizationReason = "STORAGE_RULES_VIOLATION"
+)
+
+// 仓库信息。
+type ReturnV1BoxGetByBarcodeResponseWarehouse struct {
+	ID   int64  `json:"id"`   // 仓库标识符。
+	Name string `json:"name"` // 仓库名称。
+}
+
+type V1CreateCompanyFinanceRealizationPostingReportRequest struct {
 	Month int32 `json:"month"` // 月份。
 	Year  int32 `json:"year"`  // 年份。
 }
 
-type ReportV1CreateCompanyFinanceRealizationPostingReportResponse struct {
+type V1CreateCompanyFinanceRealizationPostingReportResponse struct {
 	Code string `json:"code"` // 报告的唯一标识符。使用方法[/v1/report/info](#operation/ReportAPI_ReportInfo)获取报告。
 }
+
+// 集装箱应计项目。
+type V1GetFinanceAccrualByDayResponseAccrualContainerFees struct {
+	Fees []V1GetFinanceAccrualByDayResponseAccrualContainerFeesContainerFee `json:"fees"` // 应计项目。
+}
+
+type V1GetFinanceAccrualByDayResponseAccrualContainerFeesContainerFee struct {
+	Accrued MoneyMoneyAccrued `json:"accrued"`
+	TypeID  int32             `json:"type_id"` // 应计项目类型标识符。 请使用[/v1/finance/accrual/types](#operation/GetFinanceAccrualTypes)方法获取参数值。
+}
+
+type V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnum string
+
+const (
+	V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnumUnspecified V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnum = "UNSPECIFIED"
+	V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnumOzon        V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnum = "OZON"
+	V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnumSelect      V1ProductVisibilitySetResponseItemsSellerItemPlacementListEnum = "SELECT"
+)
+
+type V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnum string
+
+const (
+	V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnumUnspecified V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnum = "UNSPECIFIED"
+	V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnumOzon        V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnum = "OZON"
+	V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnumSelect      V1ProductVisibilitySetResponseItemsShowcasesVisibilityListEnum = "SELECT"
+)
+
+// 按数量折扣变更状态。可能的取值： - `ERROR`——修改折扣时出错。请再次调用方法 [/v1/product/stairway-discount/by-quantity/set](#operation/ProductAPI_SetPro...
+type Status string
+
+const (
+	StatusINProcess Status = "IN_PROCESS"
+	StatusError     Status = "ERROR"
+	StatusSuccess   Status = "SUCCESS"
+)

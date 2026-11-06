@@ -36,3 +36,13 @@ func TestGenerateBarcode(t *testing.T) {
 	}
 	_ = resp
 }
+
+func TestBarcodeDelete(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.BarcodeDelete(ctx, &V1BarcodeDeleteRequest{})
+	if err != nil {
+		t.Fatalf("BarcodeDelete() error: %v", err)
+	}
+	_ = resp
+}

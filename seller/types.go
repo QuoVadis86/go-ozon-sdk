@@ -2,16 +2,6 @@ package seller
 
 import "github.com/QuoVadis86/go-ozon-sdk/enum"
 
-// 评级状态： - `UNKNOWN`——未指定； - `OK`——良好； - `WARNING`——指标需关注； - `CRITICAL`——严重。
-type StatusEnum string
-
-const (
-	StatusEnumUnknown  StatusEnum = "UNKNOWN"
-	StatusEnumOK       StatusEnum = "OK"
-	StatusEnumWarning  StatusEnum = "WARNING"
-	StatusEnumCritical StatusEnum = "CRITICAL"
-)
-
 // 评级状态。
 type V1RatingStatus struct {
 	Danger  bool `json:"danger"`  // 指示是否已超过封禁评级阈值。
@@ -139,3 +129,13 @@ type V1RolesByTokenResponse struct {
 	ExpiresAt string                      `json:"expires_at"` // 密钥到期日期。
 	Roles     []RolesByTokenResponseRoles `json:"roles"`      // 可用角色和方式信息。
 }
+
+// 评级状态： - `UNKNOWN`——未指定； - `OK`——良好； - `WARNING`——指标需关注； - `CRITICAL`——严重。
+type StatusEnum string
+
+const (
+	StatusEnumUnknown  StatusEnum = "UNKNOWN"
+	StatusEnumOK       StatusEnum = "OK"
+	StatusEnumWarning  StatusEnum = "WARNING"
+	StatusEnumCritical StatusEnum = "CRITICAL"
+)

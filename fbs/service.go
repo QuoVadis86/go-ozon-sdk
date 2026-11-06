@@ -332,11 +332,99 @@ func (s *Service) SetPostingCutoff(ctx context.Context, req *V1SetPostingCutoffR
 	return &resp, nil
 }
 
+// Deprecated: use /v3/posting/fbs/package-label/create instead
 // 打印标签
 // Note: 在一个请求中最多可以传递20个ID
 func (s *Service) PostingFBSPackageLabel(ctx context.Context, req *PostingPostingFBSPackageLabelRequest) (*PostingPostingFBSPackageLabelResponse, error) {
 	var resp PostingPostingFBSPackageLabelResponse
 	err := s.Client.Post(ctx, "/v2/posting/fbs/package-label", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取向快递员提供的卖家联系方式
+func (s *Service) CarriageCourierContactGet(ctx context.Context, req *V1CarriageCourierContactGetRequest) (*V1CarriageCourierContactGetResponse, error) {
+	var resp V1CarriageCourierContactGetResponse
+	err := s.Client.Post(ctx, "/v1/carriage/courier-contact/get", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 添加或更新向快递员提供的卖家联系方式
+func (s *Service) CarriageCourierContactSet(ctx context.Context, req *V1CarriageCourierContactSetRequest) error {
+	err := s.Client.Post(ctx, "/v1/carriage/courier-contact/set", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 获取已创建样件数据
+func (s *Service) FbsPostingProductExemplarCreateOrGetV6(ctx context.Context, req *V6FbsPostingProductExemplarCreateOrGetV6Request) (*V6FbsPostingProductExemplarCreateOrGetV6Response, error) {
+	var resp V6FbsPostingProductExemplarCreateOrGetV6Response
+	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/create-or-get", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 检查并保存份数数据
+func (s *Service) FbsPostingProductExemplarSetV6(ctx context.Context, req *V6FbsPostingProductExemplarSetV6Request) error {
+	err := s.Client.Post(ctx, "/v6/fbs/posting/product/exemplar/set", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 获取样件添加状态
+func (s *Service) FbsPostingProductExemplarStatusV5(ctx context.Context, req *V5FbsPostingProductExemplarStatusV5Request) (*V5FbsPostingProductExemplarStatusV5Response, error) {
+	var resp V5FbsPostingProductExemplarStatusV5Response
+	err := s.Client.Post(ctx, "/v5/fbs/posting/product/exemplar/status", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 更新样件数据
+func (s *Service) FbsPostingProductExemplarUpdate(ctx context.Context, req *V1FbsPostingProductExemplarUpdateRequest) error {
+	err := s.Client.Post(ctx, "/v1/fbs/posting/product/exemplar/update", req, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 标志代码验证
+func (s *Service) FbsPostingProductExemplarValidateV5(ctx context.Context, req *V5FbsPostingProductExemplarValidateV5Request) (*V5FbsPostingProductExemplarValidateV5Response, error) {
+	var resp V5FbsPostingProductExemplarValidateV5Response
+	err := s.Client.Post(ctx, "/v5/fbs/posting/product/exemplar/validate", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 创建标签生成任务
+func (s *Service) PostingFbsPackageLabelCreate(ctx context.Context, req *PostingV3PostingFbsPackageLabelCreateRequest) (*PostingV3PostingFbsPackageLabelCreateResponse, error) {
+	var resp PostingV3PostingFbsPackageLabelCreateResponse
+	err := s.Client.Post(ctx, "/v3/posting/fbs/package-label/create", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 获取标签文件
+func (s *Service) PostingFbsPackageLabelGet(ctx context.Context, req *PostingV2PostingFbsPackageLabelGetRequest) (*PostingV2PostingFbsPackageLabelGetResponse, error) {
+	var resp PostingV2PostingFbsPackageLabelGetResponse
+	err := s.Client.Post(ctx, "/v2/posting/fbs/package-label/get", req, &resp)
 	if err != nil {
 		return nil, err
 	}

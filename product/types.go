@@ -51,15 +51,6 @@ type V4GetUploadQuotaResponse struct {
 	Total           GetUploadQuotaResponseTotal             `json:"total"`
 }
 
-// Availability values
-type Availability string
-
-const (
-	AvailabilityHidden      Availability = "HIDDEN"      // 隐藏；
-	AvailabilityAvailable   Availability = "AVAILABLE"   // 可用；
-	AvailabilityUnavailable Availability = "UNAVAILABLE" // 不可用，SKU已删除
-)
-
 // DeliverySchema values
 type DeliverySchema string
 
@@ -68,6 +59,15 @@ const (
 	DeliverySchemaFBO         DeliverySchema = "FBO"         // 来自 Ozon 仓库的商品编号；
 	DeliverySchemaFBS         DeliverySchema = "FBS"         // 来自 FBS 仓库的商品编号；
 	DeliverySchemaCrossborder DeliverySchema = "Crossborder" // 跨境销售商品编号
+)
+
+// Availability values
+type Availability string
+
+const (
+	AvailabilityHidden      Availability = "HIDDEN"      // 隐藏；
+	AvailabilityAvailable   Availability = "AVAILABLE"   // 可用；
+	AvailabilityUnavailable Availability = "UNAVAILABLE" // 不可用，SKU已删除
 )
 
 type V1ProductGetRelatedSKUResponseItem struct {
@@ -172,7 +172,7 @@ type AvailabilityReason struct {
 }
 
 type GetProductInfoListResponseAvailability struct {
-	Availability string               `json:"availability"` // 商品可售数量。
+	Availability Availability         `json:"availability"` // 商品可售数量： - `HIDDEN` —— 隐藏； - `AVAILABLE` —— 可用； - `UNAVAILABLE` —— 不可用，SKU已删除。
 	Reasons      []AvailabilityReason `json:"reasons"`      // 商品被隐藏的原因。
 	SKU          int64                `json:"sku"`          // 商品标识符。
 	Source       string               `json:"source"`       // 来源链接。
@@ -269,14 +269,14 @@ type GetProductInfoListResponsePriceIndexes struct {
 
 type V3GetProductInfoListResponseItem struct {
 	HasDiscountedFBOItem  bool                                        `json:"has_discounted_fbo_item"` // 商品在 Ozon 仓库中是否有减价版的同款商品。
-	Price                 string                                      `json:"price"`                   // 商品的含折扣价格。该值将在商品卡片上显示。
+	Price                 string                                      `json:"price"`                   // 商品的非促销最高价格。我们不会将买家看到的价格提高到该值以上。
 	Commissions           []GetProductInfoListResponseCommission      `json:"commissions"`             // 佣金信息。
 	IsAutoarchived        bool                                        `json:"is_autoarchived"`         // 如果商品是自动归档的，则为 `true`。
 	IsDiscounted          bool                                        `json:"is_discounted"`           // 商品是否为减价商品： - 如果商品是由卖家作为减价商品创建的，则为 `true`。 - 如果商品不是减价商品或是由Ozon减价的，则为 `false`。
 	Stocks                GetProductInfoListResponseStocks            `json:"stocks"`
-	MinPrice              string                                      `json:"min_price"`               // 应用促销后的最低价格。
+	MinPrice              string                                      `json:"min_price"`               // 商品最高价格的下限。在自动应用促销活动、将商品自动添加到促销活动以及定价策略中生效。买家看不到该值。
 	Name                  string                                      `json:"name"`                    // 名称。
-	OldPrice              string                                      `json:"old_price"`               // 不含折扣价格。在商品卡片上显示为划线价。
+	OldPrice              string                                      `json:"old_price"`               // 买家看到的划线价。必须大于`price`。
 	Sources               []GetProductInfoListResponseSource          `json:"sources"`                 // 商品创建来源信息。自2023年7月1日起，卖家按SDS模式创建商品。
 	Vat                   string                                      `json:"vat"`                     // 商品的增值税税率。
 	ColorImage            []string                                    `json:"color_image"`             // 商品颜色图片。
@@ -296,7 +296,6 @@ type V3GetProductInfoListResponseItem struct {
 	TypeID                int64                                       `json:"type_id"`       // 商品类型标识符。
 	CurrencyCode          string                                      `json:"currency_code"` // 货币单位。
 	Errors                []GetProductInfoListResponseError           `json:"errors"`        // 创建或验证商品时的错误信息。
-	Images360             []string                                    `json:"images360"`     // 360° 商品图片数组。
 	IsKgt                 bool                                        `json:"is_kgt"`        // `true`，表示商品为超大。仅适用于FBS模式。
 	ModelInfo             GetProductInfoListResponseModelInfo         `json:"model_info"`
 	SKU                   int64                                       `json:"sku"` // 商品在 Ozon 系统中的标识符 — SKU。
@@ -314,7 +313,6 @@ type V3GetProductListResponseItemQuant struct {
 
 type V1ProductImportPicturesRequest struct {
 	Images     []string `json:"images"`      // 数组图片链接。 最多30件。 数组中的图像是按照它们在网站上出现的顺序排列的。 数组中的第一个图像将是主图像。
-	Images360  []string `json:"images360"`   // 360图片的数组。多达70张图片。 格式：公共云存储中的图像链接地址。链接图片的格式是JPG。
 	ProductID  int64    `json:"product_id"`  // Ozon系统中商品的标识符 — `product_id`。
 	ColorImage string   `json:"color_image"` // 市场营销色彩。
 }
@@ -358,6 +356,7 @@ const (
 	V2GetProductListRequestFilterFilterVisibilityManualArchived         V2GetProductListRequestFilterFilterVisibility = "MANUAL_ARCHIVED"
 	V2GetProductListRequestFilterFilterVisibilitySeasonalAutoArchived   V2GetProductListRequestFilterFilterVisibility = "SEASONAL_AUTO_ARCHIVED"
 	V2GetProductListRequestFilterFilterVisibilityVisibleWithFBOStock    V2GetProductListRequestFilterFilterVisibility = "VISIBLE_WITH_FBO_STOCK"
+	V2GetProductListRequestFilterFilterVisibilityShowcaseSelectActive   V2GetProductListRequestFilterFilterVisibility = "SHOWCASE_SELECT_ACTIVE"
 )
 
 // 商品过滤。
@@ -422,20 +421,11 @@ type V1ProductUpdateAttributesRequestValue struct {
 	Value             string `json:"value"`               // 商品特征值。
 }
 
-// State values
-type State string
-
-const (
-	StateUploaded State = "uploaded" // 上传的图像；
-	StatePending  State = "pending"  // 图片上传失败，请稍后重试
-)
-
 type ProductInfoPicturesResponsePicture struct {
-	Is360     bool   `json:"is_360"`     // 表示该图片是一个360图像。
 	IsColor   bool   `json:"is_color"`   // 表示图片是样品颜色。
 	IsPrimary bool   `json:"is_primary"` // 表示该图片是主图像。
 	ProductID int64  `json:"product_id"` // Ozon系统中商品的标识符 — `product_id`。
-	State     State  `json:"state"`      // 图片上传状态。 如果方法[/v1/product/pictures/import](#operation/ProductAPI_ProductImportPictures)被使用，方法的响应将总是`imported` —— 图像未被处理。 ...
+	State     string `json:"state"`      // 图片上传状态。 如果方法[/v1/product/pictures/import](#operation/ProductAPI_ProductImportPictures)被使用，方法的响应将总是`imported` —— 图像未被处理。 ...
 	URL       string `json:"url"`        // 公共云存储中的图像的链接地址。链接图片的格式是JPG或PNG。
 }
 
@@ -570,7 +560,7 @@ type GetProductAttributesResponseImage struct {
 	Default  bool   `json:"default"`
 	FileName string `json:"file_name"`
 	Index    int64  `json:"index"`
-	URL      string `json:"url,omitempty"` // 图片条目为 URL 字符串时的链接。
+	URL      string `json:"url,omitempty"` // URL string returned in images.
 }
 
 type V4GetProductAttributesV4ResponseResult struct {
@@ -612,23 +602,19 @@ type V3GetProductListResponseItem struct {
 	OfferID      string                              `json:"offer_id"`       // 经济商品标识符。
 	ProductID    int64                               `json:"product_id"`     // 商品识别号.
 	Quants       []V3GetProductListResponseItemQuant `json:"quants"`         // 量子清单.
+	SKU          int64                               `json:"sku"`            // Ozon 系统中的商品标识符（SKU）。
 }
 
 // 结果。
 type V3GetProductListResponseResult struct {
-	Items  []V3GetProductListResponseItem `json:"items"`   // 品列表的。
-	LastID string                         `json:"last_id"` // 页面上最后一个值的ID。 要检索以下数值，请从上一个查询的响应中指定 `last_id`。
-	Total  int32                          `json:"total"`   // 品牌总数。
+	Items      []V3GetProductListResponseItem `json:"items"`       // 品列表的。
+	LastID     string                         `json:"last_id"`     // 页面上最后一个值的ID。 要检索以下数值，请从上一个查询的响应中指定 `last_id`。
+	Total      int32                          `json:"total"`       // 品牌总数。
+	TotalItems int64                          `json:"total_items"` // 商品总数。
 }
 
 type V3GetProductListResponse struct {
 	Result V3GetProductListResponseResult `json:"result"`
-}
-
-type GetProductAttributesV3ResponseAttribute struct {
-	AttributeID int64                                           `json:"attribute_id"` // 特征的识别码。
-	ComplexID   int64                                           `json:"complex_id"`   // 支持嵌入属性的特征的识别码。例如，"处理器" 有嵌入属性的特征 "制造商" 和 "二级缓存"。每个嵌入属性都可以有几个值选项。
-	Values      []GetProductAttributesV3ResponseDictionaryValue `json:"values"`       // 特征值的数组。
 }
 
 // 查询结果。
@@ -673,7 +659,6 @@ type V2ProductInfoPicturesResponseItem struct {
 	PrimaryPhoto []string                             `json:"primary_photo"` // 主图链接。
 	Photo        []string                             `json:"photo"`         // 商品照片链接。
 	ColorPhoto   []string                             `json:"color_photo"`   // 上传的颜色样本链接。
-	Photo360     []string                             `json:"photo_360"`     // 360度图片链接。
 	Errors       []V2ProductInfoPicturesResponseError `json:"errors"`        // 商品图片相关错误列表。
 }
 
@@ -728,8 +713,8 @@ type GetImportProductsInfoRequest struct {
 }
 
 type ImportProductsBySKURequestItem struct {
-	OldPrice     string            `json:"old_price"`     // 折扣前的价格（将在商品卡片上划掉）。 以卢布表示。 小数点分隔符是一个点，在点之后最多两个字符。
-	Price        string            `json:"price"`         // 含折扣的商品价格显示在商品卡片上。 如果商品没有折扣，请在此参数中指定值`old_price`。
+	OldPrice     string            `json:"old_price"`     // 买家看到的划线价。必须大于`price`。
+	Price        string            `json:"price"`         // 商品的非促销最高价格。我们不会将买家看到的价格提高到该值以上。
 	SKU          int64             `json:"sku"`           // 在Ozon系统中的商品ID — SKU。
 	Vat          enum.Vat          `json:"vat"`           // 商品增值税税率： - `0` — 免除增值税, - `0.05` — 5%, - `0.07` — 7%, - `0.1` — 10%, - `0.2` — 20%, - `0.22` — 22%。 传递当前有效的出价值。
 	CurrencyCode enum.CurrencyCode `json:"currency_code"` // 价格显示的货币。 传输值必须与个人中心设置中所设置的货币相匹配。 默认情况下，显示`RUB` — 俄罗斯卢布。 例如，如果您设人民币为结算货币，请赋值`CNY`，否则将返回错误。 可能的值： - `RUB` — 俄罗斯卢布, - `BYN`...
@@ -782,6 +767,7 @@ const (
 	V3GetProductListRequestFilterFilterVisibilityManualArchived         V3GetProductListRequestFilterFilterVisibility = "MANUAL_ARCHIVED"
 	V3GetProductListRequestFilterFilterVisibilitySeasonalAutoArchived   V3GetProductListRequestFilterFilterVisibility = "SEASONAL_AUTO_ARCHIVED"
 	V3GetProductListRequestFilterFilterVisibilityVisibleWithFBOStock    V3GetProductListRequestFilterFilterVisibility = "VISIBLE_WITH_FBO_STOCK"
+	V3GetProductListRequestFilterFilterVisibilityShowcaseSelectActive   V3GetProductListRequestFilterFilterVisibility = "SHOWCASE_SELECT_ACTIVE"
 )
 
 // 商品过滤。
@@ -789,12 +775,7 @@ type V3GetProductListRequestFilter struct {
 	ProductID  []string                                      `json:"product_id"` // 基于参数 `product_id` 的过滤。 可以提交数值列表。
 	Visibility V3GetProductListRequestFilterFilterVisibility `json:"visibility"`
 	OfferID    []string                                      `json:"offer_id"` // 基于参数 `offer_id` 的过滤。 可以提交数值列表。
-}
-
-type GetProductAttributesResponsePdf struct {
-	Name     string `json:"name"`      // 文件名称。
-	FileName string `json:"file_name"` // 到PDF文件的路径。
-	Index    int64  `json:"index"`     // 存储库中的设定了顺序的文件指数。
+	Skus       []string                                      `json:"skus"`     // 基于参数 `sku` 的过滤。 可以提交数值列表。
 }
 
 type V1ProductInfoWrongVolumeRequest struct {
@@ -802,73 +783,12 @@ type V1ProductInfoWrongVolumeRequest struct {
 	Limit  int64  `json:"limit"`  // 响应中记录数量的限制。
 }
 
-// 服务类型。 以大写形式传递其中的一个值: - `IS_CODE_SERVICE`, - `IS_NO_CODE_SERVICE`。
-type V2ServiceType string
-
-const (
-	V2ServiceTypeISCodeService   V2ServiceType = "IS_CODE_SERVICE"
-	V2ServiceTypeISNOCodeService V2ServiceType = "IS_NO_CODE_SERVICE"
-)
-
 type V1ProductUpdateAttributesResponse struct {
 	TaskID int64 `json:"task_id"` // 商品更新任务号码。 为检查更新状态，请将接收到的值传至方法 [/v1/product/import/info](#operation/ProductAPI_GetImportProductsInfo)。
 }
 
-// 商品过滤。
-type V3Filter struct {
-	OfferID    []string                                      `json:"offer_id"`   // 基于参数 `offer_id`的过滤。 可以提交数值列表。
-	ProductID  []string                                      `json:"product_id"` // 基于参数 `product_id`的过滤。 可以提交数值列表。
-	Visibility V2GetProductListRequestFilterFilterVisibility `json:"visibility"`
-}
-
 type ProductArchiveRequest struct {
 	ProductID []int64 `json:"product_id"` // Ozon系统中商品的标识符 — `product_id`。您一次最多可以传递100个标识符。
-}
-
-type V3GetProductAttributesV3Request struct {
-	SortBy  string   `json:"sort_by"`  // 对商品进行分类的参数。
-	SortDir string   `json:"sort_dir"` // 分类方向。
-	Filter  V3Filter `json:"filter"`
-	LastID  string   `json:"last_id"` // 页面上最后一个值的ID。运行第一个查询时，将此字段留空。 要检索以下数值，请从上一个查询的响应中指定`last_id`。
-	Limit   int64    `json:"limit"`   // 每页的值的数量。最小 —— 1，最大 —— 1000。
-}
-
-type GetProductAttributesV3ResponseComplexAttribute struct {
-	Attributes []GetProductAttributesV3ResponseAttribute `json:"attributes"` // 商品特征的数组。
-}
-
-type GetProductAttributesResponseImage360 struct {
-	FileName string `json:"file_name"`
-	Index    int64  `json:"index"`
-}
-
-type V3GetProductAttributesV3ResponseResult struct {
-	CategoryID            int64                                            `json:"category_id"`             // 类别ID。 请将其与以下方法结合使用：[/v1/description-category/tree](#operation/DescriptionCategoryAPI_GetTree), [/v1/description-category...
-	Images360             []GetProductAttributesResponseImage360           `json:"images360"`               // 图像数组360。
-	OfferID               string                                           `json:"offer_id"`                // 卖家系统中的商品识别码是卖家系统中的商品标识符是商品货号。
-	PDFList               []GetProductAttributesResponsePdf                `json:"pdf_list"`                // PDF文件的阵列。
-	Attributes            []GetProductAttributesV3ResponseAttribute        `json:"attributes"`              // 商品特性的数组。
-	Height                int32                                            `json:"height"`                  // 包装高度。
-	ID                    int64                                            `json:"id"`                      // 商品特性的识别码。
-	Width                 int32                                            `json:"width"`                   // 包装宽度。
-	Barcode               string                                           `json:"barcode"`                 // 条形码。
-	DescriptionCategoryID int64                                            `json:"description_category_id"` // 类别ID。 请将其与以下方法结合使用：[/v1/description-category/attribute](#operation/DescriptionCategoryAPI_GetAttributes) 和 [/v1/descript...
-	Depth                 int32                                            `json:"depth"`                   // 深度。
-	Images                []GetProductAttributesResponseImage              `json:"images"`                  // 产品图片链接的数组。
-	Weight                int32                                            `json:"weight"`                  // 商品在包装中的重量。
-	TypeID                int64                                            `json:"type_id"`                 // 商品类型的标识符。
-	ColorImage            string                                           `json:"color_image"`             // 市场营销色彩。
-	ComplexAttributes     []GetProductAttributesV3ResponseComplexAttribute `json:"complex_attributes"`      // 已录入的特性的数组。
-	DimensionUnit         enum.DimensionUnit                               `json:"dimension_unit"`          // 尺寸的测量单位。 - `mm` —— 毫米， - `cm` —— 厘米， - `in` —— 英寸。
-	ImageGroupID          string                                           `json:"image_group_id"`          // 用于后续批量下载图像的识别码。
-	Name                  string                                           `json:"name"`                    // 商品名称。最多500个字符。
-	WeightUnit            string                                           `json:"weight_unit"`             // 重量测量单位。
-}
-
-type V3GetProductAttributesV3Response struct {
-	Result []V3GetProductAttributesV3ResponseResult `json:"result"`  // 查询结果。
-	LastID string                                   `json:"last_id"` // 页面上最后一个值的ID。运行第一个查询时，将此字段留空。 要检索以下数值，请从上一个查询的响应中指定`last_id`。
-	Total  string                                   `json:"total"`   // 列表中的商品数量。
 }
 
 type InfoWrongVolumeResponseWrongVolumeProduct struct {
@@ -893,20 +813,19 @@ type V3ImportProductsRequestItem struct {
 	GeoNames                 []string                                  `json:"geo_names"`                   // 地理限制 —— 如有必要，请在个人中心中创建或编辑商品时填写该参数。 该参数为可选项。
 	Height                   int32                                     `json:"height"`                      // 包装高度。
 	Images                   []string                                  `json:"images"`                      // 图像组。 最多30件。 图像以与组中相同的顺序显示在网站上。 如果不传递值 `primary_image`, 组中的第一个图像将是商品的主图。 如果您传递了值 `primary_image`，则最多传递29个图像。 如果 `primary_...
-	ServiceType              V2ServiceType                             `json:"service_type"`
-	OldPrice                 string                                    `json:"old_price"`          // 折扣前的价格（将在产品卡上划掉）。 以卢布表示。分数分隔 符号 — 点, 在点之后最多两个字符。 如果您之前传递了 `old_price`, 那么在更新 `price` 时也请更新 `old_price`。
+	ServiceType              V3ServiceType                             `json:"service_type"`
+	OldPrice                 string                                    `json:"old_price"`          // 买家看到的划线价。必须大于`price`。
 	ComplexAttributes        []V3ImportProductsRequestComplexAttribute `json:"complex_attributes"` // 具有嵌套属性的特征组。
 	CurrencyCode             enum.CurrencyCode                         `json:"currency_code"`      // 价格显示的货币。 传输值必须与个人中心设置中所设置的货币相匹配。 默认情况下，显示`RUB` — 俄罗斯卢布。 例如，如果您设人民币为结算货币，请赋值`CNY`，否则将返回错误。 可能的值： - `RUB` — 俄罗斯卢布, - `BYN`...
 	Depth                    int32                                     `json:"depth"`              // 包装厚度。
 	Promotions               []ImportProductRequestPromotion           `json:"promotions"`         // 促销活动。
 	Name                     string                                    `json:"name"`               // 商品名称。 至500字符。 [商品名称规则](https://global-help.ozon.com/zh/products/requirements/product-info/naming-requirements/)
 	PDFList                  []ImportProductsRequestPdf                `json:"pdf_list"`           // PDF-文件清单。
-	Price                    string                                    `json:"price"`              // 商品价格，包括折扣，显示在商品卡上。 如果商品没有折扣，请指定 此参数中 `old_price` 的值。
+	Price                    string                                    `json:"price"`              // 商品的非促销最高价格。我们不会将买家看到的价格提高到该值以上。
 	WeightUnit               enum.WeightUnit                           `json:"weight_unit"`        // 测重单位： - `g` — 克, - `kg` — 公斤, - `lb` — 磅。
 	PrimaryImage             string                                    `json:"primary_image"`      // 链接到商品主图。
 	ColorImage               string                                    `json:"color_image"`        // 营销色彩。 格式：公共云存储中图像链接的URL。 链接的图像格式为JPG。
 	DimensionUnit            enum.DimensionUnit                        `json:"dimension_unit"`     // 尺寸测量单位: - `mm` — 毫米, - `cm` — 厘米, - `in` — 英寸。
-	Images360                []string                                  `json:"images360"`          // 图像组360。至70件。 格式：公共云存储中图像链接的URL。 链接的图像格式为JPG。
 	OfferID                  string                                    `json:"offer_id"`           // 卖方系统中的商品ID — 货号。至50字符。
 	TypeID                   int64                                     `json:"type_id"`            // 商品类型的标识符。 可以通过方法[/v1/description-category/tree](#operation/DescriptionCategoryAPI_GetTree)的响应参数 `type_id` 获取对应的值。 填写此参数时...
 	Attributes               []V3ImportProductsRequestAttribute        `json:"attributes"`         // 商品特性组。 不同类别的特征不同 — 其可见 [卖家知识库](https://global-help.ozon.com/zh/) 或通过 [API](https://docs.ozon.ru/api/seller/zh/)。
@@ -949,3 +868,26 @@ type ImportProductsBySKUResponse struct {
 type V1ProductUpdateOfferIdRequest struct {
 	UpdateOfferID []UpdateOfferIdRequestUpdateOfferId `json:"update_offer_id"` // 具有新旧货号价值的配对列表。
 }
+
+type V2ProductImportPicturesV2Request struct {
+	Items []V2ProductImportPicturesV2RequestItem `json:"items"` // 商品信息。
+}
+
+type V2ProductImportPicturesV2RequestItem struct {
+	ColorImage   string   `json:"color_image"`   // 营销颜色。
+	Images       []string `json:"images"`        // 图片链接列表。 数组中的图片按其在网站上的显示顺序排列。如果请求中未传递`primary_image`，数组中的第一张图片将成为主图。
+	OfferID      string   `json:"offer_id"`      // 卖家系统中的商品标识符——货号。
+	PrimaryImage string   `json:"primary_image"` // 商品主图。
+}
+
+type V2ProductInfoPicturesV2Response struct {
+	TaskID int64 `json:"task_id"` // 任务标识符。要检查图片状态，请将获取的值传递到方法[/v1/product/import/info](#operation/ProductAPI_GetImportProductsInfo)。
+}
+
+// 服务类型。 以大写形式传递其中的一个值: - `IS_CODE_SERVICE`, - `IS_NO_CODE_SERVICE`。
+type V3ServiceType string
+
+const (
+	V3ServiceTypeISCodeService   V3ServiceType = "IS_CODE_SERVICE"
+	V3ServiceTypeISNOCodeService V3ServiceType = "IS_NO_CODE_SERVICE"
+)

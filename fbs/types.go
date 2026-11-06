@@ -223,16 +223,32 @@ type PostinglistV3status struct {
 }
 
 // 过滤器。
+// IntegrationTypeFlow values
+type IntegrationTypeFlow string
+
+const (
+	IntegrationTypeFlowOzon                IntegrationTypeFlow = "ozon"                  // 由Ozon配送；
+	IntegrationTypeFlowAggregator          IntegrationTypeFlow = "aggregator"            // 外部配送服务，Ozon登记订单；
+	IntegrationTypeFlowNonIntegrated       IntegrationTypeFlow = "non_integrated"        // 卖家自行配送；
+	IntegrationTypeFlowV3plTracking        IntegrationTypeFlow = "3pl_tracking"          // 外部配送服务，卖家登记订单；
+	IntegrationTypeFlowHybrid              IntegrationTypeFlow = "hybrid"                // 混合集成；
+	IntegrationTypeFlowHybridAggregator    IntegrationTypeFlow = "hybrid_aggregator"     // 混合集成，外部配送服务，Ozon登记订单；
+	IntegrationTypeFlowHybridNonIntegrated IntegrationTypeFlow = "hybrid_non_integrated" // 混合集成，卖家自行配送；
+	IntegrationTypeFlowHybrid3plTracking   IntegrationTypeFlow = "hybrid_3pl_tracking"   // 混合集成，外部配送服务，卖家登记订单；
+	IntegrationTypeFlowClickAndCollect     IntegrationTypeFlow = "click_and_collect"     // 在合作伙伴门店预订
+)
+
 type Postingv3GetFbsPostingListRequestFilter struct {
 	DeliveryMethodID      []int64             `json:"delivery_method_id"` // 快递方式ID。按照运输方式筛选。可以使用方法 [/v1/delivery-method/list](#operation/WarehouseAPI_DeliveryMethodList)获取。
 	OrderID               int64               `json:"order_id"`           // 订单ID。
 	ProviderID            []int64             `json:"provider_id"`        // 快递服务ID。按照运输方式筛选。可以使用方法 [/v1/delivery-method/list](#operation/WarehouseAPI_DeliveryMethodList)获取。
 	WarehouseID           []string            `json:"warehouse_id"`       // 仓库ID。可以使用方法 [/v1/warehouse/list](#operation/WarehouseAPI_WarehouseList)获取。
 	FbpFilter             FbpFilter           `json:"fbpFilter"`          // 从合作伙伴仓库（FBP）发货时的货件筛选器： - `ALL` — 响应中将显示所有符合其他筛选器条件的货件； - `ONLY` — 仅显示FBP货件； - `WITHOUT` — 显示除FBP外的所有货件。 默认值为 `ALL`。
-	Since                 string              `json:"since"`              // 应收到货件清单时间段的开始日期。 UTC模式: YYYY-MM-DDThh:mm:ssZ. 例子: 2019-08-24T14:15:22Z.
-	To                    string              `json:"to"`                 // 应收到货件清单时间段的结束日期。 UTC模式： YYYY-MM-DDThh:mm:ssZ. 例子： 2019-08-24T14:15:22Z.
+	Since                 string              `json:"since"`              // 应收到货件清单时间段的开始日期。 UTC模式: GGGG-MM-DDTChCh:MM:SSZ. 例子: 2019-08-24T14:15:22Z.
+	To                    string              `json:"to"`                 // 应收到货件清单时间段的结束日期。 UTC模式： GGGG-MM-DDTChCh:MM:SSZ. 例子： 2019-08-24T14:15:22Z.
 	Status                Status              `json:"status"`             // 货件运输状态： - `awaiting_registration` — 等待注册， - `acceptance_in_progress` — 正在验收， - `awaiting_approve` — 等待确认， - `awaiting_pa...
 	LastChangedStatusDate PostinglistV3status `json:"last_changed_status_date"`
+	IntegrationTypeFlow   []string            `json:"integration_type_flow"` // 货件处理流程： - `ozon`——由Ozon配送； - `aggregator`——外部配送服务，Ozon登记订单； - `non_integrated`——卖家自行配送； - `3pl_tracking`——外部配送服务，卖家登记订单；...
 }
 
 type PostingFinancialDataProduct struct {
@@ -349,14 +365,16 @@ type V2PostingFBSActGetProducts struct {
 }
 
 type V2PostingFBSActGetPostingsResult struct {
-	Status        string                       `json:"status"`         // 货件状态。
-	SellerError   string                       `json:"seller_error"`   // 错误代码说明。
-	UpdatedAt     string                       `json:"updated_at"`     // 货件记录的更新日期和时间。
-	CreatedAt     string                       `json:"created_at"`     // 货件记录的创建日期和时间。
-	Products      []V2PostingFBSActGetProducts `json:"products"`       // 货件中商品列表。
-	ID            int64                        `json:"id"`             // 单据标识符。
-	MultiBoxQty   int32                        `json:"multi_box_qty"`  // 商品包装所用箱数。
-	PostingNumber string                       `json:"posting_number"` // 货件编号。
+	Status         string                       `json:"status"`           // 货件状态。
+	SellerError    string                       `json:"seller_error"`     // 错误代码说明。
+	UpdatedAt      string                       `json:"updated_at"`       // 货件记录的更新日期和时间。
+	CreatedAt      string                       `json:"created_at"`       // 货件记录的创建日期和时间。
+	Products       []V2PostingFBSActGetProducts `json:"products"`         // 货件中商品列表。
+	ID             int64                        `json:"id"`               // 单据标识符。
+	MultiBoxQty    int32                        `json:"multi_box_qty"`    // 商品包装所用箱数。
+	PostingNumber  string                       `json:"posting_number"`   // 货件编号。
+	IsBlrTraceable bool                         `json:"is_blr_traceable"` // `true`，表示商品可追溯。
+	Scanit         string                       `json:"scanit"`           // 标签上的ScanIt条形码。
 }
 
 // 取消信息。
@@ -605,7 +623,7 @@ type MoneyPostingMoney struct {
 }
 
 type PostingV4PostingFbsListResponsePostingsProducts struct {
-	IsMarketplaceBuyout bool              `json:"is_marketplace_buyout"` // `true`，表示Ozon已购买该商品，用于配送至欧亚经济联盟及其他国家。
+	IsMarketplaceBuyout bool              `json:"is_marketplace_buyout"` // 如果 Ozon 已买断该商品，则为`true`。
 	Name                string            `json:"name"`                  // 商品名称。
 	SKU                 int64             `json:"sku"`                   // Ozon系统中的商品标识符，即SKU。
 	Imei                []string          `json:"imei"`                  // 移动设备的 IMEI 列表。
@@ -821,6 +839,8 @@ type PostingV4PostingFbsListResponsePostings struct {
 	OrderID                  int64                                                      `json:"order_id"`                    // 该货件所属订单的标识符。
 	RequireBlrTraceableAttrs bool                                                       `json:"require_blr_traceable_attrs"` // `true`，表示需要填写可追踪属性。
 	ShipmentDateWithoutDelay string                                                     `json:"shipment_date_without_delay"` // 不逾期发运的日期和时间。
+	IntegrationTypeFlow      IntegrationTypeFlow                                        `json:"integration_type_flow"`       // 货件处理流程： - `ozon`——由Ozon配送； - `aggregator`——外部配送服务，Ozon登记订单； - `non_integrated`——卖家自行配送； - `3pl_tracking`——外部配送服务，卖家登记订单；...
+	SortingCenter            PostingV4PostingFbsListResponsePostingsSortingCenter       `json:"sorting_center"`
 }
 
 type PostingV4PostingFbsListResponse struct {
@@ -885,6 +905,7 @@ type PostingV4PostingFbsListRequestFilter struct {
 	To                    string                                                    `json:"to"`                  // 需要获取货件列表的周期结束日期。
 	DeliveryMethodIds     []string                                                  `json:"delivery_method_ids"` // 配送方式标识符。可通过方法[/v1/delivery-method/list](#operation/WarehouseAPI_DeliveryMethodList)获取。
 	LastChangedStatusDate PostingV4PostingFbsListRequestFilterLastChangedStatusDate `json:"last_changed_status_date"`
+	IntegrationTypeFlow   []string                                                  `json:"integration_type_flow"` // 货件处理流程： - `ozon`——由Ozon配送； - `aggregator`——外部配送服务，Ozon登记订单； - `non_integrated`——卖家自行配送； - `3pl_tracking`——外部配送服务，卖家登记订单；...
 }
 
 // 排序方向： - `ASC`——升序； - `DESC`——降序。
@@ -1132,7 +1153,7 @@ type PostingV4PostingFbsUnfulfilledListResponsePostingsProducts struct {
 	Imei                []string          `json:"imei"`   // 移动设备的 IMEI 列表。
 	Price               MoneyPostingMoney `json:"price"`
 	IsBlrTraceable      bool              `json:"is_blr_traceable"`      // `true`，表示商品可追溯。
-	IsMarketplaceBuyout bool              `json:"is_marketplace_buyout"` // `true`，表示Ozon已购买该商品，用于配送至欧亚经济联盟及其他国家。
+	IsMarketplaceBuyout bool              `json:"is_marketplace_buyout"` // 如果 Ozon 已买断该商品，则为`true`。
 	Name                string            `json:"name"`                  // 商品名称。
 	OfferID             string            `json:"offer_id"`              // 卖家系统中的商品标识符，即货号。
 	ProductColor        string            `json:"product_color"`         // 商品颜色。
@@ -1245,10 +1266,12 @@ type PostingV4PostingFbsUnfulfilledListResponsePostings struct {
 	PrrOption                PrrOption                                                             `json:"prr_option"`            // 装卸服务代码： - `lift`——通过电梯搬运上楼； - `stairs`——通过楼梯搬运上楼； - `none`——买家拒绝该服务，无需将商品搬上楼； - `delivery_default`——配送费用已包含在价格中，根据要约条款需将...
 	QuantumID                int64                                                                 `json:"quantum_id"`            // 经济商品标识符。
 	AnalyticsData            PostingV4PostingFbsUnfulfilledListResponsePostingsAnalyticsData       `json:"analytics_data"`
-	IsMultibox               bool                                                                  `json:"is_multibox"`   // 标记货件中是否包含多箱商品，以及是否需要传递其箱数： - `true`——备货前，请通过方法[/v3/posting/multiboxqty/set](#operation/PostingAPI_PostingMultiBoxQtySetV...
-	MultiBoxQty              int32                                                                 `json:"multi_box_qty"` // 商品包装所用箱数。
-	Status                   Status                                                                `json:"status"`        // 货件状态： - `acceptance_in_progress`——接收中； - `arbitration`——仲裁； - `awaiting_approve`——等待确认； - `awaiting_deliver`——等待发运； - `a...
-	VolumeWeight             float64                                                               `json:"volume_weight"` // 商品体积重量。
+	IsMultibox               bool                                                                  `json:"is_multibox"`           // 标记货件中是否包含多箱商品，以及是否需要传递其箱数： - `true`——备货前，请通过方法[/v3/posting/multiboxqty/set](#operation/PostingAPI_PostingMultiBoxQtySetV...
+	MultiBoxQty              int32                                                                 `json:"multi_box_qty"`         // 商品包装所用箱数。
+	Status                   Status                                                                `json:"status"`                // 货件状态： - `acceptance_in_progress`——接收中； - `arbitration`——仲裁； - `awaiting_approve`——等待确认； - `awaiting_deliver`——等待发运； - `a...
+	VolumeWeight             float64                                                               `json:"volume_weight"`         // 商品体积重量。
+	IntegrationTypeFlow      IntegrationTypeFlow                                                   `json:"integration_type_flow"` // 货件处理流程： - `ozon`——由Ozon配送； - `aggregator`——外部配送服务，Ozon登记订单； - `non_integrated`——卖家自行配送； - `3pl_tracking`——外部配送服务，卖家登记订单；...
+	SortingCenter            PostingV4PostingFbsUnfulfilledListResponsePostingsSortingCenter       `json:"sorting_center"`
 }
 
 type PostingV4PostingFbsUnfulfilledListResponse struct {
@@ -1318,7 +1341,7 @@ type V1AssemblyCarriagePostingListResponse struct {
 
 // 带有附加特征的商品列表。
 type V3FbsPostingDetailOptional struct {
-	ProductsWithPossibleMandatoryMark []any `json:"products_with_possible_mandatory_mark"` // 带有可能标志的商品列表。
+	ProductsWithPossibleMandatoryMark []string `json:"products_with_possible_mandatory_mark"` // 带有可能标志的商品列表。
 }
 
 // 发运的计费信息。
@@ -1432,6 +1455,8 @@ type V3FbsPosting struct {
 	Optional                 V3FbsPostingDetailOptional                                 `json:"optional"`
 	TarifficationSteps       []PostingV4PostingFbsListResponsePostingsTarifficationStep `json:"tariffication_steps"` // 计费阶段。
 	Tariffication            V3FbsTariffication                                         `json:"tariffication"`
+	IntegrationTypeFlow      IntegrationTypeFlow                                        `json:"integration_type_flow"` // 货件处理流程： - `ozon`——由Ozon配送； - `aggregator`——外部配送服务，Ozon登记订单； - `non_integrated`——卖家自行配送； - `3pl_tracking`——外部配送服务，卖家登记订单；...
+	SortingCenter            PostingV3FbsPostingSortingCenter                           `json:"sorting_center"`
 }
 
 // 请求结果。
@@ -1605,6 +1630,8 @@ type V3FbsPostingDetail struct {
 	OrderNumber              string                                                     `json:"order_number"`          // 货件所属的订单号。
 	TPLIntegrationType       TPLIntegrationType                                         `json:"tpl_integration_type"`  // 快递服务集成类型： - `ozon` —— 通过Ozon物流的快递。 - `aggregator` —— 外部服务快递，Ozon注册订单。 - `3pl_tracking` —— 外部服务快递，卖家注册订单。 - `non_integrat...
 	ParentPostingNumber      string                                                     `json:"parent_posting_number"` // 母件编号，由该母件拆分出了该货件。
+	IntegrationTypeFlow      IntegrationTypeFlow                                        `json:"integration_type_flow"` // 货件处理流程： - `ozon`——由Ozon配送； - `aggregator`——外部配送服务，Ozon登记订单； - `non_integrated`——卖家自行配送； - `3pl_tracking`——外部配送服务，卖家登记订单；...
+	SortingCenter            PostingV3FbsPostingDetailSortingCenter                     `json:"sorting_center"`
 }
 
 type V3GetFbsPostingResponseV3 struct {
@@ -1695,4 +1722,276 @@ type V4FbsPostingShipPackageV4Response struct {
 type V1SetPostingsRequest struct {
 	PostingNumbers []string `json:"posting_numbers"` // 最新货件列表。
 	CarriageID     int64    `json:"carriage_id"`     // 发运识别符。
+}
+
+type Exemplar struct {
+	ExemplarID   int64          `json:"exemplar_id"`    // 样件识别码。
+	GTD          string         `json:"gtd"`            // 货运报关单号码（Cargo Customs Declaration)。
+	IsGTDAbsent  bool           `json:"is_gtd_absent"`  // 不需要指出货运报关单（Cargo Customs Declaration）号码的标志。
+	IsRnptAbsent bool           `json:"is_rnpt_absent"` // 不需要指出商品批次注册号(Product Batch Registration Number)的标志。
+	Marks        []ExemplarMark `json:"marks"`          // 单个商品实例中的控制识别码及其他标识列表。
+	Rnpt         string         `json:"rnpt"`           // 商品批次注册号 (Product Batch Registration Number)。
+}
+
+// MarkType values
+type MarkType string
+
+const (
+	MarkTypeMandatoryMark MarkType = "mandatory_mark" // “诚实标志”（Chestny ZNAK）强制性标志；
+	MarkTypeJwUin         MarkType = "jw_uin"         // 珠宝制品的唯 一 识别编号；
+	MarkTypeImei          MarkType = "imei"           // 移动设备 IMEI
+)
+
+type ExemplarMark struct {
+	Mark     string   `json:"mark"`      // 标志代码的值。
+	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
+}
+
+type ExemplarsMarks struct {
+	Mark     string   `json:"mark"`      // 标志代码的值。
+	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
+}
+
+type PostingProductExemplarCreateOrGetV6ResponseProduct struct {
+	Exemplars               []Exemplar `json:"exemplars"`                  // 副本信息。
+	HasImei                 bool       `json:"has_imei"`                   // 存在 IMEI。 若存在 IMEI，则为`true`。
+	IsGTDNeeded             bool       `json:"is_gtd_needed"`              // 说明需要递交产品和货件的货物报关单号码。
+	IsJwUinNeeded           bool       `json:"is_jw_uin_needed"`           // 是否需要提供珠宝制品的唯一识别编号。
+	IsMandatoryMarkNeeded   bool       `json:"is_mandatory_mark_needed"`   // 说明需要将标志递交给“诚实标志”。
+	IsMandatoryMarkPossible bool       `json:"is_mandatory_mark_possible"` // 是否可以填写“诚实标志”（Chestny ZNAK）信息。
+	IsRnptNeeded            bool       `json:"is_rnpt_needed"`             // 说明需要递交商品批次号码。
+	ProductID               int64      `json:"product_id"`                 // Ozon系统中的商品ID — SKU。
+	Quantity                int32      `json:"quantity"`                   // 样件数量。
+}
+
+type PostingProductExemplarSetV6RequestExemplars struct {
+	ExemplarID   int64            `json:"exemplar_id"`    // 样件识别码。
+	GTD          string           `json:"gtd"`            // 货运报关单号码（Cargo Customs Declaration)。
+	IsGTDAbsent  bool             `json:"is_gtd_absent"`  // 不需要指出货运报关单（Cargo Customs Declaration）号码的标志。
+	IsRnptAbsent bool             `json:"is_rnpt_absent"` // 不需要指出商品批次注册号(Product Batch Registration Number)的标志。
+	Marks        []ExemplarsMarks `json:"marks"`          // 单个商品实例中的控制识别码及其他标识列表。
+	Rnpt         string           `json:"rnpt"`           // 商品批次注册号 (Product Batch Registration Number)。
+}
+
+type PostingProductExemplarSetV6RequestProducts struct {
+	Exemplars []PostingProductExemplarSetV6RequestExemplars `json:"exemplars"`  // 副本信息。
+	ProductID int64                                         `json:"product_id"` // Ozon系统中的商品ID — SKU。
+}
+
+type PostingV2PostingFbsPackageLabelGetRequest struct {
+	TaskID int64 `json:"task_id"` // 任务ID，取自方法[/v3/posting/fbs/package-label/create](#operation/PostingFbsPackageLabelCreate)的响应。
+}
+
+type PostingV2PostingFbsPackageLabelGetResponse struct {
+	Error   PostingV2PostingFbsPackageLabelGetResponseError  `json:"error"`
+	FileURL string                                           `json:"file_url"` // 标签文件链接。
+	Status  PostingV2PostingFbsPackageLabelGetResponseStatus `json:"status"`
+}
+
+// 生成标签时出现的错误。
+type PostingV2PostingFbsPackageLabelGetResponseError struct {
+	Code    string `json:"code"`    // 错误代码。
+	Message string `json:"message"` // 错误描述。
+}
+
+// 任务状态。
+// Code values
+type Code string
+
+const (
+	CodePending    Code = "pending"     // 任务在队列中；
+	CodeInProgress Code = "in_progress" // 正在生成；
+	CodeCompleted  Code = "completed"   // 标签文件已就绪；
+	CodeError      Code = "error"       // 创建文件时出错
+)
+
+type PostingV2PostingFbsPackageLabelGetResponseStatus struct {
+	Code                 Code                                                                `json:"code"`                   // 标签生成状态： - `pending`——任务在队列中； - `in_progress`——正在生成； - `completed`——标签文件已就绪； - `error`——创建文件时出错。
+	PostingsCount        int32                                                               `json:"postings_count"`         // 已请求标签的货件数量。
+	PrintedPostingsCount int32                                                               `json:"printed_postings_count"` // 成功生成标签的货件数量。
+	UnprintedPostings    []PostingV2PostingFbsPackageLabelGetResponseStatusUnprintedPostings `json:"unprinted_postings"`     // 导致标签生成失败的错误信息。
+}
+
+type PostingV2PostingFbsPackageLabelGetResponseStatusUnprintedPostings struct {
+	Message       string `json:"message"`        // 错误描述。
+	PostingNumber string `json:"posting_number"` // 货件编号
+}
+
+// 关于货件需要送达的分拣中心的信息。适用于`integration_type_flow = hybrid_3pl_tracking`。 如果值为`null`，则无法获取该信息。
+type PostingV3FbsPostingDetailSortingCenter struct {
+	Code string `json:"code"` // 分拣中心代码。
+	Name string `json:"name"` // 分拣中心名称。
+}
+
+// 关于货件需要送达的分拣中心的信息。适用于`integration_type_flow = hybrid_3pl_tracking`。 如果值为`null`，则无法获取该信息。
+type PostingV3FbsPostingSortingCenter struct {
+	Code string `json:"code"` // 分拣中心代码。
+	Name string `json:"name"` // 分拣中心名称。
+}
+
+type PostingV3PostingFbsPackageLabelCreateRequest struct {
+	PostingNumbers []string `json:"posting_numbers"` // 需要标签的货件编号。
+}
+
+type PostingV3PostingFbsPackageLabelCreateResponse struct {
+	Tasks []PostingV3PostingFbsPackageLabelCreateResponseTasks `json:"tasks"` // 任务列表。
+}
+
+// TaskType values
+type TaskType string
+
+const (
+	TaskTypeBigLabel   TaskType = "big_label"   // 用于常规标签；
+	TaskTypeSmallLabel TaskType = "small_label" // 用于小标签
+)
+
+type PostingV3PostingFbsPackageLabelCreateResponseTasks struct {
+	TaskID   int64    `json:"task_id"`   // 任务ID。 请通过方法[/v2/posting/fbs/package-label/get](#operation/PostingFbsPackageLabelGet)获取标签文件。
+	TaskType TaskType `json:"task_type"` // 任务类型： - `big_label`——用于常规标签； - `small_label`——用于小标签。
+}
+
+// 关于货件需要送达的分拣中心的信息。适用于`integration_type_flow = hybrid_3pl_tracking`。 如果值为`null`，则无法获取该信息。
+type PostingV4PostingFbsListResponsePostingsSortingCenter struct {
+	Code string `json:"code"` // 分拣中心代码。
+	Name string `json:"name"` // 分拣中心名称。
+}
+
+// 关于货件需要送达的分拣中心的信息。适用于`integration_type_flow = hybrid_3pl_tracking`。 如果值为`null`，则无法获取该信息。
+type PostingV4PostingFbsUnfulfilledListResponsePostingsSortingCenter struct {
+	Code string `json:"code"` // 分拣中心代码。
+	Name string `json:"name"` // 分拣中心名称。
+}
+
+type V1CarriageCourierContactGetRequest struct {
+	CarriageID int64 `json:"carriage_id"` // 运输标识符。
+}
+
+type V1CarriageCourierContactGetResponse struct {
+	Contact []V1CarriageCourierContactGetResponseContact `json:"contact"` // 卖家联系方式信息。
+}
+
+type V1CarriageCourierContactGetResponseContact struct {
+	CarriageID     int64  `json:"carriage_id"`     // 运输标识符。
+	Comment        string `json:"comment"`         // 给快递员的备注。
+	Phone          string `json:"phone"`           // 卖家的电话号码。
+	UpdatedAt      string `json:"updated_at"`      // 记录最后更新的日期和时间（UTC格式）。
+	WechatNickname string `json:"wechat_nickname"` // 卖家的微信号。
+}
+
+type V1CarriageCourierContactSetRequest struct {
+	CarriageID     int64  `json:"carriage_id"`     // 运输标识符。
+	Comment        string `json:"comment"`         // 给快递员的备注。
+	Phone          string `json:"phone"`           // 卖家的电话号码。
+	WechatNickname string `json:"wechat_nickname"` // 卖家的微信号。
+}
+
+type V1FbsPostingProductExemplarUpdateRequest struct {
+	PostingNumber string `json:"posting_number"` // 发货号。
+}
+
+type V5FbsPostingProductExemplarStatusV5Request struct {
+	PostingNumber string `json:"posting_number"` // 发货号。
+}
+
+type V5FbsPostingProductExemplarStatusV5Response struct {
+	PostingNumber string                                               `json:"posting_number"` // 发货号。
+	Products      []V5FbsPostingProductExemplarStatusV5ResponseProduct `json:"products"`       // 商品清单。
+	Status        Status                                               `json:"status"`         // 所有样件和备货可用性的验证状态： - `ship_available`——可以备货， - `ship_not_available`——无法备货， - `validation_in_process`——样件正在验证中， - `update_a...
+}
+
+type V5FbsPostingProductExemplarStatusV5ResponseProduct struct {
+	Exemplars []V5FbsPostingProductExemplarStatusV5ResponseProductExemplar `json:"exemplars"`  // 副本信息。
+	ProductID int64                                                        `json:"product_id"` // Ozon系统中的商品ID — SKU。
+}
+
+type V5FbsPostingProductExemplarStatusV5ResponseProductExemplar struct {
+	ExemplarID      int64                                                            `json:"exemplar_id"`       // 样件识别码。
+	GTD             string                                                           `json:"gtd"`               // 货运报关单号码（Cargo Customs Declaration)。
+	GTDCheckStatus  string                                                           `json:"gtd_check_status"`  // 货物报关验证状态。
+	GTDErrorCodes   []string                                                         `json:"gtd_error_codes"`   // 货物报关验证错误代码。
+	IsGTDAbsent     bool                                                             `json:"is_gtd_absent"`     // 这说明没有输入货物报关单号。
+	IsRnptAbsent    bool                                                             `json:"is_rnpt_absent"`    // 不需要指出商品批次注册号(Product Batch Registration Number)的标志。
+	Marks           []V5FbsPostingProductExemplarStatusV5ResponseProductExemplarMark `json:"marks"`             // 单个商品实例中的控制识别码及其他标识列表。
+	Rnpt            string                                                           `json:"rnpt"`              // 商品批次注册号 (Product Batch Registration Number)。
+	RnptCheckStatus string                                                           `json:"rnpt_check_status"` // 商品批次注册编号验证状态。
+	RnptErrorCodes  []string                                                         `json:"rnpt_error_codes"`  // 商品批次注册编号验证错误代码。
+}
+
+// CheckStatus values
+type CheckStatus string
+
+const (
+	CheckStatusProcessing CheckStatus = "processing" // 正在检查中；
+	CheckStatusFailed     CheckStatus = "failed"     // 系统未能成功处理请求；
+	CheckStatusPassed     CheckStatus = "passed"     // 订单已准备好进行备货
+)
+
+type V5FbsPostingProductExemplarStatusV5ResponseProductExemplarMark struct {
+	CheckStatus CheckStatus `json:"check_status"` // 检查状态： - `processing`——正在检查中； - `failed`——系统未能成功处理请求； - `passed`——订单已准备好进行备货。
+	ErrorCodes  []string    `json:"error_codes"`  // 检查控制识别码及其他标识时出现的错误。
+	Mark        string      `json:"mark"`         // 标志代码的值。
+	MarkType    MarkType    `json:"mark_type"`    // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
+}
+
+type V5FbsPostingProductExemplarValidateV5Request struct {
+	PostingNumber string                                                `json:"posting_number"` // 发货号。
+	Products      []V5FbsPostingProductExemplarValidateV5RequestProduct `json:"products"`       // 商品清单。
+}
+
+type V5FbsPostingProductExemplarValidateV5RequestProduct struct {
+	Exemplars []V5FbsPostingProductExemplarValidateV5RequestProductExemplar `json:"exemplars"`  // 副本信息。
+	ProductID int64                                                         `json:"product_id"` // Ozon系统中的商品ID — SKU。
+}
+
+type V5FbsPostingProductExemplarValidateV5RequestProductExemplar struct {
+	GTD   string                                                            `json:"gtd"`   // 货运报关单号码（Cargo Customs Declaration)。
+	Marks []V5FbsPostingProductExemplarValidateV5RequestProductExemplarMark `json:"marks"` // 单个商品实例中的控制识别码及其他标识列表。
+	Rnpt  string                                                            `json:"rnpt"`  // 商品批次注册号 (Product Batch Registration Number)。
+}
+
+type V5FbsPostingProductExemplarValidateV5RequestProductExemplarMark struct {
+	Mark     string   `json:"mark"`      // 标志代码的值。
+	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
+}
+
+type V5FbsPostingProductExemplarValidateV5Response struct {
+	Products []V5FbsPostingProductExemplarValidateV5ResponseProduct `json:"products"` // 商品清单。
+}
+
+type V5FbsPostingProductExemplarValidateV5ResponseProduct struct {
+	Error     string                                                         `json:"error"`      // 错误代码。
+	Exemplars []V5FbsPostingProductExemplarValidateV5ResponseProductExemplar `json:"exemplars"`  // 副本信息。
+	ProductID int64                                                          `json:"product_id"` // Ozon系统中的商品ID — SKU。
+	Valid     bool                                                           `json:"valid"`      // 验证结果。如果所有样件的代码都符合要求，那么结果将为 `true`。
+}
+
+type V5FbsPostingProductExemplarValidateV5ResponseProductExemplar struct {
+	Errors []string                                                           `json:"errors"` // 样件验证错误。
+	GTD    string                                                             `json:"gtd"`    // 货运报关单号码（Cargo Customs Declaration)。
+	Marks  []V5FbsPostingProductExemplarValidateV5ResponseProductExemplarMark `json:"marks"`  // 检查控制识别码及其他标识时出现的错误。
+	Rnpt   string                                                             `json:"rnpt"`   // 商品批次注册号 (Product Batch Registration Number)。
+	Valid  bool                                                               `json:"valid"`  // 验证结果。如果样件代码都符合要求，那么结果将为 `true`。
+}
+
+type V5FbsPostingProductExemplarValidateV5ResponseProductExemplarMark struct {
+	Errors   []string `json:"errors"`    // 检查控制识别码及其他标识时出现的错误。
+	Mark     string   `json:"mark"`      // 标志代码的值。
+	MarkType MarkType `json:"mark_type"` // 标志代码类型： - `mandatory_mark` — “诚实标志”（Chestny ZNAK）强制性标志； - `jw_uin` — 珠宝制品的唯 一 识别编号； - `imei` — 移动设备 IMEI。
+	Valid    bool     `json:"valid"`     // 检查结果： 若控制识别码及其他标识符合要求，则为`true`。
+}
+
+type V6FbsPostingProductExemplarCreateOrGetV6Request struct {
+	PostingNumber string `json:"posting_number"` // 发货号。
+}
+
+type V6FbsPostingProductExemplarCreateOrGetV6Response struct {
+	MultiBoxQty   int32                                                `json:"multi_box_qty"`  // 商品包装的箱子数量。
+	PostingNumber string                                               `json:"posting_number"` // 发货号。
+	Products      []PostingProductExemplarCreateOrGetV6ResponseProduct `json:"products"`       // 商品清单。
+}
+
+type V6FbsPostingProductExemplarSetV6Request struct {
+	MultiBoxQty   int32                                        `json:"multi_box_qty"`  // 商品包装的箱子数量。
+	PostingNumber string                                       `json:"posting_number"` // 发货号。
+	Products      []PostingProductExemplarSetV6RequestProducts `json:"products"`       // 商品清单。
 }

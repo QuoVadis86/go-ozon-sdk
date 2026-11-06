@@ -278,12 +278,12 @@ type Timetable struct {
 
 // 头程物流。
 type FirstMile struct {
-	DropoffPointID      string        `json:"dropoff_point_id"`       // 揽收点识别符。
-	FirstMileIsChanging bool          `json:"first_mile_is_changing"` // 仓库设置更新的标识。
-	TimeslotFrom        string        `json:"timeslot_from"`          // 时间段开始时间。
-	TimeslotID          int64         `json:"timeslot_id"`            // 时间段识别符。
-	TimeslotTo          string        `json:"timeslot_to"`            // 时间段结束时间。
-	Type                FirstMileType `json:"type_"`
+	DropoffPointID      string            `json:"dropoff_point_id"`       // 揽收点识别符。
+	FirstMileIsChanging bool              `json:"first_mile_is_changing"` // 仓库设置更新的标识。
+	TimeslotFrom        string            `json:"timeslot_from"`          // 时间段开始时间。
+	TimeslotID          int64             `json:"timeslot_id"`            // 时间段识别符。
+	TimeslotTo          string            `json:"timeslot_to"`            // 时间段结束时间。
+	Type                FirstMileTypeEnum `json:"type_"`
 }
 
 type WorkingDays string
@@ -700,3 +700,12 @@ type V1WarehouseFbsUpdatePickUpTimeslotListRequest struct {
 type V1WarehouseFbsCreateDropOffTimeslotListRequest struct {
 	DropOffPointID int64 `json:"drop_off_point_id"` // 揽收点标识符。
 }
+
+// 头程物流类型 — `PICK_UP` 或 `DROP_OFF`。
+type FirstMileTypeEnum string
+
+const (
+	FirstMileTypeEnumUnspecified FirstMileTypeEnum = "UNSPECIFIED"
+	FirstMileTypeEnumPickUP      FirstMileTypeEnum = "PICK_UP"
+	FirstMileTypeEnumDropOFF     FirstMileTypeEnum = "DROP_OFF"
+)

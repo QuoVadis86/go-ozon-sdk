@@ -343,3 +343,84 @@ func TestPostingFBSPackageLabel(t *testing.T) {
 	}
 	_ = resp
 }
+
+func TestCarriageCourierContactGet(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.CarriageCourierContactGet(ctx, &V1CarriageCourierContactGetRequest{})
+	if err != nil {
+		t.Fatalf("CarriageCourierContactGet() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestCarriageCourierContactSet(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.CarriageCourierContactSet(ctx, &V1CarriageCourierContactSetRequest{})
+	_ = err
+}
+
+func TestFbsPostingProductExemplarCreateOrGetV6(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.FbsPostingProductExemplarCreateOrGetV6(ctx, &V6FbsPostingProductExemplarCreateOrGetV6Request{})
+	if err != nil {
+		t.Fatalf("FbsPostingProductExemplarCreateOrGetV6() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestFbsPostingProductExemplarSetV6(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.FbsPostingProductExemplarSetV6(ctx, &V6FbsPostingProductExemplarSetV6Request{})
+	_ = err
+}
+
+func TestFbsPostingProductExemplarStatusV5(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.FbsPostingProductExemplarStatusV5(ctx, &V5FbsPostingProductExemplarStatusV5Request{})
+	if err != nil {
+		t.Fatalf("FbsPostingProductExemplarStatusV5() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestFbsPostingProductExemplarUpdate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	err := svc.FbsPostingProductExemplarUpdate(ctx, &V1FbsPostingProductExemplarUpdateRequest{})
+	_ = err
+}
+
+func TestFbsPostingProductExemplarValidateV5(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.FbsPostingProductExemplarValidateV5(ctx, &V5FbsPostingProductExemplarValidateV5Request{})
+	if err != nil {
+		t.Fatalf("FbsPostingProductExemplarValidateV5() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestPostingFbsPackageLabelCreate(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.PostingFbsPackageLabelCreate(ctx, &PostingV3PostingFbsPackageLabelCreateRequest{})
+	if err != nil {
+		t.Fatalf("PostingFbsPackageLabelCreate() error: %v", err)
+	}
+	_ = resp
+}
+
+func TestPostingFbsPackageLabelGet(t *testing.T) {
+	cl := skipNoCreds(t)
+	svc := &Service{Client: cl}
+	resp, err := svc.PostingFbsPackageLabelGet(ctx, &PostingV2PostingFbsPackageLabelGetRequest{})
+	if err != nil {
+		t.Fatalf("PostingFbsPackageLabelGet() error: %v", err)
+	}
+	_ = resp
+}

@@ -142,11 +142,6 @@ type GetReturnsListResponseAdditionalInfo struct {
 	IsSuperEconom bool `json:"is_super_econom"` // 如果退货为"超级经济"商品，显示`true`。
 }
 
-type V2ReturnsRfbsVerifyRequest struct {
-	ReturnID                int64  `json:"return_id"`                 // 退货申请的标识符。
-	ReturnMethodDescription string `json:"return_method_description"` // 商品退货方式。
-}
-
 // 退货申请和退款状态。
 type V2ReturnsRfbsListV2ResponseState struct {
 	State                string `json:"state"`                   // 申请状态。
@@ -210,10 +205,6 @@ type RfbsGetV2ResponseClientReturnMethodType struct {
 type V2ReturnsRfbsGetV2ResponseState struct {
 	State     string `json:"state"`      // 状态。
 	StateName string `json:"state_name"` // 状态的俄语名称。
-}
-
-type V2ReturnsRfbsReceiveReturnRequest struct {
-	ReturnID int64 `json:"return_id"` // 退货申请的标识符。
 }
 
 // 取消发起人： - `SELLER` — 卖家， - `CLIENT` — 买家， - `OZON` — Ozon, - `SYSTEM` — 系统， - `DELIVERY` — 配送服务。
@@ -282,11 +273,6 @@ type CreatedAt struct {
 	To   string `json:"to"`   // 结束日期。
 }
 
-type V2ReturnsRfbsCompensateRequest struct {
-	ReturnID           int64  `json:"return_id"`           // 退货申请的标识符。
-	CompensationAmount string `json:"compensation_amount"` // 赔偿金额。
-}
-
 // 按取消申请状态筛选： - `ALL` — 所有状态的申请， - `ON_APPROVAL` — 审核中申请， - `APPROVED` — 已确认申请， - `REJECTED` — 已拒绝申请。
 type V2CancellationStateEnumFilters string
 
@@ -298,16 +284,6 @@ const (
 )
 
 // 过滤器。
-// State values
-type State string
-
-const (
-	StateALL        State = "ALL"         // 所有状态的申请
-	StateONApproval State = "ON_APPROVAL" // 审核中申请
-	StateApproved   State = "APPROVED"    // 已确认申请
-	StateRejected   State = "REJECTED"    // 已拒绝申请
-)
-
 // CancellationInitiator values
 type CancellationInitiator string
 
@@ -317,6 +293,16 @@ const (
 	CancellationInitiatorOzon     CancellationInitiator = "OZON"     // Ozon
 	CancellationInitiatorSystem   CancellationInitiator = "SYSTEM"   // 系统
 	CancellationInitiatorDelivery CancellationInitiator = "DELIVERY" // 配送服务
+)
+
+// State values
+type State string
+
+const (
+	StateALL        State = "ALL"         // 所有状态的申请
+	StateONApproval State = "ON_APPROVAL" // 审核中申请
+	StateApproved   State = "APPROVED"    // 已确认申请
+	StateRejected   State = "REJECTED"    // 已拒绝申请
 )
 
 type GetConditionalCancellationListV2RequestFilters struct {
@@ -433,11 +419,6 @@ type GetReturnsListResponseReturnsItem struct {
 	AdditionalInfo     GetReturnsListResponseAdditionalInfo `json:"additional_info"`
 }
 
-type V2ReturnsRfbsReturnMoneyRequest struct {
-	ReturnID         int64 `json:"return_id"`           // 退货申请的标识符。
-	ReturnForBackWay int64 `json:"return_for_back_way"` // 退还给买家的商品运费金额。
-}
-
 // 退货原因信息。
 type RfbsGetV2ResponseReturnReason struct {
 	ID       int32  `json:"id"`        // 原因的标识符。
@@ -475,12 +456,6 @@ type V2ReturnsRfbsGetResponse struct {
 	Returns RfbsGetResponseReturns `json:"returns"`
 }
 
-type V2ReturnsRfbsRejectRequest struct {
-	ReturnID          int64  `json:"return_id"`           // 退货申请的标识符。
-	Comment           string `json:"comment"`             // 备注。 如果 [/v2/returns/rfbs/get](#operation/RFBSReturnsAPI_ReturnsRfbsGetV2) 方法的响应中 `rejection_reason.is_comment_required` ...
-	RejectionReasonID int64  `json:"rejection_reason_id"` // 取消原因的标识符。 从 [/v2/returns/rfbs/get](#operation/RFBSReturnsAPI_ReturnsRfbsGetV2) 响应中获取的原因列表中传递标识符，参数为 `rejection_reason`。
-}
-
 type V1ReturnsRfbsActionSetRequest struct {
 	Comment            string  `json:"comment"`             // 卖家评论。 对于 `id: -1` 和 `id: -10`，备注为必填项。
 	CompensationAmount float64 `json:"compensation_amount"` // 赔偿金额。 对于 `id: 1020`，备注也为必填项。
@@ -504,5 +479,3 @@ type V1GetReturnsListResponse struct {
 	Returns []GetReturnsListResponseReturnsItem `json:"returns"`  // 退货信息。
 	HasNext bool                                `json:"has_next"` // 如果卖家有其他退货，显示`true`。
 }
-
-type V1Empty any

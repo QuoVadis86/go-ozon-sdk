@@ -18,17 +18,6 @@ func (s *Service) ProductUpdateAttributes(ctx context.Context, req *V1ProductUpd
 	return &resp, nil
 }
 
-// Deprecated: /v3/products/info/attributes 已从官方 API 下线, 请使用 GetProductAttributesV4 (POST /v4/product/info/attributes)。
-// 保留方法以兼容旧调用方, 实际请求转发到 /v4/product/info/attributes。
-func (s *Service) GetProductAttributesV3(ctx context.Context, req *V3GetProductAttributesV3Request) (*V3GetProductAttributesV3Response, error) {
-	var resp V3GetProductAttributesV3Response
-	err := s.Client.Post(ctx, "/v4/product/info/attributes", req, &resp)
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
-}
-
 // 将商品归档
 func (s *Service) ProductArchive(ctx context.Context, req *ProductArchiveRequest) (*BooleanResponse, error) {
 	var resp BooleanResponse
@@ -52,6 +41,7 @@ func (s *Service) GetProductInfoList(ctx context.Context, req *V3GetProductInfoL
 
 // 品类限制、商品的创建和更新
 // Note: - 商品操作——每分钟可创建的商品数量
+// Note: - 解档限额——每天可从归档中恢复多少商品
 func (s *Service) GetUploadQuota(ctx context.Context) (*V4GetUploadQuotaResponse, error) {
 	var resp V4GetUploadQuotaResponse
 	err := s.Client.Post(ctx, "/v4/product/info/limit", nil, &resp)
@@ -82,6 +72,7 @@ func (s *Service) GetProductList(ctx context.Context, req *V3GetProductListReque
 	return &resp, nil
 }
 
+// Deprecated: use /v2/product/pictures/import instead
 // 上传或更新商品图片
 // Note: 该方法对每分钟和每天的商品操作数量有限制
 func (s *Service) ProductImportPictures(ctx context.Context, req *V1ProductImportPicturesRequest) (*V1ProductInfoPicturesResponse, error) {
@@ -185,6 +176,7 @@ func (s *Service) GetProductInfoDescription(ctx context.Context, req *GetProduct
 }
 
 // 从档案中还原商品
+// Note: 该方法对每分钟和每天的商品操作数量有限制
 func (s *Service) ProductUnarchive(ctx context.Context, req *ProductUnarchiveRequest) (*BooleanResponse, error) {
 	var resp BooleanResponse
 	err := s.Client.Post(ctx, "/v1/product/unarchive", req, &resp)
@@ -211,6 +203,17 @@ func (s *Service) DeleteProducts(ctx context.Context, req *V2DeleteProductsReque
 func (s *Service) ImportProductsV3(ctx context.Context, req *V3ImportProductsRequest) (*V3ImportProductsResponse, error) {
 	var resp V3ImportProductsResponse
 	err := s.Client.Post(ctx, "/v3/product/import", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// 上传或更新商品图片
+// Note: 该方法对每分钟和每天的商品操作次数设有限额
+func (s *Service) ProductImportPicturesV2(ctx context.Context, req *V2ProductImportPicturesV2Request) (*V2ProductInfoPicturesV2Response, error) {
+	var resp V2ProductInfoPicturesV2Response
+	err := s.Client.Post(ctx, "/v2/product/pictures/import", req, &resp)
 	if err != nil {
 		return nil, err
 	}

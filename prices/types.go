@@ -137,9 +137,10 @@ type V4GetProductInfoStocksResponseItem struct {
 }
 
 type V4GetProductInfoStocksResponse struct {
-	Cursor string                               `json:"cursor"` // 后续数据的选择标志。
-	Items  []V4GetProductInfoStocksResponseItem `json:"items"`  // 商品信息。
-	Total  int32                                `json:"total"`  // 显示库存信息的独特商品数量。
+	Cursor     string                               `json:"cursor"`      // 后续数据的选择标志。
+	Items      []V4GetProductInfoStocksResponseItem `json:"items"`       // 商品信息。
+	Total      int32                                `json:"total"`       // 显示库存信息的独特商品数量。
+	TotalItems int64                                `json:"total_items"` // 显示库存信息的不重复商品数量。
 }
 
 type V1ProductActionTimerStatusResponseStatuses struct {
@@ -200,13 +201,13 @@ type V4GetProductInfoStocksRequestFilter struct {
 type ItemPricev5 struct {
 	CurrencyCode         enum.CurrencyCode `json:"currency_code"`          // 您的定价货币（与个人中心设置中指定的货币相同）。 可能的值： - `RUB` — 俄罗斯卢布， - `BYN` — 白俄罗斯卢布， - `KZT` — 坚戈， - `EUR` — 欧元， - `USD` — 美元， - `CNY` — 人民...
 	NetPrice             float64           `json:"net_price"`              // 商品成本。
-	Price                float64           `json:"price"`                  // 包含折扣的商品价格（在商品卡片展示的实际售价）。
+	Price                float64           `json:"price"`                  // 商品的非促销最高价格。我们不会将买家看到的价格提高到该值以上。
 	RetailPrice          float64           `json:"retail_price"`           // 供应商按合同约定的价格。如果没有供货合同，该字段将返回为空。
 	Vat                  float64           `json:"vat"`                    // 商品的增值税税率。
 	AutoActionEnabled    bool              `json:"auto_action_enabled"`    // 如果商品启用了促销活动的自动应用，则为 `true`。
-	MarketingSellerPrice float64           `json:"marketing_seller_price"` // 包含卖家促销的商品价格。
-	MinPrice             float64           `json:"min_price"`              // 商品在应用所有折扣后的最低价格。
-	OldPrice             float64           `json:"old_price"`              // 未应用折扣前的价格（在商品卡片显示为划线价）。
+	MarketingSellerPrice float64           `json:"marketing_seller_price"` // 计入卖家促销活动的商品最高价格，不计入Ozon的额外折扣。我们不会将买家看到的价格提高到该值以上。
+	MinPrice             float64           `json:"min_price"`              // 商品最高价格的下限。在自动应用促销活动、将商品自动添加到促销活动以及定价策略中生效。买家看不到该值。
+	OldPrice             float64           `json:"old_price"`              // 买家看到的划线价。必须大于`price`。
 }
 
 // 商品筛选器。
@@ -314,9 +315,10 @@ type GetProductInfoPricesV5ResponseItem struct {
 }
 
 type V5GetProductInfoPricesV5Response struct {
-	Cursor string                               `json:"cursor"` // 用于选择数据的指针。
-	Items  []GetProductInfoPricesV5ResponseItem `json:"items"`  // 商品列表。
-	Total  int32                                `json:"total"`  // 商品列表中的商品数量。
+	Cursor     string                               `json:"cursor"`      // 用于选择数据的指针。
+	Items      []GetProductInfoPricesV5ResponseItem `json:"items"`       // 商品列表。
+	Total      int32                                `json:"total"`       // 商品列表中的商品数量。
+	TotalItems int64                                `json:"total_items"` // 列表中的商品数量。
 }
 
 type V2GetProductInfoStocksByWarehouseFbsRequestV2 struct {
@@ -354,6 +356,15 @@ type Sv1GetProductInfoStocksByWarehouseFbsRequest struct {
 	OfferID []string `json:"offer_id"` // 卖家系统中的商品识别码是卖家系统中的商品标识符是商品货号。
 }
 
+// PriceStrategyEnabled values
+type PriceStrategyEnabled string
+
+const (
+	PriceStrategyEnabledEnabled  PriceStrategyEnabled = "ENABLED"  // 启用。请在`min_price`参数中设置促销活动和策略限制的值
+	PriceStrategyEnabledDisabled PriceStrategyEnabled = "DISABLED" // 关闭。我们会将商品从策略中移除
+	PriceStrategyEnabledUnknown  PriceStrategyEnabled = "UNKNOWN"  // 不更改
+)
+
 // AutoActionEnabled values
 type AutoActionEnabled string
 
@@ -363,27 +374,18 @@ const (
 	AutoActionEnabledUnknown  AutoActionEnabled = "UNKNOWN"  // 不做任何更改，默认赋值
 )
 
-// PriceStrategyEnabled values
-type PriceStrategyEnabled string
-
-const (
-	PriceStrategyEnabledEnabled  PriceStrategyEnabled = "ENABLED"  // 启用
-	PriceStrategyEnabledDisabled PriceStrategyEnabled = "DISABLED" // 关闭
-	PriceStrategyEnabledUnknown  PriceStrategyEnabled = "UNKNOWN"  // 不做任何更改，默认赋值
-)
-
 type ImportProductsPricesRequestPrice struct {
-	OldPrice                          string               `json:"old_price"`                             // 折扣前的价格（在商品卡上划掉）价格以卢布表。小数部分用一个点隔开，点后最多两个字符。 如果商品没有折扣，在这个字段中输入 "0"，并将当前价格提交到 "price"栏中。
-	Price                             string               `json:"price"`                                 // 商品的价格，包括折扣，都显示在商品详情页上。 若参数`old_price`值大于0,则`price`与`old_price`之间应为具体差额。 差额取决于`price`值。 | `price`值 | 最小差额 | |---|---| | <...
-	PriceStrategyEnabled              PriceStrategyEnabled `json:"price_strategy_enabled"`                // 用于自动应用价格策略的属性： - `ENABLED` — 启用; - `DISABLED` — 关闭; - `UNKNOWN` — 不做任何更改，默认赋值。 如果您之前已启用价格策略的自动应用，并且不希望关闭，请在后续请求中赋值 `UNKN...
+	OldPrice                          string               `json:"old_price"`                             // 买家看到的划线价。必须大于`price`。
+	Price                             string               `json:"price"`                                 // 商品的非促销最高价格。我们不会将买家看到的价格提高到该值以上。 如果您通过[/v1/product/import/prices](#operation/ProductAPI_ImportProductsPrices)或[/v1/action...
+	PriceStrategyEnabled              PriceStrategyEnabled `json:"price_strategy_enabled"`                // 自动应用价格策略： - `ENABLED`——启用。请在`min_price`参数中设置促销活动和策略限制的值。 - `DISABLED`——关闭。我们会将商品从策略中移除。 - `UNKNOWN`——不更改。 如果您之前已启用价格策略的自...
 	CurrencyCode                      enum.CurrencyCode    `json:"currency_code"`                         // 您的价格的货币。提交的数值必须与你个人主页设置中的货币相匹配。默认情况下，会提交 `RUB` — 俄罗斯卢布。 例如，如果您设置的相互结算的货币是人民币，请提交数值 `CNY`，否则将返回错误。 可填的数值： - `RUB` — 俄罗斯卢布...
 	ManageElasticBoostingThroughPrice bool                 `json:"manage_elastic_boosting_through_price"` // 管理参与“弹性提升”促销活动： - `true`——如果参数 `price` 的数值符合促销活动条件，系统会自动将商品加入促销活动，或在促销活动中提高折扣与提升比例； - `false`——修改参数 `price` 的数值不会影响商品参与促...
 	OfferID                           string               `json:"offer_id"`                              // 卖家系统中的商品标识符是商品货号。
 	ProductID                         int64                `json:"product_id"`                            // Ozon系统中商品的标识符 — `product_id`。
 	Vat                               enum.Vat             `json:"vat"`                                   // 商品增值税税率： - `0` — 免除增值税, - `0.05` — 5%, - `0.07` — 7%, - `0.1` — 10%, - `0.2` — 20%, - `0.22` — 22%。 传递当前有效的出价值。
 	AutoActionEnabled                 AutoActionEnabled    `json:"auto_action_enabled"`                   // 启用和禁用自动应用活动的属性： - `ENABLED` — 启用; - `DISABLED` — 关闭; - `UNKNOWN` — 不做任何更改，默认赋值。 例如，如果你以前启用了活动的自动应用，并且不想关闭它，请提交`UNKNOWN`。...
-	MinPrice                          string               `json:"min_price"`                             // 应用促销活动后的商品最低价格。<br> [在卖家知识库中了解更多关于最低价格的信息](https://global-help.ozon.com/zh/prices/price-control/)
-	MinPriceForAutoActionsEnabled     bool                 `json:"min_price_for_auto_actions_enabled"`    // `true`，如果为 Ozon 在添加到促销时会考虑最低价格。如果不传递任何值，价格计算的状态将保持不变。
+	MinPrice                          string               `json:"min_price"`                             // 商品最高价格的下限。在自动应用促销活动、将商品自动添加到促销活动以及定价策略中生效。买家看不到该值。
+	MinPriceForAutoActionsEnabled     bool                 `json:"min_price_for_auto_actions_enabled"`    // `true`——将商品自动添加到促销活动时，Ozon会考虑促销活动和策略限制。如果不传递任何值，价格限制的启用状态不会改变。
 	NetPrice                          string               `json:"net_price"`                             // 产品成本价。
 }
 

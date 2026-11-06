@@ -30,3 +30,13 @@ func (s *Service) GenerateBarcode(ctx context.Context, req *V1GenerateBarcodeReq
 	}
 	return &resp, nil
 }
+
+// 将条形码与商品解除绑定
+func (s *Service) BarcodeDelete(ctx context.Context, req *V1BarcodeDeleteRequest) (*V1BarcodeDeleteResponse, error) {
+	var resp V1BarcodeDeleteResponse
+	err := s.Client.Post(ctx, "/v1/barcode/delete", req, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}

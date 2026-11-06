@@ -34,3 +34,23 @@ type V1GenerateBarcodeResult struct {
 type V1GenerateBarcodeResponse struct {
 	Errors []V1GenerateBarcodeResult `json:"errors"` // 生成条形码时出现的错误。
 }
+
+type V1BarcodeDeleteRequest struct {
+	Barcodes []V1BarcodeDeleteRequestBarcodes `json:"barcodes"` // 需要解除绑定的条形码与商品对的列表。
+}
+
+type V1BarcodeDeleteRequestBarcodes struct {
+	Barcode string `json:"barcode"` // 条形码值。
+	SKU     int64  `json:"sku"`     // Ozon系统中的商品标识符——SKU。
+}
+
+type V1BarcodeDeleteResponse struct {
+	Errors []V1BarcodeDeleteResponseErrors `json:"errors"` // 错误列表。如果列表为空，则所有条形码均已成功解除绑定。
+}
+
+type V1BarcodeDeleteResponseErrors struct {
+	Barcode string `json:"barcode"` // 未能解除绑定的条形码。
+	Code    string `json:"code"`    // 错误代码。
+	Error   string `json:"error"`   // 错误描述。
+	SKU     int64  `json:"sku"`     // 未能与条形码解除绑定的商品的标识符。
+}
