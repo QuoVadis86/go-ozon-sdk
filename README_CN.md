@@ -54,15 +54,17 @@ func main() {
 
 ## 响应语言
 
-通过 `ClientOptions.Language` 为每个请求设置 `x-o3-language`：
+通过 `WithLanguage` 只为同一个 client 的指定调用设置 `x-o3-language`：
 
 ```go
-client := ozon.NewClient("your-client-id", "your-api-key", &ozon.ClientOptions{
-    Language: ozon.LanguageZHHans,
-})
+client := ozon.NewClient("your-client-id", "your-api-key", nil)
+zhCtx := ozon.WithLanguage(ctx, ozon.LanguageZHHans)
+resp, err := client.Product.GetProductInfoList(zhCtx, req)
 ```
 
-可选常量为 `LanguageDefault`、`LanguageRU`、`LanguageEN`、`LanguageTR`、`LanguageZHHans`。默认值不发送请求头。SDK 会将 `LanguageZHHans` 映射为准确的请求头值 `zh-Hans`；类目接口的 `LanguageLanguageZHHans` 是独立的请求体枚举，不能用于此选项。
+继续使用原来的 `ctx` 调用不会受到影响。`ClientOptions.Language` 仍可设置客户端默认语言；`WithLanguage` 只覆盖派生 context 对应的调用。即使客户端设置了默认语言，`WithLanguage(ctx, ozon.LanguageDefault)` 也会在该调用中省略语言请求头。
+
+可选常量为 `LanguageDefault`、`LanguageRU`、`LanguageEN`、`LanguageTR`、`LanguageZHHans`。SDK 会将 `LanguageZHHans` 映射为准确的请求头值 `zh-Hans`；类目接口的 `LanguageLanguageZHHans` 是独立的请求体枚举，不能用于此处。
 
 在 `/v3/product/info/list` 的实测中，该请求头可将 `items[].errors[].texts.attribute_name` 等属性名称本地化，但 `texts.message` 中的错误正文仍可能是英文或俄文。处理错误时应依据 `errors[].code`、`attribute_id` 等结构化字段。
 

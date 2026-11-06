@@ -74,8 +74,8 @@ type Options struct {
 	Timeout    time.Duration
 	HTTPClient *http.Client
 
-	// Language selects the x-o3-language value for every request.
-	// LanguageDefault omits the header.
+	// Language sets the default x-o3-language value for requests.
+	// Use WithLanguage to override it for selected calls.
 	Language Language
 }
 
@@ -151,7 +151,11 @@ func (c *Client) doRequest(ctx context.Context, method, path string, reqBody, re
 	req.Header.Set("Content-Type", HeaderContentType)
 	req.Header.Set(HeaderClientID, c.clientID)
 	req.Header.Set(HeaderAPIKey, c.apiKey)
-	languageHeader, err := c.language.headerValue()
+	language := c.language
+	if override, ok := ctx.Value(languageContextKey{}).(Language); ok {
+		language = override
+	}
+	languageHeader, err := language.headerValue()
 	if err != nil {
 		return err
 	}
