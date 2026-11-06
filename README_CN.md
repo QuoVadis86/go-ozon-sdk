@@ -97,6 +97,8 @@ resp, err := client.Product.GetProductInfoList(zhCtx, req)
 
 将最新 Ozon Swagger JSON 保存为 `origin/swagger.json`，然后运行 `go run gen.go`。生成器保留已有方法、类型和字段的顺序，新内容按名称排序并追加。同一份 Swagger 再运行一次，生成文件应保持不变。
 
+新版 Swagger 的接口对比、兼容处理和发布检查请按 [SDK 维护手册](docs/SDK_MAINTENANCE.md) 执行。
+
 ## 示例
 
 ### 管理商品

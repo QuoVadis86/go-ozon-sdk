@@ -957,7 +957,7 @@ func main() {
 			methodNames[dir+":"+name] = true
 			replaceWith := ""
 			desc := item.Description
-			isDep := item.Deprecated || strings.Contains(desc, "停用") || strings.Contains(desc, "弃用")
+			isDep := item.Deprecated || strings.Contains(desc, "停用") || strings.Contains(desc, "弃用") || strings.Contains(desc, "废弃")
 			if isDep && !item.Deprecated {
 				item.Deprecated = true
 			}
@@ -975,7 +975,7 @@ func main() {
 			var notes []string
 			asideRE := regexp.MustCompile(`<aside[^>]*>(.*?)</aside>`)
 			stripRE := regexp.MustCompile(`<[^>]+>`)
-			skipWords := []string{"停用", "弃用", "过时", "关闭", "deprecated"}
+			skipWords := []string{"停用", "弃用", "废弃", "过时", "关闭", "deprecated"}
 			for _, m := range asideRE.FindAllStringSubmatch(desc, -1) {
 				content := m[1]
 				hasSkip := false

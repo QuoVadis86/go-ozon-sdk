@@ -97,6 +97,8 @@ On `/v3/product/info/list`, this header can localize attribute names such as `it
 
 Save the latest Ozon Swagger JSON to `origin/swagger.json`, then run `go run gen.go`. The generator keeps the existing order of methods, types, and fields; new entries are appended in name order. Running it again with the same Swagger should leave the generated files unchanged.
 
+For endpoint diffs, compatibility rules, and release checks, follow the [SDK maintenance guide](docs/SDK_MAINTENANCE.md).
+
 ## Examples
 
 ### Manage Products
