@@ -27,8 +27,9 @@ func (s *Service) GetRealizationReportV1(ctx context.Context, req *V1GetRealizat
 	return &resp, nil
 }
 
-// Deprecated: use /v1/finance/accrual/postings instead
 // 清单数目
+//
+// Deprecated: use /v1/finance/accrual/postings instead
 func (s *Service) FinanceTransactionTotalV3(ctx context.Context, req *V3FinanceTransactionTotalsV3Request) (*V3FinanceTransactionTotalsV3Response, error) {
 	var resp V3FinanceTransactionTotalsV3Response
 	err := s.Client.Post(ctx, "/v3/finance/transaction/totals", req, &resp)
@@ -48,8 +49,9 @@ func (s *Service) GetCompensationReport(ctx context.Context, req *V1GetCompensat
 	return &resp, nil
 }
 
-// Deprecated: use /v1/finance/accrual/postings instead
 // 交易清单
+//
+// Deprecated: use /v1/finance/accrual/postings instead
 func (s *Service) FinanceTransactionListV3(ctx context.Context, req *V3FinanceTransactionListV3Request) (*V3FinanceTransactionListV3Response, error) {
 	var resp V3FinanceTransactionListV3Response
 	err := s.Client.Post(ctx, "/v3/finance/transaction/list", req, &resp)

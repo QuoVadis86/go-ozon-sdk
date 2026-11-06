@@ -7,8 +7,9 @@ import (
 
 type Service struct{ Client *transport.Client }
 
-// Deprecated: use /v4/posting/fbs/list instead
 // 货件列表
+//
+// Deprecated: use /v4/posting/fbs/list instead
 func (s *Service) GetFbsPostingListV3(ctx context.Context, req *Postingv3GetFbsPostingListRequest) (*V3GetFbsPostingListResponseV3, error) {
 	var resp V3GetFbsPostingListResponseV3
 	err := s.Client.Post(ctx, "/v3/posting/fbs/list", req, &resp)
@@ -291,8 +292,9 @@ func (s *Service) CarriageCancel(ctx context.Context, req *V1CarriageCancelReque
 	return &resp, nil
 }
 
-// Deprecated: use /v4/posting/fbs/unfulfilled/list instead
 // 未处理货件列表
+//
+// Deprecated: use /v4/posting/fbs/unfulfilled/list instead
 func (s *Service) GetFbsPostingUnfulfilledList(ctx context.Context, req *Postingv3GetFbsPostingUnfulfilledListRequest) (*Postingv3GetFbsPostingUnfulfilledListResponse, error) {
 	var resp Postingv3GetFbsPostingUnfulfilledListResponse
 	err := s.Client.Post(ctx, "/v3/posting/fbs/unfulfilled/list", req, &resp)
@@ -332,9 +334,10 @@ func (s *Service) SetPostingCutoff(ctx context.Context, req *V1SetPostingCutoffR
 	return &resp, nil
 }
 
-// Deprecated: use /v3/posting/fbs/package-label/create instead
 // 打印标签
 // Note: 在一个请求中最多可以传递20个ID
+//
+// Deprecated: use /v3/posting/fbs/package-label/create instead
 func (s *Service) PostingFBSPackageLabel(ctx context.Context, req *PostingPostingFBSPackageLabelRequest) (*PostingPostingFBSPackageLabelResponse, error) {
 	var resp PostingPostingFBSPackageLabelResponse
 	err := s.Client.Post(ctx, "/v2/posting/fbs/package-label", req, &resp)

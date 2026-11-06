@@ -153,8 +153,9 @@ func (s *Service) Delete(ctx context.Context, req *V1QuestionAnswerDeleteRequest
 	return nil
 }
 
-// Deprecated: use /v2/review/list instead
 // 获取评价列表
+//
+// Deprecated: use /v2/review/list instead
 func (s *Service) ReviewList(ctx context.Context, req *V1ReviewListRequest) (*V1ReviewListResponse, error) {
 	var resp V1ReviewListResponse
 	err := s.Client.Post(ctx, "/v1/review/list", req, &resp)
