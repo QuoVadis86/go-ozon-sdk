@@ -59,6 +59,8 @@ git diff -- '*/types.go' | rg '^[+-]type '
 
 还要核对 `gen.go` 中的 `stableSchemaNames`：以前 Swagger 键的遍历顺序曾使 `seller.StatusEnum`、`warehouse.FirstMileType` 等公开类型被重命名或覆盖。`TopSku` 的实际请求路径曾需修正为 `/v1/question/top-sku`。这些特殊处理不可仅凭一次生成差异删除。
 
+`POST /v4/posting/fbs/list` 的 `filter.last_changed_status_date` 在未设置时必须从请求 JSON 中省略，否则 Ozon 会把空的 `from`、`to` 当作无效时间戳并返回 400。`fbs/posting_fbs_list_json.go` 在非生成文件中实现筛选器的 `MarshalJSON`，保留公开字段 `LastChangedStatusDate` 的值类型；只给生成字段加 `omitempty` 无法省略零值结构体。重新生成后运行 `fbs/posting_fbs_list_json_test.go`，确认未设置时省略整个字段、设置时保留 `from` 和 `to`。
+
 **当前已知兼容风险：**2026 年 11 月快照把五个商品实例操作的标签从 `BetaMethod` 改到了 FBS，生成方法因此从 `beta.Service` 移入 `fbs.Service`；旧 `beta.Service` 入口在 v0.3.2 尚未补齐。后续维护者应在发布下一版前评估旧包的兼容包装及相关类型别名，不能把“接口路径没变”误判为“SDK 公共 API 没变”。
 
 ## 4. 语言行为不能被生成更新破坏
