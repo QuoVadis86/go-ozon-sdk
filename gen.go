@@ -208,32 +208,32 @@ type Schema struct {
 // resolveFieldType determines the Go type for a property, handling enums, arrays, etc.
 func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas map[string]Schema) string {
 	ref, _ := p["$ref"].(string)
-	if ref != "" {
-		rname := strings.TrimPrefix(ref, "#/components/schemas/")
-		if t, ok := cache[rname]; ok {
-			return t
-		}
-		return "any"
-	}
-
 	typ, _ := p["type"].(string)
 	fmt := ""
 	if f, ok := p["format"].(string); ok {
 		fmt = f
 	}
 
-	// Check for array via items field (even without explicit type: array)
-	if _, hasItems := p["items"]; hasItems {
+	// Some Ozon arrays put the item $ref beside a null items field.
+	// Resolve array shape before a property-level $ref.
+	if itemsValue := p["items"]; itemsValue != nil {
 		itemsRaw, _ := json.Marshal(p["items"])
 		var items Schema
 		json.Unmarshal(itemsRaw, &items)
 		itemType := resolveFieldTypeFromSchema(&items, cache, schemas)
 		return "[]" + itemType
 	}
+	if typ == "array" {
+		if ref != "" {
+			return "[]" + resolveFieldTypeFromSchema(&Schema{Ref: ref}, cache, schemas)
+		}
+		return "[]any"
+	}
+	if ref != "" {
+		return resolveFieldTypeFromSchema(&Schema{Ref: ref}, cache, schemas)
+	}
 
 	switch typ {
-	case "array":
-		return "[]any"
 	case "string":
 		return "string"
 	case "enum":
@@ -257,16 +257,24 @@ func resolveFieldType(p map[string]interface{}, cache map[string]string, schemas
 }
 
 func resolveFieldTypeFromSchema(s *Schema, cache map[string]string, schemas map[string]Schema) string {
+	if s == nil {
+		return "any"
+	}
+	if s.Items != nil {
+		return "[]" + resolveFieldTypeFromSchema(s.Items, cache, schemas)
+	}
+	if s.Type == "array" {
+		if s.Ref != "" {
+			return "[]" + resolveFieldTypeFromSchema(&Schema{Ref: s.Ref}, cache, schemas)
+		}
+		return "[]any"
+	}
 	if s.Ref != "" {
 		rname := strings.TrimPrefix(s.Ref, "#/components/schemas/")
 		if t, ok := cache[rname]; ok {
 			return t
 		}
 		return "any"
-	}
-	if s.Type == "array" || s.Items != nil {
-		sub := resolveFieldTypeFromSchema(s.Items, cache, schemas)
-		return "[]" + sub
 	}
 	switch s.Type {
 	case "string":

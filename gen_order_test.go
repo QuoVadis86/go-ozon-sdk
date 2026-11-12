@@ -41,3 +41,27 @@ func (s *Service) Old() {}
 		t.Fatalf("method order = %v, want %v", methods, want)
 	}
 }
+
+func TestResolveFieldType_ArrayWithSiblingRef(t *testing.T) {
+	cache := map[string]string{"DetailsPayment": "DetailsPayment"}
+	for _, tc := range []struct {
+		name  string
+		field map[string]interface{}
+		want  string
+	}{
+		{"array with null items and sibling ref", map[string]interface{}{"type": "array", "items": nil, "$ref": "#/components/schemas/DetailsPayment"}, "[]DetailsPayment"},
+		{"scalar ref", map[string]interface{}{"$ref": "#/components/schemas/DetailsPayment"}, "DetailsPayment"},
+		{"array with item ref", map[string]interface{}{"type": "array", "items": map[string]interface{}{"$ref": "#/components/schemas/DetailsPayment"}}, "[]DetailsPayment"},
+		{"array without item schema", map[string]interface{}{"type": "array", "items": nil}, "[]any"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := resolveFieldType(tc.field, cache, nil); got != tc.want {
+				t.Fatalf("resolveFieldType() = %q, want %q", got, tc.want)
+			}
+		})
+	}
+
+	if got := resolveFieldTypeFromSchema(&Schema{Type: "array", Ref: "#/components/schemas/DetailsPayment"}, cache, nil); got != "[]DetailsPayment" {
+		t.Fatalf("resolveFieldTypeFromSchema() = %q, want []DetailsPayment", got)
+	}
+}
