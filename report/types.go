@@ -107,7 +107,7 @@ type DetailsDeliveryDetails struct {
 
 // 详细信息。
 type CashFlowStatementListResponseDetails struct {
-	Payments           DetailsPayment                               `json:"payments"` // 期间已付清。
+	Payments           []DetailsPayment                             `json:"payments"` // 期间已付清。
 	Period             V3FinanceCashFlowStatementListResponsePeriod `json:"period"`   // 时期。
 	Return             DetailsReturnDetails                         `json:"return"`
 	Services           DetailsService                               `json:"services"`             // 服务。

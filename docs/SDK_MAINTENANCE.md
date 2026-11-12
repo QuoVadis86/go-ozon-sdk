@@ -57,6 +57,8 @@ git diff -- '*/types.go' | rg '^[+-]type '
 
 这些问题来自文档声明与真实响应不一致，单纯重新生成会重现错误。`product/attributes_v4_json.go` 负责三处解码，`gen.go` 为图片模型保留 `URL` 字段；`product/attributes_v4_test.go` 覆盖字符串、数字和两种图片形状。不要把兼容解码写入生成文件，也不要因新版 Swagger 仍写 `string` 就删除它。只有拿到可信的新响应证据且验证兼容性后才能改。
 
+`POST /v1/finance/cash-flow-statement/list` 的 `result.details[].payments` 是另一个 Swagger 结构问题：快照把字段写成 `type: "array"`，却将 `DetailsPayment` 的 `$ref` 放在字段自身，`items` 为 `null`。开启 `with_details` 后，实际响应中的 `payments` 是对象数组。生成器须先判断数组形状，再把这种同级 `$ref` 当作元素类型；生成的 `report.CashFlowStatementListResponseDetails.Payments` 应为 `[]DetailsPayment`。`report/cash_flow_test.go` 验证响应解码，`gen_order_test.go` 验证解析规则。刷新 Swagger 时检查上游是否修正了此结构，不能让字段退回单个结构体。
+
 还要核对 `gen.go` 中的 `stableSchemaNames`：以前 Swagger 键的遍历顺序曾使 `seller.StatusEnum`、`warehouse.FirstMileType` 等公开类型被重命名或覆盖。`TopSku` 的实际请求路径曾需修正为 `/v1/question/top-sku`。这些特殊处理不可仅凭一次生成差异删除。
 
 `POST /v4/posting/fbs/list` 的 `filter.last_changed_status_date` 在未设置时必须从请求 JSON 中省略，否则 Ozon 会把空的 `from`、`to` 当作无效时间戳并返回 400。`fbs/posting_fbs_list_json.go` 在非生成文件中实现筛选器的 `MarshalJSON`，保留公开字段 `LastChangedStatusDate` 的值类型；只给生成字段加 `omitempty` 无法省略零值结构体。重新生成后运行 `fbs/posting_fbs_list_json_test.go`，确认未设置时省略整个字段、设置时保留 `from` 和 `to`。
@@ -75,7 +77,7 @@ env -u OZON_CLIENT_ID -u OZON_API_KEY go test ./...
 git diff --check
 ```
 
-生成的 `service_test.go` 在设置了 `OZON_CLIENT_ID` 和 `OZON_API_KEY` 时可能访问真实接口；普通回归测试务必先移除这两个变量。按需单独运行 `product/attributes_v4_test.go`、`returns/legacy_rfbs_test.go` 和根目录的 `deprecation_test.go`。检查同一份 Swagger 重复运行 `go run gen.go` 后，生成文件字节不再变化。核对 `README.md`、`README_CN.md` 中的接口/模型数与服务表。
+生成的 `service_test.go` 在设置了 `OZON_CLIENT_ID` 和 `OZON_API_KEY` 时可能访问真实接口；普通回归测试务必先移除这两个变量。按需单独运行 `product/attributes_v4_test.go`、`report/cash_flow_test.go`、`returns/legacy_rfbs_test.go` 和根目录的 `deprecation_test.go`。检查同一份 Swagger 重复运行 `go run gen.go` 后，生成文件字节不再变化。核对 `README.md`、`README_CN.md` 中的接口/模型数与服务表。
 
 可将第一次生成后的跟踪文件差异保存到临时文件，再运行一次生成器并比较。这个检查会覆盖 `types.go`、`service.go` 和 `service_test.go`：
 
