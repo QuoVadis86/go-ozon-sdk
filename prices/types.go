@@ -259,10 +259,10 @@ type V1GetProductInfoDiscountedResponse struct {
 }
 
 type MarketingAction struct {
-	DateFrom string `json:"date_from"` // 促销活动开始日期与时间。
-	DateTo   string `json:"date_to"`   // 促销活动结束日期与时间。
-	Title    string `json:"title"`     // 促销活动名称。
-	Value    int32  `json:"value"`     // 促销折扣。
+	DateFrom string  `json:"date_from"` // 促销活动开始日期与时间。
+	DateTo   string  `json:"date_to"`   // 促销活动结束日期与时间。
+	Title    string  `json:"title"`     // 促销活动名称。
+	Value    float64 `json:"value"`     // 促销折扣。
 }
 
 // 营销活动。
