@@ -718,6 +718,10 @@ func appendType(out *[]string, name string, s Schema, cache map[string]string, s
 		desc, _ := pvMap["description"].(string)
 		fn := toGoName(pn)
 		ft := resolveFieldType(pvMap, cache, schemas)
+		// Ozon returns fractional marketing action discounts despite the int32 Swagger schema.
+		if name == "MarketingAction" && pn == "value" {
+			ft = "float64"
+		}
 		if ft == "string" && extractEnumValues(desc) != nil {
 			typeName := shortEnumTypeName(name, pn, enumNameUsed)
 			if shared, ok := sharedEnumTypes[typeName]; ok {
